@@ -1,4 +1,4 @@
-module restaurater
+module github.com/AgiliaErnis/restaurateur/backend
 
 go 1.16
 
