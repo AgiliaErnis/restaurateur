@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const BaseUrl = "https://www.restu.cz"
+
 type Restaurant struct {
 	Name    string
 	Address string
@@ -23,7 +25,7 @@ type RestaurantMenu struct {
 }
 
 func (restaurantMenu *RestaurantMenu) updateMenu(link string) {
-	url := "https://www.restu.cz" + link + "menu"
+	url := BaseUrl + link + "menu"
 	res, _ := http.Get(url)
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
@@ -41,7 +43,7 @@ func (restaurantMenu *RestaurantMenu) updateMenu(link string) {
 }
 
 func visitLink(link string) ([]string, []string, string) {
-	url := "https://www.restu.cz" + link
+	url := BaseUrl + link
 	res, _ := http.Get(url)
 	var images []string
 	var tags []string
@@ -107,7 +109,7 @@ func getAddresses(doc *goquery.Document) []string {
 }
 
 func walkResults(searchTerm string, pageNum int, restaurants *[]Restaurant) {
-	url := "https://www.restu.cz/vyhledavani/?term=" + searchTerm +
+	url := BaseUrl + "/vyhledavani/?term=" + searchTerm +
 		"&page=" + strconv.Itoa(pageNum)
 	res, _ := http.Get(url)
 	defer res.Body.Close()
@@ -140,7 +142,7 @@ func walkResults(searchTerm string, pageNum int, restaurants *[]Restaurant) {
 }
 
 func walkMenuResults(pageNum int, restaurantMenus *[]RestaurantMenu) {
-	url := "https://www.restu.cz/praha/maji-denni-menu" +
+	url := BaseUrl + "/praha/maji-denni-menu" +
 		"/?page=" + strconv.Itoa(pageNum)
 	res, _ := http.Get(url)
 	defer res.Body.Close()
