@@ -1,21 +1,25 @@
 package main
 
 import (
-    "fmt"
-    "github.com/AgiliaErnis/restaurateur/backend/scraper"
+	"fmt"
+	"github.com/AgiliaErnis/restaurateur/backend/scraper"
+	"log"
 )
 
-
 func main() {
-	var restaurants []scraper.Restaurant
-	scraper.WalkResults("shop", 1, &restaurants)
-	for i := range restaurants {
-		fmt.Println(restaurants[i].Name)
+	restaurants, err := scraper.GetRestaurants("shop")
+	if err != nil {
+		log.Fatal(err)
 	}
-	var restaurantMenus []scraper.RestaurantMenu
-	scraper.WalkMenuResults(1, &restaurantMenus)
-	for i := range restaurantMenus {
-		fmt.Println(restaurantMenus[i].RestaurantName)
-		fmt.Println(restaurantMenus[i].WeeklyMenu)
+	for _, restaurant := range restaurants {
+		fmt.Println(restaurant.Name)
+	}
+	restaurantMenus, err := scraper.GetRestaurantMenus()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, menu := range restaurantMenus {
+		fmt.Println(menu.RestaurantName)
+		fmt.Println(menu.WeeklyMenu)
 	}
 }

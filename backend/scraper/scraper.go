@@ -1,8 +1,9 @@
 package scraper
 
 import (
+	"errors"
+	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,7 +11,7 @@ import (
 
 const RestuBaseUrl = "https://www.restu.cz"
 
-type Restaurant struct {
+type restaurant struct {
 	Name    string
 	Address string
 	Images  []string
@@ -18,17 +19,31 @@ type Restaurant struct {
 	Rating  string
 }
 
-type RestaurantMenu struct {
-	RestaurantName string
-	WeeklyMenu     map[string]string
+type restaurantMenu struct {
+	RestaurantName       string
+	WeeklyMenu map[string]string
 }
 
-func (restaurantMenu *RestaurantMenu) UpdateMenu(link string) {
+type requestError struct {
+	StatusCode int
+	Err        error
+}
+
+func (req *requestError) Error() string {
+	return fmt.Sprintf("Status %d: Error: %v", req.StatusCode, req.Err)
+}
+
+func getRestaurantMenu(link, restaurantName string) (restaurantMenu, error) {
+	menu := restaurantMenu{RestaurantName: restaurantName,
+		WeeklyMenu: make(map[string]string)}
 	url := RestuBaseUrl + link + "menu"
-	res, _ := http.Get(url)
+	res, err := http.Get(url)
+	if err != nil {
+		return menu, err
+	}
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		log.Fatal(err)
+		return menu, err
 	}
 	doc.Find(".menu-section").Each(func(i int, s *goquery.Selection) {
 		foundDate := s.Find("h4").Text()
@@ -36,23 +51,31 @@ func (restaurantMenu *RestaurantMenu) UpdateMenu(link string) {
 			food := s.Find(".menu-section__item-desc").Text()
 			price := s.Find(".menu-section__item-price").Text()
 			item := food + " " + price
-			restaurantMenu.WeeklyMenu[foundDate] = item
+			menu.WeeklyMenu[foundDate] = item
 		})
 	})
+	return menu, nil
 }
 
-func visitLink(link string) ([]string, []string, string) {
+func visitLink(link, name, address string) (restaurant, error) {
+	newRestaurant := restaurant{Name: name, Address: address}
 	url := RestuBaseUrl + link
-	res, _ := http.Get(url)
+	res, err := http.Get(url)
+	if err != nil {
+		return newRestaurant, err
+	}
 	var images []string
 	var tags []string
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+		return newRestaurant, &requestError{
+			StatusCode: res.StatusCode,
+			Err:        errors.New("Couldn't visit the link " + link),
+		}
 	}
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		log.Fatal(err)
+		return newRestaurant, err
 	}
 	doc.Find("picture").Each(func(i int, s *goquery.Selection) {
 		s.Find("img").Each(func(i int, s *goquery.Selection) {
@@ -65,20 +88,20 @@ func visitLink(link string) ([]string, []string, string) {
 		tags = append(tags, tag)
 	})
 	ratingChart := doc.Find(".rating-chart")
-	rating := ratingChart.Find("figcaption").Text()
-	for i := range images {
-		if strings.Contains(images[i], "placeholder.svg") {
-			images = images[:i]
+	newRestaurant.Rating = ratingChart.Find("figcaption").Text()
+	for i, image := range images {
+		if strings.Contains(image, "placeholder.svg") {
+			newRestaurant.Images = images[:i]
 			break
 		}
 	}
-	for i := range tags {
-		if strings.Contains(tags[i], "Další") {
-			tags = tags[:i]
+	for i, tag := range tags {
+		if strings.Contains(tag, "Další") {
+			newRestaurant.Tags = tags[:i]
 			break
 		}
 	}
-	return images, tags, rating
+	return newRestaurant, nil
 }
 
 func getLinks(doc *goquery.Document) []string {
@@ -107,61 +130,85 @@ func getAddresses(doc *goquery.Document) []string {
 	return addresses
 }
 
-func WalkResults(searchTerm string, pageNum int, restaurants *[]Restaurant) {
-	url := RestuBaseUrl + "/vyhledavani/?term=" + searchTerm +
-		"&page=" + strconv.Itoa(pageNum)
-	res, _ := http.Get(url)
-	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-	}
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	links := getLinks(doc)
-	names := getNames(doc)
-	addresses := getAddresses(doc)
-	for i := range links {
-		name := names[i]
-		address := addresses[i]
-		images, tags, rating := visitLink(links[i])
-		restaurant := Restaurant{
-			Name:    name,
-			Address: address,
-			Images:  images,
-			Tags:    tags,
-			Rating:  rating}
-		*restaurants = append(*restaurants, restaurant)
-	}
-	// continue to the next page if the current one had results
-	if len(links) != 0 {
-		WalkResults(searchTerm, pageNum+1, restaurants)
+func GetRestaurants(searchTerm string) ([]restaurant, error) {
+	var restaurants []restaurant
+	pageNum := 1
+	for {
+		url := RestuBaseUrl + "/vyhledavani/?term=" + searchTerm +
+			"&page=" + strconv.Itoa(pageNum)
+		res, err := http.Get(url)
+		if err != nil {
+			return restaurants, err
+		}
+		fmt.Printf("%c[2K", 27)
+		fmt.Printf(" Processing search page %d\r", pageNum)
+		defer res.Body.Close()
+		if res.StatusCode != 200 {
+			return restaurants, &requestError{
+				StatusCode: res.StatusCode,
+				Err:        errors.New("Couldn't acces URL " + url),
+			}
+		}
+		doc, err := goquery.NewDocumentFromReader(res.Body)
+		if err != nil {
+			return restaurants, nil
+		}
+		links := getLinks(doc)
+		names := getNames(doc)
+		addresses := getAddresses(doc)
+		for i := range links {
+			name := names[i]
+			address := addresses[i]
+			newRestaurant, err := visitLink(links[i], name, address)
+			if err != nil {
+				return restaurants, err
+			}
+			restaurants = append(restaurants, newRestaurant)
+		}
+		if len(links) == 0 {
+			return restaurants, nil
+		} else {
+			pageNum += 1
+		}
 	}
 }
 
-func WalkMenuResults(pageNum int, restaurantMenus *[]RestaurantMenu) {
-	url := RestuBaseUrl + "/praha/maji-denni-menu" +
-		"/?page=" + strconv.Itoa(pageNum)
-	res, _ := http.Get(url)
-	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-	}
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	links := getLinks(doc)
-	names := getNames(doc)
-	for i := range links {
-		restaurantMenu := RestaurantMenu{RestaurantName: names[i],
-			WeeklyMenu: make(map[string]string)}
-		restaurantMenu.UpdateMenu(links[i])
-		*restaurantMenus = append(*restaurantMenus, restaurantMenu)
-	}
-	// continue to the next page if the current one had results
-	if len(links) != 0 {
-		WalkMenuResults(pageNum+1, restaurantMenus)
+func GetRestaurantMenus() ([]restaurantMenu, error) {
+	var restaurantMenus []restaurantMenu
+	pageNum := 1
+	for {
+		fmt.Printf("%c[2K", 27)
+		fmt.Printf(" Processing menus page %d\r", pageNum)
+		url := RestuBaseUrl + "/praha/maji-denni-menu" +
+			"/?page=" + strconv.Itoa(pageNum)
+		res, err := http.Get(url)
+		if err != nil {
+			return restaurantMenus, err
+		}
+		defer res.Body.Close()
+		if res.StatusCode != 200 {
+			return restaurantMenus, &requestError{
+				StatusCode: res.StatusCode,
+				Err:        errors.New("Couldn't access menu URL " + url),
+			}
+		}
+		doc, err := goquery.NewDocumentFromReader(res.Body)
+		if err != nil {
+			return restaurantMenus, err
+		}
+		links := getLinks(doc)
+		names := getNames(doc)
+		for i := range links {
+			restaurantMenu, err := getRestaurantMenu(links[i], names[i])
+			if err != nil {
+				return restaurantMenus, nil
+			}
+			restaurantMenus = append(restaurantMenus, restaurantMenu)
+		}
+		if len(links) == 0 {
+			return restaurantMenus, nil
+		} else {
+			pageNum += 1
+		}
 	}
 }
