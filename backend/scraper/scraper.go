@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -14,11 +15,13 @@ const restuBaseURL = "https://www.restu.cz"
 
 // Restaurant contains information needed about the restaurant
 type Restaurant struct {
-	Name    string
-	Address string
-	Images  []string
-	Tags    []string
-	Rating  string
+	Name        string
+	Address     string
+	Images      []string
+	Tags        []string
+	Rating      string
+	URL         string
+	PhoneNumber string
 }
 
 // RestaurantMenu stores name of the restaurant along with the weekly menu
@@ -48,8 +51,7 @@ func (req *RequestError) Error() string {
 	return fmt.Sprintf("Status %d: Error: %v", req.StatusCode, req.Err)
 }
 
-func getRestaurantMenu(link, restaurantName string, ch chan<- menuPair, wg *sync.WaitGroup) {
-	defer wg.Done()
+func getRestaurantMenu(link, restaurantName string, ch chan<- menuPair) {
 	menu := RestaurantMenu{RestaurantName: restaurantName,
 		WeeklyMenu: make(map[string]string)}
 	url := restuBaseURL + link + "menu"
@@ -76,9 +78,7 @@ func getRestaurantMenu(link, restaurantName string, ch chan<- menuPair, wg *sync
 	return
 }
 
-func visitLink(link, name, address string, ch chan<- restaurantPair,
-	wg *sync.WaitGroup) {
-	defer wg.Done()
+func visitLink(link, name, address string, ch chan<- restaurantPair) {
 	newRestaurant := Restaurant{Name: name, Address: address}
 	url := restuBaseURL + link
 	res, err := http.Get(url)
@@ -101,6 +101,13 @@ func visitLink(link, name, address string, ch chan<- restaurantPair,
 		ch <- restaurantPair{newRestaurant, err}
 		return
 	}
+	scriptContent := doc.Find("script").Text()
+	r, _ := regexp.Compile("\\+420[0-9]{9}")
+	newRestaurant.PhoneNumber = r.FindString(scriptContent)
+	doc.Find(".track-restaurant-web").Each(func(i int, s *goquery.Selection) {
+		restaurantURL, _ := s.Attr("href")
+		newRestaurant.URL = restaurantURL
+	})
 	doc.Find("picture").Each(func(i int, s *goquery.Selection) {
 		s.Find("img").Each(func(i int, s *goquery.Selection) {
 			image, _ := s.Attr("src")
@@ -160,10 +167,16 @@ func getAddresses(doc *goquery.Document) []string {
 func GetRestaurants(searchTerm string) ([]Restaurant, error) {
 	var restaurants []Restaurant
 	restaurantChannel := make(chan restaurantPair)
-	var wg sync.WaitGroup
+	var workerWaitGroup sync.WaitGroup
+	var collectorWaitGroup sync.WaitGroup
+	collectorWaitGroup.Add(1)
 	go func() {
+		defer collectorWaitGroup.Done()
 		for {
-			pair := <-restaurantChannel
+			pair, ok := <-restaurantChannel
+			if !ok {
+				return
+			}
 			restaurant := pair.restaurant
 			err := pair.err
 			if err != nil {
@@ -197,20 +210,25 @@ func GetRestaurants(searchTerm string) ([]Restaurant, error) {
 		names := getNames(doc)
 		addresses := getAddresses(doc)
 		for i := range links {
+			link := links[i]
 			name := names[i]
 			address := addresses[i]
-			go func() {
-				wg.Add(1)
-				visitLink(links[i], name, address, restaurantChannel, &wg)
-			}()
+			go func(link, name, address string) {
+				workerWaitGroup.Add(1)
+				defer workerWaitGroup.Done()
+				visitLink(link, name, address, restaurantChannel)
+			}(link, name, address)
 		}
 		if len(links) == 0 {
-			wg.Wait()
-			fmt.Println()
-			return restaurants, nil
+			break
 		}
 		pageNum++
 	}
+	workerWaitGroup.Wait()
+	close(restaurantChannel)
+	collectorWaitGroup.Wait()
+	fmt.Println()
+	return restaurants, nil
 }
 
 // GetRestaurantMenus scrapes restu and returns
@@ -218,10 +236,16 @@ func GetRestaurants(searchTerm string) ([]Restaurant, error) {
 func GetRestaurantMenus() ([]RestaurantMenu, error) {
 	var restaurantMenus []RestaurantMenu
 	menuChannel := make(chan menuPair)
-	var wg sync.WaitGroup
+	var workerWaitGroup sync.WaitGroup
+	var collectorWaitGroup sync.WaitGroup
+	collectorWaitGroup.Add(1)
 	go func() {
+		defer collectorWaitGroup.Done()
 		for {
-			pair := <-menuChannel
+			pair, ok := <-menuChannel
+			if !ok {
+				return
+			}
 			menu := pair.menu
 			err := pair.err
 			if err != nil {
@@ -254,14 +278,18 @@ func GetRestaurantMenus() ([]RestaurantMenu, error) {
 		links := getLinks(doc)
 		names := getNames(doc)
 		for i := range links {
-
-			go func() {
-				wg.Add(1)
-				getRestaurantMenu(links[i], names[i], menuChannel, &wg)
-			}()
+			link := links[i]
+			name := names[i]
+			go func(link, name string) {
+				defer workerWaitGroup.Done()
+				workerWaitGroup.Add(1)
+				getRestaurantMenu(link, name, menuChannel)
+			}(link, name)
 		}
 		if len(links) == 0 {
-			wg.Wait()
+			workerWaitGroup.Wait()
+			close(menuChannel)
+			collectorWaitGroup.Wait()
 			fmt.Println()
 			return restaurantMenus, nil
 		}
