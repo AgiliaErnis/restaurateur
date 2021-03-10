@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css?family=Inconsolata:700');
+
+.form-box {
+    margin-top: 3%;
+}
+
+.search-field {
+    border-radius: 2px;
+    margin: 6px;
+    padding: 12px 26px;
+    font-size: 20px;
+    outline: none;
+    border: none;
+}
+
+.cafes {
+    width: 52%;
+}
+
+.location {
+    width: 26%;
+}
+
+@media screen and (max-width: 820px) {
+    .search-field {
+        border-radius: 2px;
+        margin: 5px;
+        padding: 12px;
+        font-size: 18px;
+    }
+    .form-box {
+        flex-direction: column;
+        text-align: center;
+    }
+    .search-button {
+        font-size: 18px;
+    }
+
+    .cafes, .location {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 720px) {
+    .search-field {
+        font-size: 15px;
+    }
+
+    .search-button {
+        font-size: 15px;
+    }
+}
+
+@media screen and (max-width: 620px) {
+    .cafes, .location {
+        width: 70%;
+    }
+}

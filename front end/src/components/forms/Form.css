@@ -1,0 +1,157 @@
+.checkbox  text {
+  text-align: start;
+  font-size: 18px;
+}
+
+.form-content {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.7);
+}
+
+.form h2 {
+    text-align: center;
+    font-size: 2rem;
+    color: rgb(0,0,0);
+    margin-top: 20%;
+  }
+
+.form-img {
+  width: 50%;
+  height: 30%;
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.form, .login-form {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: #fff;
+  width: 500px;
+  box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.3), 0 7px 20px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+.login-form {
+  height: 75%;
+}
+
+.form-inputs span{
+    margin : 5px;
+    font-size: 0.85rem;
+}
+
+.form h1 {
+  font-size: 1rem;
+  text-align: center;
+  width: 80%;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  color: rgb(0,0,0);
+}
+
+.fas {
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+.form-inputs {
+  margin-bottom: 0.5rem;
+  width: 80%;
+}
+
+.form-inputs p  {
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+  color: #f00e0e;
+}
+
+.form-label  {
+  display: inline-block;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+  color: rgb(0,0,0);
+}
+
+.form-input {
+  display: block;
+  padding-left: 10px;
+  outline: rgb(0,0,0);
+  border-radius: 2px;
+  height: 40px;
+  width: 100%;
+  border: 2.2px solid rgb(0,0,0);
+}
+
+.form-input::placeholder {
+  color: #595959;
+  font-size: 12px;
+}
+
+.form-input-btn {
+  width: 80%;
+  height: 50px;
+  margin-top: 10px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    #fd7373 0%,
+    #ec001f 100%
+  );
+  outline: none;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.form-input-btn:hover {
+  cursor: pointer;
+  background: linear-gradient(
+    90deg,
+    #ff2727 0%,
+    #fa0c0c 100%
+  );
+  transition: all 0.4s ease-out;
+}
+
+@media screen and (max-width: 720px) {
+  .form {
+    width : 90%;
+    height: 85%;
+  }
+  .login-form {
+    width: 90%;
+    height: 70%;
+  }
+  .form-content .fas {
+    margin-top: 0px;
+  }
+  .form-input {
+    height: 30px;
+  }
+
+  .form-input-btn {
+    height: 7%;
+  }
+
+  .form h1 {
+    font-size: 14px;
+  }
+}
