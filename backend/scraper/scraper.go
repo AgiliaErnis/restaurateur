@@ -7,11 +7,13 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 )
 
-const RestuBaseUrl = "https://www.restu.cz"
+const restuBaseURL = "https://www.restu.cz"
 
-type restaurant struct {
+// Restaurant contains information needed about the restaurant
+type Restaurant struct {
 	Name    string
 	Address string
 	Images  []string
@@ -19,31 +21,47 @@ type restaurant struct {
 	Rating  string
 }
 
-type restaurantMenu struct {
-	RestaurantName       string
-	WeeklyMenu map[string]string
+// RestaurantMenu stores name of the restaurant along with the weekly menu
+type RestaurantMenu struct {
+	RestaurantName string
+	WeeklyMenu     map[string]string
 }
 
-type requestError struct {
+// RequestError is returned when code other than 200 is returned
+// (other codes are not expected)
+type RequestError struct {
 	StatusCode int
 	Err        error
 }
 
-func (req *requestError) Error() string {
+type restaurantPair struct {
+	restaurant Restaurant
+	err        error
+}
+
+type menuPair struct {
+	menu RestaurantMenu
+	err  error
+}
+
+func (req *RequestError) Error() string {
 	return fmt.Sprintf("Status %d: Error: %v", req.StatusCode, req.Err)
 }
 
-func getRestaurantMenu(link, restaurantName string) (restaurantMenu, error) {
-	menu := restaurantMenu{RestaurantName: restaurantName,
+func getRestaurantMenu(link, restaurantName string, ch chan<- menuPair, wg *sync.WaitGroup) {
+	defer wg.Done()
+	menu := RestaurantMenu{RestaurantName: restaurantName,
 		WeeklyMenu: make(map[string]string)}
-	url := RestuBaseUrl + link + "menu"
+	url := restuBaseURL + link + "menu"
 	res, err := http.Get(url)
 	if err != nil {
-		return menu, err
+		ch <- menuPair{menu, err}
+		return
 	}
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		return menu, err
+		ch <- menuPair{menu, err}
+		return
 	}
 	doc.Find(".menu-section").Each(func(i int, s *goquery.Selection) {
 		foundDate := s.Find("h4").Text()
@@ -54,28 +72,34 @@ func getRestaurantMenu(link, restaurantName string) (restaurantMenu, error) {
 			menu.WeeklyMenu[foundDate] = item
 		})
 	})
-	return menu, nil
+	ch <- menuPair{menu, nil}
+	return
 }
 
-func visitLink(link, name, address string) (restaurant, error) {
-	newRestaurant := restaurant{Name: name, Address: address}
-	url := RestuBaseUrl + link
+func visitLink(link, name, address string, ch chan<- restaurantPair,
+	wg *sync.WaitGroup) {
+	defer wg.Done()
+	newRestaurant := Restaurant{Name: name, Address: address}
+	url := restuBaseURL + link
 	res, err := http.Get(url)
 	if err != nil {
-		return newRestaurant, err
+		ch <- restaurantPair{newRestaurant, err}
+		return
 	}
 	var images []string
 	var tags []string
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		return newRestaurant, &requestError{
+		ch <- restaurantPair{newRestaurant, &RequestError{
 			StatusCode: res.StatusCode,
 			Err:        errors.New("Couldn't visit the link " + link),
-		}
+		}}
+		return
 	}
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		return newRestaurant, err
+		ch <- restaurantPair{newRestaurant, err}
+		return
 	}
 	doc.Find("picture").Each(func(i int, s *goquery.Selection) {
 		s.Find("img").Each(func(i int, s *goquery.Selection) {
@@ -101,7 +125,8 @@ func visitLink(link, name, address string) (restaurant, error) {
 			break
 		}
 	}
-	return newRestaurant, nil
+	ch <- restaurantPair{newRestaurant, nil}
+	return
 }
 
 func getLinks(doc *goquery.Document) []string {
@@ -130,11 +155,26 @@ func getAddresses(doc *goquery.Document) []string {
 	return addresses
 }
 
-func GetRestaurants(searchTerm string) ([]restaurant, error) {
-	var restaurants []restaurant
+// GetRestaurants queries restu with the provided searchTerm
+// and returns information about found restaurants
+func GetRestaurants(searchTerm string) ([]Restaurant, error) {
+	var restaurants []Restaurant
+	restaurantChannel := make(chan restaurantPair)
+	var wg sync.WaitGroup
+	go func() {
+		for {
+			pair := <-restaurantChannel
+			restaurant := pair.restaurant
+			err := pair.err
+			if err != nil {
+				panic(err)
+			}
+			restaurants = append(restaurants, restaurant)
+		}
+	}()
 	pageNum := 1
 	for {
-		url := RestuBaseUrl + "/vyhledavani/?term=" + searchTerm +
+		url := restuBaseURL + "/vyhledavani/?term=" + searchTerm +
 			"&page=" + strconv.Itoa(pageNum)
 		res, err := http.Get(url)
 		if err != nil {
@@ -144,9 +184,9 @@ func GetRestaurants(searchTerm string) ([]restaurant, error) {
 		fmt.Printf(" Processing search page %d\r", pageNum)
 		defer res.Body.Close()
 		if res.StatusCode != 200 {
-			return restaurants, &requestError{
+			return restaurants, &RequestError{
 				StatusCode: res.StatusCode,
-				Err:        errors.New("Couldn't acces URL " + url),
+				Err:        errors.New("Couldn't access URL " + url),
 			}
 		}
 		doc, err := goquery.NewDocumentFromReader(res.Body)
@@ -159,27 +199,42 @@ func GetRestaurants(searchTerm string) ([]restaurant, error) {
 		for i := range links {
 			name := names[i]
 			address := addresses[i]
-			newRestaurant, err := visitLink(links[i], name, address)
-			if err != nil {
-				return restaurants, err
-			}
-			restaurants = append(restaurants, newRestaurant)
+			go func() {
+				wg.Add(1)
+				visitLink(links[i], name, address, restaurantChannel, &wg)
+			}()
 		}
 		if len(links) == 0 {
+			wg.Wait()
+			fmt.Println()
 			return restaurants, nil
-		} else {
-			pageNum += 1
 		}
+		pageNum++
 	}
 }
 
-func GetRestaurantMenus() ([]restaurantMenu, error) {
-	var restaurantMenus []restaurantMenu
+// GetRestaurantMenus scrapes restu and returns
+// all restaurants with a weekly menu
+func GetRestaurantMenus() ([]RestaurantMenu, error) {
+	var restaurantMenus []RestaurantMenu
+	menuChannel := make(chan menuPair)
+	var wg sync.WaitGroup
+	go func() {
+		for {
+			pair := <-menuChannel
+			menu := pair.menu
+			err := pair.err
+			if err != nil {
+				panic(err)
+			}
+			restaurantMenus = append(restaurantMenus, menu)
+		}
+	}()
 	pageNum := 1
 	for {
 		fmt.Printf("%c[2K", 27)
 		fmt.Printf(" Processing menus page %d\r", pageNum)
-		url := RestuBaseUrl + "/praha/maji-denni-menu" +
+		url := restuBaseURL + "/praha/maji-denni-menu" +
 			"/?page=" + strconv.Itoa(pageNum)
 		res, err := http.Get(url)
 		if err != nil {
@@ -187,7 +242,7 @@ func GetRestaurantMenus() ([]restaurantMenu, error) {
 		}
 		defer res.Body.Close()
 		if res.StatusCode != 200 {
-			return restaurantMenus, &requestError{
+			return restaurantMenus, &RequestError{
 				StatusCode: res.StatusCode,
 				Err:        errors.New("Couldn't access menu URL " + url),
 			}
@@ -199,16 +254,17 @@ func GetRestaurantMenus() ([]restaurantMenu, error) {
 		links := getLinks(doc)
 		names := getNames(doc)
 		for i := range links {
-			restaurantMenu, err := getRestaurantMenu(links[i], names[i])
-			if err != nil {
-				return restaurantMenus, nil
-			}
-			restaurantMenus = append(restaurantMenus, restaurantMenu)
+
+			go func() {
+				wg.Add(1)
+				getRestaurantMenu(links[i], names[i], menuChannel, &wg)
+			}()
 		}
 		if len(links) == 0 {
+			wg.Wait()
+			fmt.Println()
 			return restaurantMenus, nil
-		} else {
-			pageNum += 1
 		}
+		pageNum++
 	}
 }
