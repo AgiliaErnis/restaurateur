@@ -1,9 +1,12 @@
 package scraper
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -12,6 +15,21 @@ import (
 )
 
 const restuBaseURL = "https://www.restu.cz"
+
+type nominatimJSON []struct {
+	PlaceID     int      `json:"place_id"`
+	Licence     string   `json:"licence"`
+	OsmType     string   `json:"osm_type"`
+	OsmID       int      `json:"osm_id"`
+	Boundingbox []string `json:"boundingbox"`
+	Lat         string   `json:"lat"`
+	Lon         string   `json:"lon"`
+	DisplayName string   `json:"display_name"`
+	Class       string   `json:"class"`
+	Type        string   `json:"type"`
+	Importance  float64  `json:"importance"`
+	Icon        string   `json:"icon,omitempty"`
+}
 
 // Restaurant contains information needed about the restaurant
 type Restaurant struct {
@@ -22,6 +40,8 @@ type Restaurant struct {
 	Rating      string
 	URL         string
 	PhoneNumber string
+	Lat         string
+	Lon         string
 }
 
 // RestaurantMenu stores name of the restaurant along with the weekly menu
@@ -41,7 +61,6 @@ type restaurantPair struct {
 	restaurant Restaurant
 	err        error
 }
-
 type menuPair struct {
 	menu RestaurantMenu
 	err  error
@@ -76,6 +95,29 @@ func getRestaurantMenu(link, restaurantName string, ch chan<- menuPair) {
 	})
 	ch <- menuPair{menu, nil}
 	return
+}
+
+func (restaurant *Restaurant) setCoordinates() {
+	address := strings.Split(restaurant.Address, ",")[0]
+	url := "https://nominatim.openstreetmap.org/search?street=" +
+		address + "&format=json"
+	res, err := http.Get(url)
+	log.Println("Getting coordinates for", restaurant.Name)
+	if err != nil {
+		panic(err)
+	}
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		panic(err)
+	}
+	var nominatim nominatimJSON
+	json.Unmarshal(body, &nominatim)
+	if len(nominatim) == 0 {
+		panic("Couldn't get coordinates!")
+	}
+	restaurant.Lat = nominatim[0].Lat
+	restaurant.Lon = nominatim[0].Lon
 }
 
 func visitLink(link, name, address string, ch chan<- restaurantPair) {
@@ -153,6 +195,7 @@ func getNames(doc *goquery.Document) []string {
 	})
 	return names
 }
+
 func getAddresses(doc *goquery.Document) []string {
 	var addresses []string
 	doc.Find(".card-item__restaurant-address").Each(func(i int, s *goquery.Selection) {
@@ -167,6 +210,9 @@ func getAddresses(doc *goquery.Document) []string {
 func GetRestaurants(searchTerm string) ([]Restaurant, error) {
 	var restaurants []Restaurant
 	restaurantChannel := make(chan restaurantPair)
+	// set max go routines to not hammer the website too much (waitng for OSM afterwards anyway)
+	maxGoroutines := 5
+	guard := make(chan struct{}, maxGoroutines)
 	var workerWaitGroup sync.WaitGroup
 	var collectorWaitGroup sync.WaitGroup
 	collectorWaitGroup.Add(1)
@@ -182,6 +228,9 @@ func GetRestaurants(searchTerm string) ([]Restaurant, error) {
 			if err != nil {
 				panic(err)
 			}
+			// calling setCoordinates only in 1 thread, because
+			// OSM has limits on calls per second
+			restaurant.setCoordinates()
 			restaurants = append(restaurants, restaurant)
 		}
 	}()
@@ -193,8 +242,7 @@ func GetRestaurants(searchTerm string) ([]Restaurant, error) {
 		if err != nil {
 			return restaurants, err
 		}
-		fmt.Printf("%c[2K", 27)
-		fmt.Printf(" Processing search page %d\r", pageNum)
+		log.Printf("Processing search page %d\n", pageNum)
 		defer res.Body.Close()
 		if res.StatusCode != 200 {
 			return restaurants, &RequestError{
@@ -213,29 +261,29 @@ func GetRestaurants(searchTerm string) ([]Restaurant, error) {
 			link := links[i]
 			name := names[i]
 			address := addresses[i]
+			guard <- struct{}{}
 			go func(link, name, address string) {
 				workerWaitGroup.Add(1)
 				defer workerWaitGroup.Done()
 				visitLink(link, name, address, restaurantChannel)
+				<-guard
 			}(link, name, address)
 		}
 		if len(links) == 0 {
-			break
+			workerWaitGroup.Wait()
+			close(restaurantChannel)
+			collectorWaitGroup.Wait()
+			return restaurants, nil
 		}
 		pageNum++
 	}
-	workerWaitGroup.Wait()
-	close(restaurantChannel)
-	collectorWaitGroup.Wait()
-	fmt.Println()
-	return restaurants, nil
 }
 
 // GetRestaurantMenus scrapes restu and returns
 // all restaurants with a weekly menu
 func GetRestaurantMenus() ([]RestaurantMenu, error) {
 	var restaurantMenus []RestaurantMenu
-	menuChannel := make(chan menuPair)
+	menuChannel := make(chan menuPair, 1)
 	var workerWaitGroup sync.WaitGroup
 	var collectorWaitGroup sync.WaitGroup
 	collectorWaitGroup.Add(1)
@@ -256,8 +304,7 @@ func GetRestaurantMenus() ([]RestaurantMenu, error) {
 	}()
 	pageNum := 1
 	for {
-		fmt.Printf("%c[2K", 27)
-		fmt.Printf(" Processing menus page %d\r", pageNum)
+		log.Printf("Processing menus page %d\n", pageNum)
 		url := restuBaseURL + "/praha/maji-denni-menu" +
 			"/?page=" + strconv.Itoa(pageNum)
 		res, err := http.Get(url)
@@ -290,7 +337,6 @@ func GetRestaurantMenus() ([]RestaurantMenu, error) {
 			workerWaitGroup.Wait()
 			close(menuChannel)
 			collectorWaitGroup.Wait()
-			fmt.Println()
 			return restaurantMenus, nil
 		}
 		pageNum++
