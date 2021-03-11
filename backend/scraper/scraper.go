@@ -207,8 +207,8 @@ func getAddresses(doc *goquery.Document) []string {
 
 // GetRestaurants queries restu with the provided searchTerm
 // and returns information about found restaurants
-func GetRestaurants(searchTerm string) ([]Restaurant, error) {
-	var restaurants []Restaurant
+func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
+	var restaurants []*Restaurant
 	restaurantChannel := make(chan restaurantPair)
 	// set max go routines to not hammer the website too much (waitng for OSM afterwards anyway)
 	maxGoroutines := 5
@@ -231,7 +231,7 @@ func GetRestaurants(searchTerm string) ([]Restaurant, error) {
 			// calling setCoordinates only in 1 thread, because
 			// OSM has limits on calls per second
 			restaurant.setCoordinates()
-			restaurants = append(restaurants, restaurant)
+			restaurants = append(restaurants, &restaurant)
 		}
 	}()
 	pageNum := 1
@@ -281,8 +281,8 @@ func GetRestaurants(searchTerm string) ([]Restaurant, error) {
 
 // GetRestaurantMenus scrapes restu and returns
 // all restaurants with a weekly menu
-func GetRestaurantMenus() ([]RestaurantMenu, error) {
-	var restaurantMenus []RestaurantMenu
+func GetRestaurantMenus() ([]*RestaurantMenu, error) {
+	var restaurantMenus []*RestaurantMenu
 	menuChannel := make(chan menuPair, 1)
 	var workerWaitGroup sync.WaitGroup
 	var collectorWaitGroup sync.WaitGroup
@@ -299,7 +299,7 @@ func GetRestaurantMenus() ([]RestaurantMenu, error) {
 			if err != nil {
 				panic(err)
 			}
-			restaurantMenus = append(restaurantMenus, menu)
+			restaurantMenus = append(restaurantMenus, &menu)
 		}
 	}()
 	pageNum := 1
