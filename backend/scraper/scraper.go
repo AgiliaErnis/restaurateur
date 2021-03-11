@@ -40,8 +40,9 @@ type Restaurant struct {
 	Rating      string
 	URL         string
 	PhoneNumber string
-	Lat         string
-	Lon         string
+	Lat         float64
+	Lon         float64
+	WeeklyMenu  map[string]string
 }
 
 // RestaurantMenu stores name of the restaurant along with the weekly menu
@@ -116,8 +117,12 @@ func (restaurant *Restaurant) setCoordinates() {
 	if len(nominatim) == 0 {
 		panic("Couldn't get coordinates!")
 	}
-	restaurant.Lat = nominatim[0].Lat
-	restaurant.Lon = nominatim[0].Lon
+	if lat, err := strconv.ParseFloat(nominatim[0].Lat, 64); err == nil {
+		restaurant.Lat = lat
+	}
+	if lon, err := strconv.ParseFloat(nominatim[0].Lon, 64); err == nil {
+		restaurant.Lon = lon
+	}
 }
 
 func visitLink(link, name, address string, ch chan<- restaurantPair) {
