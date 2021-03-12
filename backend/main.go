@@ -17,12 +17,8 @@ func main() {
 		fmt.Println(restaurant.Lat)
 		fmt.Println(restaurant.Lon)
 		fmt.Println(restaurant.PhoneNumber)
-	}
-	restaurantMenus, err := scraper.GetRestaurantMenus()
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, menu := range restaurantMenus {
-		fmt.Println(menu.RestaurantName)
+		fmt.Println("Vegan:", restaurant.Vegan)
+		fmt.Println("Vegetarian:", restaurant.Vegetarian)
+		fmt.Println(restaurant.WeeklyMenu)
 	}
 }
