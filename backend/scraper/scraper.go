@@ -36,7 +36,8 @@ type Restaurant struct {
 	Name        string
 	Address     string
 	Images      []string
-	Tags        []string
+	Cuisines    []string
+	PriceRange  string
 	Rating      string
 	URL         string
 	PhoneNumber string
@@ -138,7 +139,6 @@ func visitLink(link, name, address string, ch chan<- restaurantPair) {
 		return
 	}
 	var images []string
-	var tags []string
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
 		ch <- restaurantPair{newRestaurant, &RequestError{
@@ -153,8 +153,20 @@ func visitLink(link, name, address string, ch chan<- restaurantPair) {
 		return
 	}
 	scriptContent := doc.Find("script").Text()
-	r, _ := regexp.Compile("\\+420[0-9]{9}")
-	newRestaurant.PhoneNumber = r.FindString(scriptContent)
+	rTags, _ := regexp.Compile("restaurantTopics.*")
+	restaurantTopics := rTags.FindString(scriptContent)
+	tags := strings.Split(strings.Replace(restaurantTopics, "restaurantTopics': ", "", 1), ",")
+	doc.Find(".tag").Each(func(i int, s *goquery.Selection) {
+		tag := s.Text()
+		if !(sliceContains(tags, tag)) {
+			tags = append(tags, tag)
+		}
+	})
+	newRestaurant.Cuisines = getCuisines(tags)
+	newRestaurant.PriceRange = getPriceRange(tags)
+	s := doc.Find(".restaurant-phone-popup__phone")
+	phoneNum, _ := s.Attr("href")
+	newRestaurant.PhoneNumber = strings.Replace(phoneNum, "tel:", "", 1)
 	doc.Find(".track-restaurant-web").Each(func(i int, s *goquery.Selection) {
 		restaurantURL, _ := s.Attr("href")
 		newRestaurant.URL = restaurantURL
@@ -165,21 +177,11 @@ func visitLink(link, name, address string, ch chan<- restaurantPair) {
 			images = append(images, image)
 		})
 	})
-	doc.Find(".tag").Each(func(i int, s *goquery.Selection) {
-		tag := s.Text()
-		tags = append(tags, tag)
-	})
 	ratingChart := doc.Find(".rating-chart")
 	newRestaurant.Rating = ratingChart.Find("figcaption").Text()
 	for i, image := range images {
 		if strings.Contains(image, "placeholder.svg") {
 			newRestaurant.Images = images[:i]
-			break
-		}
-	}
-	for i, tag := range tags {
-		if strings.Contains(tag, "Další") {
-			newRestaurant.Tags = tags[:i]
 			break
 		}
 	}
@@ -214,7 +216,7 @@ func getAddresses(doc *goquery.Document) []string {
 	return addresses
 }
 
-func contains(slice []string, val string) bool {
+func sliceContains(slice []string, val string) bool {
 	for _, item := range slice {
 		if item == val {
 			return true
@@ -224,12 +226,12 @@ func contains(slice []string, val string) bool {
 }
 
 func (restaurant *Restaurant) setVegan(veganRestaurants []string) {
-	found := contains(veganRestaurants, restaurant.Name)
+	found := sliceContains(veganRestaurants, restaurant.Name)
 	restaurant.Vegan = found
 }
 
 func (restaurant *Restaurant) setVegetarian(vegetarianRestaurants []string) {
-	found := contains(vegetarianRestaurants, restaurant.Name)
+	found := sliceContains(vegetarianRestaurants, restaurant.Name)
 	restaurant.Vegetarian = found
 }
 
@@ -298,7 +300,7 @@ func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 		if err != nil {
 			return restaurants, err
 		}
-		log.Printf("Processing search page %d\n", pageNum)
+		log.Printf("Processing %s page %d\n", searchTerm, pageNum)
 		defer res.Body.Close()
 		if res.StatusCode != 200 {
 			return restaurants, &RequestError{
