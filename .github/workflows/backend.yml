@@ -1,0 +1,27 @@
+name: backend
+
+on:
+  push:
+    paths: backend/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Go setup
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16.2'
+
+      - name: Install dependencies
+        run: |
+          go version
+          go get -u golang.org/x/lint/golint
+
+      - name: Build
+        run: go build .
+
+      - name: Lint check
+        run: golint .
