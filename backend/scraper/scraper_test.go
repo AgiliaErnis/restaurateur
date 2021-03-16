@@ -8,7 +8,8 @@ func TestSliceContains(t *testing.T) {
 		inputVal   string
 		expected   bool
 	}
-	var sliceContainsTests = []sliceContainsTest{
+
+	sliceContainsTests := []sliceContainsTest{
 		sliceContainsTest{[]string{"test1", "test2", "test3"}, "test2", true},
 		sliceContainsTest{[]string{}, "test2", false},
 		sliceContainsTest{[]string{}, "", false},
