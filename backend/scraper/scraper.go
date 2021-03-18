@@ -35,6 +35,7 @@ type nominatimJSON []struct {
 type Restaurant struct {
 	Name        string
 	Address     string
+	District    string
 	Images      []string
 	Cuisines    []string
 	PriceRange  string
@@ -155,6 +156,8 @@ func visitLink(link, name, address string, ch chan<- restaurantPair) {
 	scriptContent := doc.Find("script").Text()
 	rTags, _ := regexp.Compile("restaurantTopics.*")
 	restaurantTopics := rTags.FindString(scriptContent)
+	rDistrict, _ := regexp.Compile("Praha [0-9]+")
+	newRestaurant.District = rDistrict.FindString(newRestaurant.Address)
 	tags := strings.Split(strings.Replace(restaurantTopics, "restaurantTopics': ", "", 1), ",")
 	doc.Find(".tag").Each(func(i int, s *goquery.Selection) {
 		tag := s.Text()
