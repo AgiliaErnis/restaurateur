@@ -250,7 +250,7 @@ func (restaurant *Restaurant) setWeeklyMenu(menus []*RestaurantMenu) {
 // and returns information about found restaurants
 func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 	var restaurants []*Restaurant
-	restaurantMenus, err := getRestaurantMenus()
+	restaurantMenus, err := GetRestaurantMenus()
 	if err != nil {
 		return restaurants, err
 	}
@@ -339,9 +339,9 @@ func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 	}
 }
 
-// getRestaurantMenus scrapes restu and returns
+// GetRestaurantMenus scrapes restu and returns
 // all restaurants with a weekly menu
-func getRestaurantMenus() ([]*RestaurantMenu, error) {
+func GetRestaurantMenus() ([]*RestaurantMenu, error) {
 	var restaurantMenus []*RestaurantMenu
 	menuChannel := make(chan menuPair, 1)
 	var workerWaitGroup sync.WaitGroup
