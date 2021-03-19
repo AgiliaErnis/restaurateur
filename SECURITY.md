@@ -22,7 +22,6 @@ This is followed in the software life cycle processes, focusing on the software 
 We then discuss security implemented by other life cycle processes, broken into the main 12207 headings: agreement processes, organizational project-enabling processes, and technical management processes. Note that the organizational project-enabling processes include infrastructure management (where we discuss security of the development and test environment) and human resource management (where we discuss the knowledge of the key people involved in development).
 We close with a discussion of certifications and controls. Certification processes can help us find something we missed, as well as provide confidence that we haven't missed anything important). Note that the project receives its own badge (the CII best practices badge), which provides additional evidence that it applies best practices that can lead to more secure software. Similarly, selecting IA controls can help us review important issues to ensure that the system will be adequately secure in its intended environment (including any compensating controls added to its environment). We controls in the context of the Center for Internet Security (CIS) Controls (aka critical controls).
 
-https://github.com/AgiliaErnis/restaurateur/issues/5#issuecomment-802860466
 ![image](https://user-images.githubusercontent.com/40677903/111792508-9df55280-88c4-11eb-931a-9ed45d87e77b.png)
 ![image](https://user-images.githubusercontent.com/40677903/111792540-a51c6080-88c4-11eb-951b-9a2feb52a82f.png)
 ![image](https://user-images.githubusercontent.com/40677903/111792581-ad749b80-88c4-11eb-97bc-c5783f9664e6.png)
@@ -51,18 +50,18 @@ As noted above, HTTPS is used to protect the integrity of all communications bet
 As with any publicly-accessible website, we cannot prevent an attacker with significant resources from temporarily overwhelming the system through a distributed denial-of-service (DDos) attacks. So instead, we focus on various kinds of resilience against DDoS attacks, and use other measures (such as backups in the future) to maximize availability. Thus, even if the system is taken down temporarily, we expect to be able to reconstitute it (including its data).
 
 ## Access Control
-###Identification
+### Identification
 Normal users must must first identify themselves in one of two ways: (1) as a Google user with their Goolge account, or (2) as a custom "local" user with their email address.
 
 The Restaurateur application runs on a deployment platform (Heroku), which has its own login mechanisms. Only those few administrators with deployment platform access have authorization to log in there, and those are protected by the deployment platform supplier (and thus we do not consider them further here). The login credentials in these cases are protected.
 
-###Authentication
+### Authentication
 This system implements two kinds of users: local and remote. Local users log in using a password, but user passwords are only stored on the server as iterated salted hashes (using bcrypt). Remote users use a remote system (we currently only support GitHub) using the widely-used OAUTH protocol. 
 
 A local user login will POST that information to /login, which is routed to session#create along with parameters such as session[email] and session[password]. If the encrypted hash of the password matches the stored hash, the user is accepted. If password doesn't match, the login is rejected. This is verified with these tests:
-Can login and edit using custom account
-Cannot login with local username and wrong password
-Cannot login with local username and blank password
+- Can login and edit using custom account
+- Cannot login with local username and wrong password
+- Cannot login with local username and blank password
 
 A remote user login (pushing the "log in with Google" button) will invoke GET "/auth/google". The application then begin an omniauth login, by redirecting the user to Goolge login page. When the Google login completes, then per the omniauth spec there's a redirect back to our site.
 
@@ -70,21 +69,21 @@ A remote user login (pushing the "log in with Google" button) will invoke GET "/
 Users who have not authenticated themselves can only perform actions allowed to anyone in the public (e.g., view the home page, view the list of restaurants, and view the information about each restaurant). Once users are authenticated they are authorized to perform certain additional actions, like viewing history and suggestions.
 
 ## Assets
-As should be clear from the basic requirements above, our assets are:
+Our assets are:
 
-User passwords, especially for confidentiality. Unencrypted user passwords are the most critical to protect. As noted above, we protect these with bcrypt; we never store user passwords in an unencrypted or recoverable form.
-User email addresses, especially for confidentiality.
-Project data, primarily for integrity and availability. We back these up to support availability.
+- User passwords, especially for confidentiality. Unencrypted user passwords are the most critical to protect. As noted above, we protect these with bcrypt; we never store user passwords in an unencrypted or recoverable form.
+- User email addresses, especially for confidentiality.
+- Project data, primarily for integrity and availability. We back these up to support availability.
 
 ## Threat Agents
 We have few insiders, and they are fully trusted to not perform intentionally-hostile actions.
 
 Thus, the threat agents we're primarily concerned about are outsiders, and the most concerning ones fit in one of these categories:
 
-people who enjoy taking over systems (without monetary benefit)
-criminal organizations who want to take emails and/or passwords as a way to take over others' accounts (to break confidentiality). Note that our one-way iterated salted hashes counter easy access to passwords, so the most sensitive data is more difficult to obtain.
-criminal organizations who want destroy all our data and hold it for ransom (i.e., "ransomware" organizations). Note that our backups help counter this.
-Criminal organizations may try to DDoS us for money, but there's no strong reason for us to pay the extortion fee. We expect that people will be willing to come back to the site later if it's down, and we have scaleability countermeasures to reduce their effectiveness. If the attack is ongoing, several of the services we use would have a financial incentive to help us counter the attacks. This makes the attacks themselves less likely (since there would be no financial benefit to them).
+- people who enjoy taking over systems (without monetary benefit)
+- criminal organizations who want to take emails and/or passwords as a way to take over others' accounts (to break confidentiality). Note that our one-way iterated salted hashes counter easy access to passwords, so the most sensitive data is more difficult to obtain.
+- criminal organizations who want destroy all our data and hold it for ransom (i.e., "ransomware" organizations). Note that our backups help counter this.
+- Criminal organizations may try to DDoS us for money, but there's no strong reason for us to pay the extortion fee. We expect that people will be willing to come back to the site later if it's down, and we have scaleability countermeasures to reduce their effectiveness. If the attack is ongoing, several of the services we use would have a financial incentive to help us counter the attacks. This makes the attacks themselves less likely (since there would be no financial benefit to them).
 
 Like many commercial sites, we do not have the (substantial) resources necessary to counter a state actor who decided to directly attack our site. However, there's no reason a state actor would directly attack the site (we don't store anything that valuable), so while many are very capable, we do not expect them to be a threat to this site.
 
@@ -93,20 +92,42 @@ There is no direct access for normal users to the DBMS; in production, access re
 
 The DBMS does not know which user the BadgeApp is operating on behalf of, and does not have separate privileges. However, the BadgeApp uses ActiveRecord and prepared statements, making it unlikely that an attacker can use SQL injections to insert malicious queries.
 
-Spoofing identity. N/A, the database doesn't track identities.
-Tampering with data. The BadgeApp is trusted to make correct requests.
-Repudiation. N/A.
-Information disclosure. The BadgeApp is trusted to make correct requests.
-Denial of service. See earlier comments on DoS.
-Elevation of privilege. N/A, the DBMS doesn't separate privileges.
+- Spoofing identity. N/A, the database doesn't track identities.
+- Tampering with data. The BadgeApp is trusted to make correct requests.
+- Repudiation. N/A.
+- Information disclosure. The BadgeApp is trusted to make correct requests.
+- Denial of service. See earlier comments on DoS.
+- Elevation of privilege. N/A, the DBMS doesn't separate privileges.
 
 ## Admin CLI
 There is a command line interface (CLI) for admins. This is the Heroku CLI. Admins must use their unique credentials to log in.
-Spoofing identity. Every admin has a unique credential.
-Tampering with data. The communication channel is encrypted.
-Repudiation. Admins have unique credentials.
-Information disclosure. The channel is encrypted in motion.
-Denial of service. Heroku has a financial incentive to keep this available, and takes steps to do so.
-Elevation of privilege. N/A; anyone allowed to use this is privileged.
+- Spoofing identity. Every admin has a unique credential.
+- Tampering with data. The communication channel is encrypted.
+- Repudiation. Admins have unique credentials.
+- Information disclosure. The channel is encrypted in motion.
+- Denial of service. Heroku has a financial incentive to keep this available, and takes steps to do so.
+- Elevation of privilege. N/A; anyone allowed to use this is privileged.
+
+## Secure design principles
+Applying various secure design principles helps us avoid security problems in the first place. The most widely-used list of security design principles, and one we build on, is the list developed by Saltzer and Schroeder.
+
+Here are a number of secure design principles and how we follow them, including all 8 principles from Saltzer and Schroeder:
+- Separation of privilege (multi-factor authentication, such as requiring both a password and a hardware token, is stronger than single-factor authentication): We don't use multi-factor authentication because the risks from compromise are smaller compared to many other systems (it's almost entirely public data, and failures generally can be recovered through backups).
+- Least privilege (processes should operate with the least privilege necessary).
+- Least common mechanism (the design should minimize the mechanisms common to more than one user and depended on by all users, e.g., directories for temporary files): No shared temporary directory is used. Each time a new request is made, new objects are instantiated; this makes the program generally thread-safe as well as minimizing mechanisms common to more than one user. The database is shared, but each table row has access control implemented which limits sharing to those authorized to share.
+- Psychological acceptability (the human interface must be designed for ease of use, designing for "least astonishment" can help): The application presents a simple login and "fill in the form" interface, so it should be acceptable.
+- Limited attack surface (the attack surface, the set of the different points where an attacker can try to enter or extract data, should be limited): The application has a limited attack surface. 
+- Input validation with allowlists (inputs should typically be checked to determine if they are valid before they are accepted; this validation should use allowlists (which only accept known-good values), not denylists (which attempt to list known-bad values)): In data provided directly to the web application, input validation is done with allowlists through controllers and models.
+
+## Memory-safe Languages
+Golang and JavaScript are both memory-safe languages, so the vulnerabilities of memory-unsafe languages (such as C and C++) cannot occur in the custom code. This also applies to most of the code in the directly depended libraries.
+
+## Security in Implementation
+Most implementation vulnerabilities are due to common types of implementation errors or common misconfigurations, so countering them greatly reduces security risks.
+
+To reduce the risk of security vulnerabilities in implementation we have focused on countering the OWASP Top 10, both the OWASP Top 10 (2013) and OWASP Top 10 (2017). 
+
+
+
 
 
