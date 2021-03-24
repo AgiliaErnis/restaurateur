@@ -50,17 +50,7 @@ function Navbar() {
                 Restaurants
               </Link>
             </li>
-            <li className='nav-item'>
-              <Link
-                to='/services'
-                className='nav-links'
-                onClick={closeMobileMenu}
-              >
-               Services
-              </Link>
-              </li>
-              <li>
-
+            <li>
               <Link
                 className='nav-links-mobile'
                 onClick={openLogInModal}
@@ -74,7 +64,6 @@ function Navbar() {
               >
                 Sign Up
               </Link>
-
             </li>
           </ul>
           {button &&
