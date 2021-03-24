@@ -11,7 +11,7 @@ function Cards() {
           <ul className='cards__items'>
             <CardItem
               src='images/Home/breakfast.webp'
-              text='Top breakfast places in Prague '
+              text='Top breakfast places in Prague'
               label='Breakfast'
               path='/restaurants'
             />

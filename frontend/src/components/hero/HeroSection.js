@@ -5,7 +5,7 @@ import Searchbox from './search/Searchbox'
 function HeroSection() {
   return (
     <div className='hero-container'>
-      <video src='/videos/test.mp4' autoPlay loop muted />
+      <img src='/images/Home/hero.jpg'/>
       <h1>Discover the best dining destinations in Prague</h1>
         <Searchbox />
     </div>

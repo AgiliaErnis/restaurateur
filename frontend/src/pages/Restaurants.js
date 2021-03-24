@@ -1,10 +1,9 @@
 import React from 'react';
 
-
 export default function Restaurants() {
   return (
-  <>
-    <h1 className='restaurants'>Restaurants</h1>
-
-  </>);
+    <>
+      <h1 className='restaurants'>Restaurants</h1>
+    </>
+  );
 }
