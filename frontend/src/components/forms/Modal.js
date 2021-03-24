@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
-import SignUp from './signup/SignUpForm';
-import FormSuccess from './signup/FormSuccess';
+import React from 'react';
 import './Form.css'
 import styled from 'styled-components'
 import { MdClose } from 'react-icons/md'
-import LogInForm from './LogInForm'
+import AnimatedForms from './AnimatedForms'
 
 
 export const Modal = ({ showSignUpModal, setShowSignUpModal, showLogInModal, setShowLogInModal }) => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const CloseModalButton = styled(MdClose)`
   cursor: pointer;
   position: absolute;
-  top: 15px;
-  right: 20px;
+  top: 10px;
+  right: 18px;
   width: 32px;
   height: 32px;
   padding: 0;
@@ -22,30 +19,28 @@ export const Modal = ({ showSignUpModal, setShowSignUpModal, showLogInModal, set
   color: #fff;
 `;
 
-  function submitForm() {
-    setIsSubmitted(true);
-  }
   return (
     <>
-     {showSignUpModal ?
-     <>
-    <CloseModalButton
-                aria-label='Close modal'
-                onClick={() => setShowSignUpModal(prev => !prev)}
-              />
-        {!isSubmitted ? (
-          <SignUp submitForm={submitForm} />
-        ) : (
-          <FormSuccess />
-        )}</> :
+      {showSignUpModal ?
         <>
-
-       {showLogInModal ? <><CloseModalButton
+          <CloseModalButton
+            aria-label='Close modal'
+            onClick={() => setShowSignUpModal(prev => !prev)}
+          />
+          <AnimatedForms signup={true} login={false} />
+        </>
+        :
+        <>
+          {showLogInModal ?
+            <>
+              <CloseModalButton
                 aria-label='Close modal'
                 onClick={() => setShowLogInModal(prev => !prev)}
-              /><LogInForm/></> : null }
+              />
+              <AnimatedForms signup={false} login={true} />
+            </> : null}
         </>
-       }
+      }
     </>
   );
 };

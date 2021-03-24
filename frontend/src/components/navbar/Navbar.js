@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../button/Button';
+import MobileNavbar from './MobileNavbar'
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 import { Modal } from '../forms/Modal'
 
-
 function Navbar() {
-  const [click, setClick] = useState(false);
-  const [button, setButton] = useState(true);
+  const { click, button, showButton, handleClick, closeMobileMenu }
+    = MobileNavbar();
+
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showLogInModal, setShowLogInModal] = useState(false);
 
@@ -18,20 +19,8 @@ function Navbar() {
   const openLogInModal = () =>
     setShowLogInModal (!showLogInModal);
 
-
-  const handleClick = () => setClick(!click);
-  const closeMobileMenu = () => setClick(false);
-
-  const showButton = () => {
-    if (window.innerWidth <= 960) {
-      setButton(false);
-    } else {
-      setButton(true);
-    }
-  };
-
   useEffect(() => {
-    showButton();
+   showButton();
   }, []);
 
   window.addEventListener('resize', showButton);
@@ -41,7 +30,7 @@ function Navbar() {
       <nav className={click ? 'navbar active' : 'navbar'}>
         <div className='navbar-container'>
           <Link to='/' className='navbar-logo' onClick={closeMobileMenu}>
-          <i class="fas fa-utensils" />
+           Restaurateur<i class="fas fa-utensils" />
           </Link>
           <div className='menu-icon' onClick={handleClick}>
             <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
@@ -68,11 +57,11 @@ function Navbar() {
                 onClick={closeMobileMenu}
               >
                Services
-              </Link></li>
+              </Link>
+              </li>
               <li>
 
               <Link
-                to='/'
                 className='nav-links-mobile'
                 onClick={openLogInModal}
               >
@@ -80,7 +69,6 @@ function Navbar() {
               </Link>
 
               <Link
-                to='/'
                 className='nav-links-mobile'
                 onClick={openSignUpModal}
               >
@@ -97,6 +85,8 @@ function Navbar() {
 
           {button && <Button  id ="signup" onClick={openSignUpModal}>SIGN UP</Button>}
           <Modal showSignUpModal={showSignUpModal} setShowSignUpModal={setShowSignUpModal}/>
+
+
         </div>
       </nav>
     </>

@@ -1,58 +1,71 @@
-@import url('https://fonts.googleapis.com/css?family=Inconsolata:700');
-
-.form-box {
-    margin-top: 3%;
+.search-box {
+  display: flex;
+  flex-direction: row;
+  margin-top: 3rem;
 }
 
-.search-field {
-    border-radius: 2px;
-    margin: 6px;
-    padding: 12px 26px;
-    font-size: 20px;
-    outline: none;
-    border: none;
+.main-search-container {
+  position: relative
 }
 
-.cafes {
-    width: 52%;
+.fa-search {
+  position: absolute;
+  top: 30%;
+  font-size: 20px;
+  right: 90%;
+  color: red;
 }
 
-.location {
-    width: 26%;
+.main-input {
+  height: 50px;
+  width: 380px;
+  border:0px;
+  margin-bottom: 0px;
+  -webkit-appearance: none;
+  border-radius: 7px 0px 0px 7px;
+  -moz-border-radius: 7px 0px 0px 7px;
+  -webkit-border-radius: 7px 0px 0px 7px;
+  display: inline-block;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 500;
+  padding:0px 0px 0px 57px;
+  border-right:0px;
+  outline: none;
 }
 
-@media screen and (max-width: 820px) {
-    .search-field {
-        border-radius: 2px;
-        margin: 5px;
-        padding: 12px;
-        font-size: 18px;
-    }
-    .form-box {
-        flex-direction: column;
-        text-align: center;
-    }
-    .search-button {
-        font-size: 18px;
-    }
-
-    .cafes, .location {
-        width: 90%;
-    }
+.select {
+  width: 250px;
 }
 
-@media screen and (max-width: 720px) {
-    .search-field {
-        font-size: 15px;
-    }
+/* responsive css below */
+@media only screen and (max-width: 820px) {
+  .search-box {
+    display: flex;
+    flex-direction: column;
+    margin-top: 2rem;
+  }
 
-    .search-button {
-        font-size: 15px;
-    }
+  .main-input {
+    margin-bottom: 7px;
+    border-radius: 0px;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    padding:0px 0px 0px 10px;
+  }
+
+  .select {
+    width: 100%;
+  }
 }
 
-@media screen and (max-width: 620px) {
-    .cafes, .location {
-        width: 70%;
-    }
+@media only screen and (max-width: 490px) {
+  .main-input {
+    width: 290px;
+    font-size: 14px;
+  }
+
+  .select {
+    font-size: 14px;
+  }
 }

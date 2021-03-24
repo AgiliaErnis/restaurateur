@@ -6,7 +6,6 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Restaurants from '../pages/Restaurants';
 import Services from '../pages/Services';
 
-
 function App() {
   return (
     <>
@@ -18,7 +17,6 @@ function App() {
           <Route path='/services' component={Services} />
         </Switch>
       </Router>
-
     </>
   );
 }

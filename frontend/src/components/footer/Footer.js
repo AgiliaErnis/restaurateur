@@ -1,12 +1,11 @@
 import React from 'react';
 import './Footer.css';
-import { Button } from '../button/Button';
 import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
     <div className='footer-container'>
-      <section className='footer'>
+      <section className='footer-heading-container'>
         <p className='footer-heading'>
           Join us and discover the best restaurants in Prague
         </p>
@@ -38,7 +37,7 @@ function Footer() {
         <div class='wrapper'>
           <div class='footer-logo'>
             <Link to='/' className='logo'>
-            <i class="fas fa-utensils" />
+            Restaurateur<i class="fas fa-utensils" />
             </Link>
           </div>
           <small class='website-rights'> © 2021</small>
