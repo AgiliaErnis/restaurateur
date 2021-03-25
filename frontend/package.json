@@ -1,12 +1,17 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "description": "Secure App Dev Project",
+  "main": "index.js",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.3",
+    "chalk": "^4.1.0",
+    "each-async": "^1.1.1",
     "enzyme": "^3.11.0",
+    "indent-string": "^4.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-icons": "^4.2.0",
@@ -19,7 +24,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && cp -r build ../frontend",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
