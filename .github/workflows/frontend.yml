@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: frontend
 
 # Controls when the action will run. 
 on:
@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
+       # working-directory: /frontend/**
         uses: actions/checkout@v2
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
