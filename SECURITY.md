@@ -131,3 +131,4 @@ Golang and JavaScript are both memory-safe languages, so the vulnerabilities of 
 Most implementation vulnerabilities are due to common types of implementation errors or common misconfigurations, so countering them greatly reduces security risks.
 
 To reduce the risk of security vulnerabilities in implementation we have focused on countering the OWASP Top 10, both the OWASP Top 10 (2013) and OWASP Top 10 (2017).
+
