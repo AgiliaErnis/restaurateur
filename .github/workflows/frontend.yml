@@ -10,7 +10,6 @@ on:
     paths: frontend/**
   pull_request:
     branches: [ main ]
-    paths: frontend/**
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -20,7 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
-        uses: actions/checkout@v2
+        working-directory: /frontend
+        #uses: actions/checkout@v2
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
