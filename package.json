@@ -1,0 +1,19 @@
+{
+  "name": "restaurateur",
+  "version": "1.0.0",
+  "description": "Secure App Dev",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgiliaErnis/restaurateur.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AgiliaErnis/restaurateur/issues"
+  },
+  "homepage": "https://github.com/AgiliaErnis/restaurateur#readme"
+}
