@@ -16,6 +16,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -23,12 +26,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
-      - name: checkout
-        run: cd frontend
-      - name: ls
-        run: ls -lah
-      - name: pwd
-        run: pwd
       - name: Install dependencies
         run: npm install
       - name: Test
