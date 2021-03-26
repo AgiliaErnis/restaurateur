@@ -2,7 +2,7 @@
 
 name: frontend
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events
   push:
@@ -23,8 +23,10 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+      - name: checkout
+        run: cd frontend
       - name: Install dependencies
-        run: npm install    
+        run: npm install
       - name: Test
         run: npm test
       - name: Generate build
