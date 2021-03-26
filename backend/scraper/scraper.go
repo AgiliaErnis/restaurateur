@@ -35,6 +35,7 @@ type nominatimJSON []struct {
 type Restaurant struct {
 	Name        string
 	Address     string
+	District    string
 	Images      []string
 	Cuisines    []string
 	PriceRange  string
@@ -102,11 +103,9 @@ func getRestaurantMenu(link, restaurantName string, ch chan<- menuPair) {
 }
 
 func (restaurant *Restaurant) setCoordinates() error {
-	address := strings.Split(restaurant.Address, ",")[0]
 	url := "https://nominatim.openstreetmap.org/search?street=" +
-		address + "&format=json"
+		restaurant.Address + "&city=" + restaurant.District + "&format=json"
 	res, err := http.Get(url)
-	log.Println("Getting coordinates for", restaurant.Name)
 	log.Println("Getting coordinates for", restaurant.Address)
 	if err != nil {
 		return err
@@ -130,7 +129,8 @@ func (restaurant *Restaurant) setCoordinates() error {
 	return nil
 }
 
-func visitLink(link, name, address string, ch chan<- restaurantPair) {
+func visitLink(link, name, fullAddress string, ch chan<- restaurantPair) {
+	address := strings.Split(fullAddress, ", ")[0]
 	newRestaurant := Restaurant{Name: name, Address: address}
 	url := restuBaseURL + link
 	res, err := http.Get(url)
@@ -155,6 +155,8 @@ func visitLink(link, name, address string, ch chan<- restaurantPair) {
 	scriptContent := doc.Find("script").Text()
 	rTags, _ := regexp.Compile("restaurantTopics.*")
 	restaurantTopics := rTags.FindString(scriptContent)
+	rDistrict, _ := regexp.Compile("Praha [0-9]+")
+	newRestaurant.District = rDistrict.FindString(fullAddress)
 	tags := strings.Split(strings.Replace(restaurantTopics, "restaurantTopics': ", "", 1), ",")
 	doc.Find(".tag").Each(func(i int, s *goquery.Selection) {
 		tag := s.Text()
@@ -248,7 +250,7 @@ func (restaurant *Restaurant) setWeeklyMenu(menus []*RestaurantMenu) {
 // and returns information about found restaurants
 func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 	var restaurants []*Restaurant
-	restaurantMenus, err := getRestaurantMenus()
+	restaurantMenus, err := GetRestaurantMenus()
 	if err != nil {
 		return restaurants, err
 	}
@@ -337,9 +339,9 @@ func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 	}
 }
 
-// getRestaurantMenus scrapes restu and returns
+// GetRestaurantMenus scrapes restu and returns
 // all restaurants with a weekly menu
-func getRestaurantMenus() ([]*RestaurantMenu, error) {
+func GetRestaurantMenus() ([]*RestaurantMenu, error) {
 	var restaurantMenus []*RestaurantMenu
 	menuChannel := make(chan menuPair, 1)
 	var workerWaitGroup sync.WaitGroup
