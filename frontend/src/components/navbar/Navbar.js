@@ -21,7 +21,7 @@ function Navbar() {
 
   useEffect(() => {
    showButton();
-  }, []);
+  }, [showButton]);
 
   window.addEventListener('resize', showButton);
 
@@ -83,5 +83,3 @@ function Navbar() {
 }
 
 export default Navbar;
-
-

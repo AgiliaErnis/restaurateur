@@ -15,7 +15,7 @@ export const AnimatedForms = ({signup,login}) => {
     left: signupFormStatus ? -500 : 0, // Login form sliding positions
   });
   const signupProps = useSpring({
-    left: signupFormStatus ? 0 : 500, // Signup form sliding positions
+    left: loginFormStatus ? 500 : 0, // Signup form sliding positions
   });
 
   const loginBtnProps = useSpring({
@@ -80,5 +80,3 @@ export const AnimatedForms = ({signup,login}) => {
 }
 
 export default AnimatedForms;
-
-

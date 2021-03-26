@@ -13,13 +13,16 @@ function Footer() {
       <div class='footer-links'>
         <div className='footer-link-wrapper'>
           <div class='footer-link-items'>
-            <h2>Home</h2>
-            <Link to='/'>Top Suggestions</Link>
-            <Link to='/'>Popular Localities</Link>
+            <h2>Services</h2>
+            <Link to='/sign-up'>How it works</Link>
+            <Link to='/'>Reviews</Link>
+            <Link to='/'>Filtration</Link>
+            <Link to='/'>Location</Link>
+            <Link to='/'>Terms of Service</Link>
           </div>
           <div class='footer-link-items'>
             <h2>Restaurants</h2>
-            <Link to='/'>Filtration</Link>
+            <Link to='/'>Suggestions</Link>
             <Link to='/'>Destinations</Link>
           </div>
           <div class='footer-link-items'>

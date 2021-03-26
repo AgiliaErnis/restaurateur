@@ -49,7 +49,11 @@ h1 {
   width: 100%;
   padding-top: 67%;
   overflow: hidden;
-  z-index: 1;
+}
+
+.fade-img {
+  animation-name: fade-img;
+  animation-duration: 2s;
 }
 
 .cards__item__pic-wrap::after {
@@ -79,8 +83,6 @@ h1 {
   max-height: 100%;
   object-fit: cover;
   transition: all 0.2s linear;
-  z-index: -1;
-  overflow: hidden;
 }
 
 .cards__item__img:hover {
