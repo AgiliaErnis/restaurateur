@@ -6,8 +6,10 @@ name: frontend
 on:
   # Triggers the workflow on push or pull request events
   push:
+    paths: frontend/**
     branches: [ main ]
   pull_request:
+    paths: frontend/**
     branches: [ main ]
 
 jobs:
