@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 const restuBaseURL = "https://www.restu.cz"
@@ -105,23 +106,30 @@ func getRestaurantMenu(link, restaurantName string, ch chan<- menuPair) {
 	return
 }
 
-func (restaurant *Restaurant) setCoordinates() error {
+func getNominatimJSON(restaurant *Restaurant) (nominatimJSON, error) {
+	var nominatim nominatimJSON
 	url := "https://nominatim.openstreetmap.org/search?street=" +
 		restaurant.Address + "&city=" + restaurant.District + "&format=json"
 	res, err := http.Get(url)
 	log.Println("Getting coordinates for", restaurant.Address)
 	if err != nil {
-		return err
+		return nominatim, err
 	}
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return err
+		return nominatim, err
 	}
-	var nominatim nominatimJSON
 	json.Unmarshal(body, &nominatim)
-	if len(nominatim) == 0 {
-		return errors.New("Couldn't get coordinates")
+	return nominatim, nil
+}
+
+func (restaurant *Restaurant) setCoordinates() error {
+	nominatim, err := getNominatimJSON(restaurant)
+	if len(nominatim) == 0 || err != nil {
+		restaurant.Lat = 0
+		restaurant.Lon = 0
+		return fmt.Errorf("Couldn't get coordinates for %q", restaurant.Name)
 	}
 	if lat, err := strconv.ParseFloat(nominatim[0].Lat, 64); err == nil {
 		restaurant.Lat = lat
@@ -316,7 +324,6 @@ func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 			err = restaurant.setCoordinates()
 			if err != nil {
 				log.Println(err)
-				continue
 			}
 			restaurant.setVegan(veganRestaurants)
 			restaurant.setVegetarian(vegetarianRestaurants)
@@ -363,6 +370,7 @@ func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 			workerWaitGroup.Wait()
 			close(restaurantChannel)
 			collectorWaitGroup.Wait()
+			restaurants = verifyCoordinates(restaurants)
 			return restaurants, nil
 		}
 		pageNum++
@@ -465,4 +473,23 @@ func getFilteredRestaurants(urlSuffix string) ([]string, error) {
 		}
 		pageNum++
 	}
+}
+
+func verifyCoordinates(restaurants []*Restaurant) []*Restaurant {
+	var newRestaurants []*Restaurant
+	for _, restaurant := range restaurants {
+		if restaurant.Lat == 0 || restaurant.Lon == 0 {
+			log.Printf("Retrying to set coordinates for %q\n", restaurant.Name)
+			err := restaurant.setCoordinates()
+			time.Sleep(time.Second) // nominatim has a limit of 1 call per second
+			if restaurant.Lat != 0 && restaurant.Lon != 0 {
+				newRestaurants = append(newRestaurants, restaurant)
+			} else {
+				log.Println(err)
+			}
+		} else {
+			newRestaurants = append(newRestaurants, restaurant)
+		}
+	}
+	return newRestaurants
 }
