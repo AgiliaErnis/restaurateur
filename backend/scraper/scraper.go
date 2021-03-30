@@ -33,20 +33,23 @@ type nominatimJSON []struct {
 
 // Restaurant contains information needed about the restaurant
 type Restaurant struct {
-	Name        string
-	Address     string
-	District    string
-	Images      []string
-	Cuisines    []string
-	PriceRange  string
-	Rating      string
-	URL         string
-	PhoneNumber string
-	Lat         float64
-	Lon         float64
-	Vegan       bool
-	Vegetarian  bool
-	WeeklyMenu  map[string]string
+	Name            string
+	Address         string
+	District        string
+	Images          []string
+	Cuisines        []string
+	PriceRange      string
+	Rating          string
+	URL             string
+	PhoneNumber     string
+	Lat             float64
+	Lon             float64
+	Vegan           bool
+	Vegetarian      bool
+	WeeklyMenu      map[string]string
+	OpeningHours    map[string]string
+	Takeaway        bool
+	DeliveryOptions []string
 }
 
 // RestaurantMenu stores name of the restaurant along with the weekly menu
@@ -152,6 +155,33 @@ func visitLink(link, name, fullAddress string, ch chan<- restaurantPair) {
 		ch <- restaurantPair{newRestaurant, err}
 		return
 	}
+	log.Println(name)
+	daysArray := [7]string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}
+	ctr := 0
+	openingHours := make(map[string]string)
+	doc.Find(".opening-list__time").Each(func(i int, s *goquery.Selection) {
+		if ctr >= 7 {
+			return
+		}
+		openingHours[daysArray[ctr]] = s.Text()
+		ctr++
+	})
+	doc.Find(".restaurant-detail-header-delivery-takeaway-container").Each(func(i int, s *goquery.Selection) {
+		text := s.Find("h4").Text()
+		if text == "" {
+			newRestaurant.Takeaway = false
+		} else {
+			newRestaurant.Takeaway = true
+			var deliveryOptions []string
+			s.Find("a").Each(func(i int, s *goquery.Selection) {
+				link, _ := s.Attr("href")
+				deliveryOptions = append(deliveryOptions, link)
+			})
+			newRestaurant.DeliveryOptions = deliveryOptions
+		}
+
+	})
+	newRestaurant.OpeningHours = openingHours
 	scriptContent := doc.Find("script").Text()
 	rTags, _ := regexp.Compile("restaurantTopics.*")
 	restaurantTopics := rTags.FindString(scriptContent)
