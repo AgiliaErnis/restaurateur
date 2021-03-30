@@ -120,7 +120,9 @@ func getNominatimJSON(restaurant *Restaurant) (nominatimJSON, error) {
 	if err != nil {
 		return nominatim, err
 	}
-	json.Unmarshal(body, &nominatim)
+	if err := json.Unmarshal(body, &nominatim); err != nil {
+		return nominatim, err
+	}
 	return nominatim, nil
 }
 
@@ -163,7 +165,6 @@ func visitLink(link, name, fullAddress string, ch chan<- restaurantPair) {
 		ch <- restaurantPair{newRestaurant, err}
 		return
 	}
-	log.Println(name)
 	daysArray := [7]string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}
 	ctr := 0
 	openingHours := make(map[string]string)
