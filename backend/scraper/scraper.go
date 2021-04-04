@@ -47,6 +47,7 @@ type Restaurant struct {
 	Lon             float64
 	Vegan           bool
 	Vegetarian      bool
+	GlutenFree      bool
 	WeeklyMenu      map[string]string
 	OpeningHours    map[string]string
 	Takeaway        bool
@@ -276,6 +277,11 @@ func (restaurant *Restaurant) setVegetarian(vegetarianRestaurants []string) {
 	restaurant.Vegetarian = found
 }
 
+func (restaurant *Restaurant) setGlutenFree(glutenFreeRestaurants []string) {
+	found := sliceContains(glutenFreeRestaurants, restaurant.Name)
+	restaurant.GlutenFree = found
+}
+
 func (restaurant *Restaurant) setWeeklyMenu(menus []*RestaurantMenu) {
 	for _, menu := range menus {
 		if menu.RestaurantName == restaurant.Name {
@@ -298,6 +304,10 @@ func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 		return restaurants, err
 	}
 	vegetarianRestaurants, err := getFilteredRestaurants("vegetarianske-restaurace")
+	if err != nil {
+		return restaurants, err
+	}
+	glutenFreeRestaurants, err := getFilteredRestaurants("bezlepkove-restaurace")
 	if err != nil {
 		return restaurants, err
 	}
@@ -328,6 +338,7 @@ func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 			}
 			restaurant.setVegan(veganRestaurants)
 			restaurant.setVegetarian(vegetarianRestaurants)
+			restaurant.setGlutenFree(glutenFreeRestaurants)
 			restaurant.setWeeklyMenu(restaurantMenus)
 			restaurants = append(restaurants, &restaurant)
 		}
