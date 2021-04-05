@@ -1,0 +1,30 @@
+body {
+    background-color:#fff;
+}
+
+.restaurants-hero-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.restaurant-cards-container{
+    margin-top: 4rem;
+    margin-left: 3rem;
+}
+
+.restaurant-cards-header {
+    display: flex;
+    flex-direction: row;
+}
+
+.sort {
+    margin-left: 14rem;
+    width: 170px;
+    font-size: 14px;
+}
+
+.sort .css-1353rn1-control, .css-z21ypx-control {
+    border-radius: 5px !important;
+}

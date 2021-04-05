@@ -1,8 +1,6 @@
 import React from 'react';
-import '../cards/Cards.css';
 import DistrictItem from './District_item';
-import './Districts.css'
-
+import './Districts.css';
 
 function Districts() {
   return (

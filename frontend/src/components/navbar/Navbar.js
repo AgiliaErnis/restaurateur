@@ -1,23 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '../button/Button';
 import MobileNavbar from './MobileNavbar'
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 import { Modal } from '../forms/Modal'
+import Searchbox from '../search/Searchbox';
+import NavbarLogic from './NavbarLogic';
 
 function Navbar() {
   const { click, button, showButton, handleClick, closeMobileMenu }
     = MobileNavbar();
-
-  const [showSignUpModal, setShowSignUpModal] = useState(false);
-  const [showLogInModal, setShowLogInModal] = useState(false);
-
-  const openSignUpModal = () => {
-    setShowSignUpModal(prev=> !prev);
-  }
-
-  const openLogInModal = () =>
-    setShowLogInModal (!showLogInModal);
+  const { navMenuClassName, searchbox, showLogInModal,
+          showSignUpModal, openLogInModal, openSignUpModal,
+          setShowLogInModal, setShowSignUpModal }
+    = NavbarLogic();
 
   useEffect(() => {
    showButton();
@@ -32,10 +28,13 @@ function Navbar() {
           <Link to='/' className='navbar-logo' onClick={closeMobileMenu}>
            Restaurateur<i class="fas fa-utensils" />
           </Link>
+          <div className={click ? 'hidden' : searchbox}>
+            <Searchbox />
+          </div>
           <div className='menu-icon' onClick={handleClick}>
             <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
           </div>
-          <ul className={click ? 'nav-menu active' : 'nav-menu'}>
+          <ul className={click ? 'nav-menu active' : navMenuClassName}>
             <li className='nav-item'>
               <Link to='/' className='nav-links' onClick={closeMobileMenu}>
                 Home
@@ -67,15 +66,28 @@ function Navbar() {
             </li>
           </ul>
           {button &&
-          <Button buttonStyle='btn--outline' onClick={openLogInModal}
-                  id ="login" >LOG IN</Button>}
-          <Modal showLogInModal={showLogInModal}
-                 setShowLogInModal={setShowLogInModal}/>
-
-          {button && <Button  id ="signup" onClick={openSignUpModal}>SIGN UP</Button>}
-          <Modal showSignUpModal={showSignUpModal} setShowSignUpModal={setShowSignUpModal}/>
-
-
+            <Button
+              buttonStyle='btn--outline'
+              buttonSize='btn--medium'
+              onClick={openLogInModal}
+              id="login">
+                LOG IN
+            </Button>}
+          <Modal
+            showLogInModal={showLogInModal}
+            setShowLogInModal={setShowLogInModal}
+          />
+          {button &&
+            <Button
+              id="signup"
+              buttonSize='btn--medium'
+              onClick={openSignUpModal}>
+                SIGN UP
+            </Button>}
+          <Modal
+            showSignUpModal={showSignUpModal}
+            setShowSignUpModal={setShowSignUpModal}
+          />
         </div>
       </nav>
     </>
