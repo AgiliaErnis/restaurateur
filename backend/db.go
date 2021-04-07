@@ -60,8 +60,8 @@ func dbInitialise() (*sqlx.DB, error) {
 	return conn, nil
 }
 
-func StoreRestaurants(conn *sqlx.DB) error {
-	restaurants, err := scraper.GetRestaurants("chodov")
+func storeRestaurants(conn *sqlx.DB) error {
+	restaurants, err := scraper.GetRestaurants("praha")
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 								cuisines, price_range, rating, url, phone_number, lat, lon,
 								vegan, vegetarian, gluten_free, weekly_menu, opening_hours, takeaway, delivery_options)
 								VALUES
-								($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`)
+								($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`)
 	if err != nil {
 		return err
 	}
