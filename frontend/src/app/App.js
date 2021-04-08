@@ -4,11 +4,13 @@ import './App.css';
 import Home from '../pages/Home';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Restaurants from '../pages/Restaurants';
+import ScrollToTop from '../components/ScrollToTop';
 
 function App() {
   return (
     <>
       <Router>
+        <ScrollToTop />
         <Navbar />
         <Switch>
           <Route path='/' exact component={Home} />

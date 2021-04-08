@@ -3,7 +3,7 @@ import React from 'react';
 export default function Restaurants() {
   return (
     <>
-      <h1 className='restaurants'>Restaurants</h1>
+      <i class="fas fa-utensils" />
     </>
   );
 }
