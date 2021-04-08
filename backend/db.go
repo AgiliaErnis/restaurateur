@@ -106,7 +106,7 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 		WeeklyMenu,
 		OpeningHours,
 		r.Takeaway,
-		r.DeliveryOptions)
+		pq.Array(r.DeliveryOptions))
 
 	return err
 }
