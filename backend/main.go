@@ -3,32 +3,23 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/AgiliaErnis/restaurateur/backend/scraper"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
 )
 
-// MockRestaurant placeholder for real struct
-// TODO: replace with Restaurant struct from scraper after it's merged
-type MockRestaurant struct {
-	Name string
-}
-
 type responseJSON struct {
 	Status int
 	Msg    string
-	Data   []*MockRestaurant
+	Data   []*scraper.Restaurant
 }
 
 var allowedEndpoints = [...]string{"/restaurants"}
 
-// TODO: change this func to fetch actual data from database
-// after scraper and db is merged to main
-func getFakeRestaurants(lat, lon float64, radius int) []*MockRestaurant {
-	log.Printf("Lat: %v, Lon: %v, Rad: %v", lat, lon, radius)
-	return []*MockRestaurant{{"Restaurant1"}, {"Restaurant2"}}
-}
+// Placeholder data before data from the database is available
+var vinohradyRestaurants, restaurantErr = scraper.GetRestaurants("vinohrady")
 
 func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
@@ -59,6 +50,32 @@ func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 }
 
+func pcRestaurants(w http.ResponseWriter, r *http.Request) {
+	pcLat := 50.0785714
+	pcLon := 14.4400922
+	v := r.URL.Query()
+	radiusParam := v.Get("radius")
+	radius, errRad := strconv.ParseFloat(radiusParam, 64)
+	if errRad != nil {
+		radius = 5000
+	}
+	filteredRestaurants := getRestaurantsInRadius(vinohradyRestaurants, pcLat, pcLon, radius)
+	resStatus := http.StatusOK
+	res := responseJSON{
+		Status: http.StatusOK,
+		Msg:    "Success",
+		Data:   filteredRestaurants,
+	}
+	response, err := json.Marshal(res)
+	if err != nil {
+		resStatus = http.StatusInternalServerError
+		response = []byte("Internal server error")
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(resStatus)
+	w.Write(response)
+}
+
 func restaurants(w http.ResponseWriter, r *http.Request) {
 	v := r.URL.Query()
 	latParam := v.Get("lat")
@@ -73,14 +90,15 @@ func restaurants(w http.ResponseWriter, r *http.Request) {
 		res.Msg = fmt.Sprintf("Invalid coordinates(Lat: %s, Lon: %s)", latParam, lonParam)
 	} else {
 		radiusParam := v.Get("radius")
-		radius, errRad := strconv.Atoi(radiusParam)
+		radius, errRad := strconv.ParseFloat(radiusParam, 64)
 		if errRad != nil {
 			radius = 1000
 		}
-		fakeRestaurants := getFakeRestaurants(lat, lon, radius)
+		// TODO: change this func to fetch actual data from database
+		filteredRestaurants := getRestaurantsInRadius(vinohradyRestaurants, lat, lon, radius)
 		res.Status = resStatus
 		res.Msg = "Success"
-		res.Data = fakeRestaurants
+		res.Data = filteredRestaurants
 	}
 	response, err := json.Marshal(res)
 	if err != nil {
@@ -88,7 +106,6 @@ func restaurants(w http.ResponseWriter, r *http.Request) {
 		response = []byte("Internal server error")
 	}
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(resStatus)
 	w.Write(response)
 }
@@ -96,6 +113,7 @@ func restaurants(w http.ResponseWriter, r *http.Request) {
 func main() {
 	r := mux.NewRouter()
 	port := ":8080"
+	r.HandleFunc("/prague-college/restaurants", pcRestaurants).Methods(http.MethodGet)
 	r.HandleFunc("/restaurants", restaurants).Methods(http.MethodGet)
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
 	log.Println("Starting server on", port)
