@@ -50,7 +50,7 @@ func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 }
 
-func pcRestaurants(w http.ResponseWriter, r *http.Request) {
+func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	pcLat := 50.0785714
 	pcLon := 14.4400922
 	v := r.URL.Query()
@@ -76,7 +76,7 @@ func pcRestaurants(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 }
 
-func restaurants(w http.ResponseWriter, r *http.Request) {
+func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	v := r.URL.Query()
 	latParam := v.Get("lat")
 	lonParam := v.Get("lon")
@@ -113,8 +113,8 @@ func restaurants(w http.ResponseWriter, r *http.Request) {
 func main() {
 	r := mux.NewRouter()
 	port := ":8080"
-	r.HandleFunc("/prague-college/restaurants", pcRestaurants).Methods(http.MethodGet)
-	r.HandleFunc("/restaurants", restaurants).Methods(http.MethodGet)
+	r.HandleFunc("/prague-college/restaurants", pcRestaurantsHandler).Methods(http.MethodGet)
+	r.HandleFunc("/restaurants", restaurantsHandler).Methods(http.MethodGet)
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
 	log.Println("Starting server on", port)
 	log.Fatal(http.ListenAndServe(port, r))
