@@ -6,12 +6,12 @@ function CardItem(props) {
   return (
     <>
       <Router>
-        <li className='cards__item' path={props.path}>
-          <Link className='cards__item__link'>
+        <li className='cards__item'>
+          <Link className='cards__item__link' to={props.path}>
             <figure className='cards__item__pic-wrap' data-category={props.label}>
               <img
                 className='cards__item__img'
-                alt='Food Category Image'
+                alt='Food Category'
                 src={props.src}
               />
             </figure>
@@ -26,4 +26,3 @@ function CardItem(props) {
 }
 
 export default CardItem;
-
