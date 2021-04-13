@@ -7,7 +7,7 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.15);
     transition: all 0.3s ease-in-out;
     cursor: pointer;
-     border-radius: 4px;
+    border-radius: 4px;
 }
 
 .restaurant_card_item:hover {
@@ -49,6 +49,7 @@
     cursor: pointer;
     font-weight: bold;
     line-height: 22px;
+    display: flex;
 }
 
 .more-options {
@@ -124,4 +125,83 @@
     margin-inline-start: 5px;
     margin-top: 0.2rem;
     font-weight: 500;
+}
+
+.save-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.save-btn,.save-btn-active {
+    position: relative;
+    cursor:pointer;
+    color:rgb(216, 214, 214);
+    transition:.2s;
+    margin-left: 180px;
+    font-size: 22px;
+}
+
+.save-btn:hover + .save-on-hover {
+   color:rgb(150, 148, 148);
+   display: block;
+}
+
+.save-btn:before,
+.save-btn-active:before {
+  font-family:fontawesome;
+  content:'\f02e';
+  font-style:normal;
+}
+
+.saved {
+  transition:.6s;
+  z-index:-2;
+  font-size:2px;
+  color:transparent;
+  font-weight:400;
+}
+
+.save-btn-active {
+  color: #f44336;
+}
+
+.save-on-hover {
+  display: none;
+  font-size: 12px;
+  margin-left: 180px;
+  position: absolute;
+  margin-left: 145px;
+  margin-top: 30px;
+}
+
+.save-on-hover-hidden {
+  display: none;
+}
+
+.restaurant_description .saved {
+  font-size:13px;
+  animation: fade 1s;
+  margin-left: 180px;
+  position: absolute;
+  margin-left: 167px;
+  margin-top: 30px;
+  font-weight: bold;
+  line-height: 22px;
+}
+
+.saved-hidden {
+  color: transparent;
+  margin-left: 280px;
+  position: absolute;
+  margin-left: 165px;
+  margin-top: 30px;
+  font-weight: bold;
+  font-weight: bold;
+  line-height: 22px;
+}
+
+@keyframes fade {
+  0% {color: transparent;}
+  50% {color: rgb(177, 107, 107);}
+  100% {color:transparent;}
 }

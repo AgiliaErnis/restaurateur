@@ -8,6 +8,8 @@ import SelectLogic from '../components/search/SelectLogic';
 import './Restaurants.css'
 import { RestaurantPhotos } from
   '../components/restaurants/PhotoSlider/RestaurantPhotos';
+import RestaurantPagination from '../components/restaurants/pagination/Pagination';
+
 
 export default function Restaurants() {
   const { customThemes, customStyles } = SelectStyle();
@@ -72,8 +74,10 @@ export default function Restaurants() {
             takeaway= "false"
             delivery = "true"
           />
+          <RestaurantPagination />
         </div>
       </div>
+
     </>
   );
 }
