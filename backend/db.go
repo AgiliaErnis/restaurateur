@@ -35,24 +35,24 @@ const (
 )
 
 type RestaurantDB struct {
-	ID							int `db:"id"`
-	Name            string `db:"name"`
-	Address         string `db:"address"`
-	District        string `db:"district"`
+	ID              int            `db:"id"`
+	Name            string         `db:"name"`
+	Address         string         `db:"address"`
+	District        string         `db:"district"`
 	Images          pq.StringArray `db:"images"`
 	Cuisines        pq.StringArray `db:"cuisines"`
-	PriceRange      string `db:"price_range"`
-	Rating          string `db:"rating"`
-	URL             string `db:"url"`
-	PhoneNumber     string `db:"phone_number"`
-	Lat             float64 `db:"lat"`
-	Lon             float64 `db:"lon"`
-	Vegan           bool `db:"vegan"`
-	Vegetarian      bool `db:"vegetarian"`
-	GlutenFree      bool `db:"gluten_free"`
-	WeeklyMenu      string `db:"weekly_menu"`
-	OpeningHours    string `db:"opening_hours"`
-	Takeaway        bool `db:"takeaway"`
+	PriceRange      string         `db:"price_range"`
+	Rating          string         `db:"rating"`
+	URL             string         `db:"url"`
+	PhoneNumber     string         `db:"phone_number"`
+	Lat             float64        `db:"lat"`
+	Lon             float64        `db:"lon"`
+	Vegan           bool           `db:"vegan"`
+	Vegetarian      bool           `db:"vegetarian"`
+	GlutenFree      bool           `db:"gluten_free"`
+	WeeklyMenu      string         `db:"weekly_menu"`
+	OpeningHours    string         `db:"opening_hours"`
+	Takeaway        bool           `db:"takeaway"`
 	DeliveryOptions pq.StringArray `db:"delivery_options"`
 }
 
