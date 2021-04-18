@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, BrowserRouter as Router } from 'react-router-dom';
-import './Cards.css'
+import './Cards.css';
 
 function CardItem(props) {
   return (
@@ -8,7 +8,8 @@ function CardItem(props) {
       <Router>
         <li className='cards__item'>
           <Link className='cards__item__link' to={props.path}>
-            <figure className='cards__item__pic-wrap' data-category={props.label}>
+            <figure className='cards__item__pic-wrap'
+                    data-category={props.label}>
               <img
                 className='cards__item__img'
                 alt='Food Category'

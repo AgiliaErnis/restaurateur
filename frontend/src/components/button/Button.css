@@ -25,6 +25,12 @@
   margin-right: 15px;
 }
 
+.btn--small {
+  height: 38px;
+  font-size: 16px;
+  margin-top: 1px;
+}
+
 .btn--medium {
   font-size: 18px;
   font-weight: bold;
@@ -86,6 +92,12 @@
     padding: 5px 15px;
     font-size: 17px;
     font-weight: bold;
+  }
+
+  .btn--small {
+    font-size: 15px;
+    width: 70px;
+    padding: 6px 12px;
   }
 }
 
