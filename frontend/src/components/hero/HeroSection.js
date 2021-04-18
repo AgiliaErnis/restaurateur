@@ -1,6 +1,6 @@
 import React from 'react';
 import './HeroSection.css';
-import Searchbox from './search/Searchbox'
+import Searchbox from '../search/Searchbox'
 
 function HeroSection() {
   return (

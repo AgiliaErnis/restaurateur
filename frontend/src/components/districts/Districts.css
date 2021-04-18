@@ -58,7 +58,7 @@ h4 {
   font-size: 18px;
 }
 
-.fa-angle-right {
+.districts__item .fa-angle-right {
   padding: 5% 5% 5% 0;
 }
 
@@ -99,6 +99,7 @@ h4 {
       margin-bottom: 15px;
     }
 }
+
 @media only screen and (max-width: 720px) {
     .districts {
       padding: 0 2.5rem 2.5rem 2.5rem;
