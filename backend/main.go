@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/AgiliaErnis/restaurateur/backend/scraper"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -13,15 +12,28 @@ import (
 type responseJSON struct {
 	Status int
 	Msg    string
-	Data   []*scraper.Restaurant
+	Data   []RestaurantDB
 }
 
 var allowedEndpoints = [...]string{"/restaurants"}
 
-// Placeholder data before data from the database is available
-var vinohradyRestaurants, restaurantErr = scraper.GetRestaurants("vinohrady")
+func logRequest(r *http.Request, handlerName string) {
+	method := r.Method
+	endpoint := r.URL
+	clientAddr := r.RemoteAddr
+	headers, _ := json.Marshal(r.Header)
+	log.Printf("Incoming request\n"+
+		"Method: %q\n"+
+		"Client's address: %q\n"+
+		"Request URL: %q\n"+
+		"Request headers: %s\n"+
+		"Handler: %q\n",
+		method, clientAddr, endpoint, headers, handlerName)
+}
 
 func catchAllHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println(r)
+	logRequest(r, "catchAllHandler")
 	path := r.URL.Path
 	res := responseJSON{}
 	resStatus := http.StatusNotFound
@@ -51,15 +63,19 @@ func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "pcRestaurantsHandler")
 	pcLat := 50.0785714
 	pcLon := 14.4400922
 	v := r.URL.Query()
 	radiusParam := v.Get("radius")
 	radius, errRad := strconv.ParseFloat(radiusParam, 64)
 	if errRad != nil {
-		radius = 5000
+		radius = 300
 	}
-	filteredRestaurants := getRestaurantsInRadius(vinohradyRestaurants, pcLat, pcLon, radius)
+	conn, _ := dbInitialise()
+	// Null is sometimes "null" sometimes null
+	loadedRestaurants, _ := loadRestaurants(conn)
+	filteredRestaurants := getRestaurantsInRadius(loadedRestaurants, pcLat, pcLon, radius)
 	resStatus := http.StatusOK
 	res := responseJSON{
 		Status: http.StatusOK,
@@ -77,6 +93,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "restaurantsHandler")
 	v := r.URL.Query()
 	latParam := v.Get("lat")
 	lonParam := v.Get("lon")
@@ -94,8 +111,9 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 		if errRad != nil {
 			radius = 1000
 		}
-		// TODO: change this func to fetch actual data from database
-		filteredRestaurants := getRestaurantsInRadius(vinohradyRestaurants, lat, lon, radius)
+		conn, _ := dbInitialise()
+		loadedRestaurants, _ := loadRestaurants(conn)
+		filteredRestaurants := getRestaurantsInRadius(loadedRestaurants, lat, lon, radius)
 		res.Status = resStatus
 		res.Msg = "Success"
 		res.Data = filteredRestaurants

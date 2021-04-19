@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	SCHEMA = `CREATE TABLE restaurants (
+	schema = `CREATE TABLE restaurants (
 		 id SERIAL NOT NULL PRIMARY KEY,
 		 name TEXT NOT NULL,
 		 address TEXT NOT NULL,
@@ -34,6 +34,7 @@ const (
 	 );`
 )
 
+// RestaurantDB struct compatible with postgres
 type RestaurantDB struct {
 	ID              int            `db:"id"`
 	Name            string         `db:"name"`
@@ -61,15 +62,15 @@ func dbCheck(conn *sqlx.DB) error {
 	err := conn.Get(&table, "SELECT table_name FROM information_schema.tables WHERE table_name=$1", "restaurants")
 	if err == sql.ErrNoRows {
 		log.Println("No table found, creating")
-		_, err = conn.Exec(SCHEMA)
+		_, err = conn.Exec(schema)
 	}
 
 	return err
 }
 
 func dbInitialise() (*sqlx.DB, error) {
-	var DB_DSN = os.Getenv("DB_DSN")
-	conn, err := sqlx.Connect("postgres", DB_DSN)
+	var dbDSN = os.Getenv("DB_DSN")
+	conn, err := sqlx.Connect("postgres", dbDSN)
 	if err != nil {
 		return nil, err
 	}
