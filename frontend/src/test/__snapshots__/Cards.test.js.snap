@@ -1,0 +1,172 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`testing Cards should render 1`] = `
+<div
+  className="cards"
+>
+  <h1>
+    Check Out the Top Suggestions! 
+  </h1>
+  <div
+    className="cards__container"
+  >
+    <div
+      className="cards__wrapper"
+    >
+      <ul
+        className="cards__items"
+      >
+        <li
+          className="cards__item"
+        >
+          <a
+            className="cards__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <figure
+              className="cards__item__pic-wrap"
+              data-category="Breakfast"
+            >
+              <img
+                alt="Food Category"
+                className="cards__item__img"
+                src="images/Home/breakfast.webp"
+              />
+            </figure>
+            <div
+              className="cards__item__info"
+            >
+              <h5
+                className="cards__item__text"
+              >
+                Top breakfast places in Prague
+              </h5>
+            </div>
+          </a>
+        </li>
+        <li
+          className="cards__item"
+        >
+          <a
+            className="cards__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <figure
+              className="cards__item__pic-wrap"
+              data-category="Italian Food"
+            >
+              <img
+                alt="Food Category"
+                className="cards__item__img"
+                src="images/Home/italian.jpg"
+              />
+            </figure>
+            <div
+              className="cards__item__info"
+            >
+              <h5
+                className="cards__item__text"
+              >
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              </h5>
+            </div>
+          </a>
+        </li>
+      </ul>
+      <ul
+        className="cards__items"
+      >
+        <li
+          className="cards__item"
+        >
+          <a
+            className="cards__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <figure
+              className="cards__item__pic-wrap"
+              data-category="Coffee"
+            >
+              <img
+                alt="Food Category"
+                className="cards__item__img"
+                src="images/Home/coffee.jpg"
+              />
+            </figure>
+            <div
+              className="cards__item__info"
+            >
+              <h5
+                className="cards__item__text"
+              >
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              </h5>
+            </div>
+          </a>
+        </li>
+        <li
+          className="cards__item"
+        >
+          <a
+            className="cards__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <figure
+              className="cards__item__pic-wrap"
+              data-category="Dinner Places"
+            >
+              <img
+                alt="Food Category"
+                className="cards__item__img"
+                src="images/Home/dinner.webp"
+              />
+            </figure>
+            <div
+              className="cards__item__info"
+            >
+              <h5
+                className="cards__item__text"
+              >
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              </h5>
+            </div>
+          </a>
+        </li>
+        <li
+          className="cards__item"
+        >
+          <a
+            className="cards__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <figure
+              className="cards__item__pic-wrap"
+              data-category="Healthy menus"
+            >
+              <img
+                alt="Food Category"
+                className="cards__item__img"
+                src="images/Home/salad.webp"
+              />
+            </figure>
+            <div
+              className="cards__item__info"
+            >
+              <h5
+                className="cards__item__text"
+              >
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              </h5>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+`;

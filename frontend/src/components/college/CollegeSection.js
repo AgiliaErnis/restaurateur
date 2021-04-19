@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './CollegeSection.css';
 import { Button } from '../button/Button';
-import { Link } from 'react-router-dom';
+import { Link, BrowserRouter as Router } from 'react-router-dom';
 import Aos from 'aos';
 import 'aos/dist/aos.css';
 
@@ -24,6 +24,7 @@ function CollegeSection () {
   window.addEventListener('resize', showImage);
   return (
     <>
+      <Router>
       <div className= 'college-section'>
         <div className='container' data-aos="fade-up">
           <div
@@ -68,6 +69,7 @@ function CollegeSection () {
           </div>
         </div>
       </div>
+      </Router>
     </>
   );
 }
