@@ -67,6 +67,7 @@ func (restaurant *RestaurantDB) hasCuisines(cuisinesString string) bool {
 	if cuisinesString == "" {
 		return true
 	}
+	cuisinesString = strings.Replace(cuisinesString, " ", "", -1)
 	cuisines := strings.Split(cuisinesString, ",")
 	for _, cuisine := range cuisines {
 		if !scraper.SliceContains(restaurant.Cuisines, strings.Title(cuisine)) {
