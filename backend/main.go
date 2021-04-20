@@ -123,10 +123,11 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	v := r.URL.Query()
 	latParam := v.Get("lat")
 	lonParam := v.Get("lon")
+	radiusParam := v.Get("radius")
 	lat, errLat := strconv.ParseFloat(latParam, 64)
 	lon, errLon := strconv.ParseFloat(lonParam, 64)
 	res := responseJSON{}
-	if errLat != nil || errLon != nil {
+	if radiusParam != "all" && (errLat != nil || errLon != nil) {
 		res.Msg = fmt.Sprintf("Invalid coordinates(Lat: %s, Lon: %s)", latParam, lonParam)
 		prepareResponse(w, http.StatusBadRequest, res)
 		return
