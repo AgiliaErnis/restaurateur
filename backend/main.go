@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/AgiliaErnis/restaurateur/backend/scraper"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type responseJSON struct {
@@ -45,6 +47,7 @@ func filterRestaurants(restaurants []*RestaurantDB, req *http.Request, lat, lon 
 	_, vegetarian := params["vegetarian"]
 	_, glutenFree := params["glutenfree"]
 	_, takeaway := params["takeaway"]
+	// The filtering of cuisines, takeaway, glutenfree, vegan and vegetarian could be done in the db query
 	for _, r := range restaurants {
 		if radiusParam == "all" || r.isInRadius(lat, lon, radius) {
 			if (vegan && !r.Vegan) || (vegetarian && !r.Vegetarian) ||
@@ -118,17 +121,52 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, http.StatusOK, res)
 }
 
-func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r, "restaurantsHandler")
-	v := r.URL.Query()
-	latParam := v.Get("lat")
-	lonParam := v.Get("lon")
-	radiusParam := v.Get("radius")
+func getCoordinates(r *http.Request) (float64, float64, error) {
+	params := r.URL.Query()
+	addressParam := params.Get("address")
+	radiusParam := params.Get("radius")
+	if radiusParam == "all" {
+		return 0, 0, nil
+	} else if addressParam != "" {
+		var lat float64
+		var lon float64
+		i := strings.Index(addressParam, "Praha")
+		var address string
+		var city string
+		if i > -1 {
+			address = addressParam[:i]
+			city = addressParam[i:]
+		} else {
+			address = addressParam
+			city = "Praha"
+		}
+		nominatim, err := scraper.GetNominatimJSON(address, city)
+		if len(nominatim) == 0 || err != nil {
+			return 0, 0, fmt.Errorf("Couldn't get coordinates for %q", addressParam)
+		}
+		lat, errLat := strconv.ParseFloat(nominatim[0].Lat, 64)
+		lon, errLon := strconv.ParseFloat(nominatim[0].Lon, 64)
+		if errLat != nil || errLon != nil {
+			return 0, 0, fmt.Errorf("Coordinates for %s not found", addressParam)
+		}
+		return lat, lon, nil
+	}
+	latParam := params.Get("lat")
+	lonParam := params.Get("lon")
 	lat, errLat := strconv.ParseFloat(latParam, 64)
 	lon, errLon := strconv.ParseFloat(lonParam, 64)
+	if errLat != nil || errLon != nil {
+		return 0, 0, fmt.Errorf("Invalid coordinates(Lat: %s, Lon: %s)", latParam, lonParam)
+	}
+	return lat, lon, nil
+}
+
+func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "restaurantsHandler")
+	lat, lon, err := getCoordinates(r)
 	res := responseJSON{}
-	if radiusParam != "all" && (errLat != nil || errLon != nil) {
-		res.Msg = fmt.Sprintf("Invalid coordinates(Lat: %s, Lon: %s)", latParam, lonParam)
+	if err != nil {
+		res.Msg = fmt.Sprintf("%s", err)
 		prepareResponse(w, http.StatusBadRequest, res)
 		return
 	}

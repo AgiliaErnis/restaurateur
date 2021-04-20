@@ -15,7 +15,8 @@ import (
 
 const restuBaseURL = "https://www.restu.cz"
 
-type nominatimJSON []struct {
+// NominatimJSON is the returned JSON from nominatim.openstreetmap.org
+type NominatimJSON []struct {
 	PlaceID     int      `json:"place_id"`
 	Licence     string   `json:"licence"`
 	OsmType     string   `json:"osm_type"`
@@ -93,12 +94,13 @@ func getRestaurantMenu(link, restaurantName string) (RestaurantMenu, error) {
 	return menu, nil
 }
 
-func getNominatimJSON(restaurant *Restaurant) (nominatimJSON, error) {
-	var nominatim nominatimJSON
+// GetNominatimJSON queries nominatim and returns the resulting JSON
+func GetNominatimJSON(address, city string) (NominatimJSON, error) {
+	var nominatim NominatimJSON
 	url := "https://nominatim.openstreetmap.org/search?street=" +
-		restaurant.Address + "&city=" + restaurant.District + "&format=json"
+		address + "&city=" + city + "&format=json"
 	res, err := http.Get(url)
-	log.Println("Getting coordinates for", restaurant.Address)
+	log.Println("Getting coordinates for", address)
 	if err != nil {
 		return nominatim, err
 	}
@@ -114,7 +116,7 @@ func getNominatimJSON(restaurant *Restaurant) (nominatimJSON, error) {
 }
 
 func (restaurant *Restaurant) setCoordinates() error {
-	nominatim, err := getNominatimJSON(restaurant)
+	nominatim, err := GetNominatimJSON(restaurant.Address, restaurant.District)
 	if len(nominatim) == 0 || err != nil {
 		restaurant.Lat = 0
 		restaurant.Lon = 0
