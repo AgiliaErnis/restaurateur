@@ -35,7 +35,7 @@ var trackedCuisines = func() []string {
 func getCuisines(tags []string) []string {
 	var foundCuisines []string
 	for _, item := range tags {
-		found := sliceContains(trackedCuisines, item)
+		found := SliceContains(trackedCuisines, item)
 		if found && item != "" {
 			foundCuisines = append(foundCuisines, cuisineTranslatedMap[item])
 		}

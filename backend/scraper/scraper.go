@@ -183,7 +183,7 @@ func visitLink(link, name, fullAddress string) (Restaurant, error) {
 	tags := strings.Split(strings.Replace(restaurantTopics, "restaurantTopics': ", "", 1), ",")
 	doc.Find(".tag").Each(func(i int, s *goquery.Selection) {
 		tag := s.Text()
-		if !(sliceContains(tags, tag)) {
+		if !(SliceContains(tags, tag)) {
 			tags = append(tags, tag)
 		}
 	})
@@ -240,7 +240,8 @@ func getAddresses(doc *goquery.Document) []string {
 	return addresses
 }
 
-func sliceContains(slice []string, val string) bool {
+// SliceContains checks whether a slice of strings contains a given string
+func SliceContains(slice []string, val string) bool {
 	for _, item := range slice {
 		if item == val {
 			return true
@@ -250,17 +251,17 @@ func sliceContains(slice []string, val string) bool {
 }
 
 func (restaurant *Restaurant) setVegan(veganRestaurants []string) {
-	found := sliceContains(veganRestaurants, restaurant.Name)
+	found := SliceContains(veganRestaurants, restaurant.Name)
 	restaurant.Vegan = found
 }
 
 func (restaurant *Restaurant) setVegetarian(vegetarianRestaurants []string) {
-	found := sliceContains(vegetarianRestaurants, restaurant.Name)
+	found := SliceContains(vegetarianRestaurants, restaurant.Name)
 	restaurant.Vegetarian = found
 }
 
 func (restaurant *Restaurant) setGlutenFree(glutenFreeRestaurants []string) {
-	found := sliceContains(glutenFreeRestaurants, restaurant.Name)
+	found := SliceContains(glutenFreeRestaurants, restaurant.Name)
 	restaurant.GlutenFree = found
 }
 
