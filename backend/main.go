@@ -12,7 +12,7 @@ import (
 type responseJSON struct {
 	Status int
 	Msg    string
-	Data   []RestaurantDB
+	Data   []*RestaurantDB
 }
 
 var allowedEndpoints = [...]string{"/restaurants"}
@@ -31,8 +31,34 @@ func logRequest(r *http.Request, handlerName string) {
 		method, clientAddr, endpoint, headers, handlerName)
 }
 
+func filterRestaurants(restaurants []*RestaurantDB, req *http.Request, lat, lon float64) []*RestaurantDB {
+	var filteredRestaurants []*RestaurantDB
+	params := req.URL.Query()
+	radiusParam := params.Get("radius")
+	cuisinesParam := params.Get("cuisines")
+	radius, errRad := strconv.ParseFloat(radiusParam, 64)
+	if errRad != nil {
+		// default value
+		radius = 500
+	}
+	_, vegan := params["vegan"]
+	_, vegetarian := params["vegetarian"]
+	_, glutenFree := params["glutenfree"]
+	_, takeaway := params["takeaway"]
+	for _, r := range restaurants {
+		if radiusParam == "all" || r.isInRadius(lat, lon, radius) {
+			if (vegan && !r.Vegan) || (vegetarian && !r.Vegetarian) ||
+				(glutenFree && !r.GlutenFree) || (takeaway && !r.Takeaway) || !r.hasCuisines(cuisinesParam) {
+				continue
+			} else {
+				filteredRestaurants = append(filteredRestaurants, r)
+			}
+		}
+	}
+	return filteredRestaurants
+}
+
 func catchAllHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println(r)
 	logRequest(r, "catchAllHandler")
 	path := r.URL.Path
 	res := responseJSON{}
@@ -66,16 +92,10 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "pcRestaurantsHandler")
 	pcLat := 50.0785714
 	pcLon := 14.4400922
-	v := r.URL.Query()
-	radiusParam := v.Get("radius")
-	radius, errRad := strconv.ParseFloat(radiusParam, 64)
-	if errRad != nil {
-		radius = 300
-	}
 	conn, _ := dbInitialise()
 	// Null is sometimes "null" sometimes null
 	loadedRestaurants, _ := loadRestaurants(conn)
-	filteredRestaurants := getRestaurantsInRadius(loadedRestaurants, pcLat, pcLon, radius)
+	filteredRestaurants := filterRestaurants(loadedRestaurants, r, pcLat, pcLon)
 	resStatus := http.StatusOK
 	res := responseJSON{
 		Status: http.StatusOK,
@@ -106,14 +126,9 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 		res.Status = resStatus
 		res.Msg = fmt.Sprintf("Invalid coordinates(Lat: %s, Lon: %s)", latParam, lonParam)
 	} else {
-		radiusParam := v.Get("radius")
-		radius, errRad := strconv.ParseFloat(radiusParam, 64)
-		if errRad != nil {
-			radius = 1000
-		}
 		conn, _ := dbInitialise()
 		loadedRestaurants, _ := loadRestaurants(conn)
-		filteredRestaurants := getRestaurantsInRadius(loadedRestaurants, lat, lon, radius)
+		filteredRestaurants := filterRestaurants(loadedRestaurants, r, lat, lon)
 		res.Status = resStatus
 		res.Msg = "Success"
 		res.Data = filteredRestaurants
