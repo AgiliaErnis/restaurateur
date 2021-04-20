@@ -23,14 +23,3 @@ func haversine(lat1, lon1, lat2, lon2 float64) float64 {
 	var radius float64 = 6371000 // Radius of earth in meters
 	return c * radius
 }
-
-func getRestaurantsInRadius(restaurants []RestaurantDB, lat, lon, radius float64) []RestaurantDB {
-	var filteredRestaurants []RestaurantDB
-	for _, r := range restaurants {
-		distance := haversine(lat, lon, r.Lat, r.Lon)
-		if distance <= radius {
-			filteredRestaurants = append(filteredRestaurants, r)
-		}
-	}
-	return filteredRestaurants
-}
