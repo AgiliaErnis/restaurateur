@@ -63,6 +63,21 @@ func (restaurant *RestaurantDB) isInRadius(lat, lon, radius float64) bool {
 	return distance <= radius
 }
 
+func (restaurant *RestaurantDB) isInPriceRange(priceRangeString string) bool {
+	if priceRangeString == "" {
+		return true
+	}
+	priceRanges := strings.Split(priceRangeString, ",")
+	for _, priceRange := range priceRanges {
+		replacer := strings.NewReplacer(" ", "", "Kč", "", "+", "-")
+		cleanedPriceRange := replacer.Replace(restaurant.PriceRange)
+		if cleanedPriceRange == priceRange {
+			return true
+		}
+	}
+	return false
+}
+
 func (restaurant *RestaurantDB) hasCuisines(cuisinesString string) bool {
 	if cuisinesString == "" {
 		return true
