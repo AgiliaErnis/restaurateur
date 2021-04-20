@@ -8,6 +8,7 @@ import (
 	"github.com/lib/pq"
 	"log"
 	"os"
+	"strings"
 )
 
 const (
@@ -55,6 +56,24 @@ type RestaurantDB struct {
 	OpeningHours    string         `db:"opening_hours"`
 	Takeaway        bool           `db:"takeaway"`
 	DeliveryOptions pq.StringArray `db:"delivery_options"`
+}
+
+func (restaurant *RestaurantDB) isInRadius(lat, lon, radius float64) bool {
+	distance := haversine(lat, lon, restaurant.Lat, restaurant.Lon)
+	return distance <= radius
+}
+
+func (restaurant *RestaurantDB) hasCuisines(cuisinesString string) bool {
+	if cuisinesString == "" {
+		return true
+	}
+	cuisines := strings.Split(cuisinesString, ",")
+	for _, cuisine := range cuisines {
+		if !scraper.SliceContains(restaurant.Cuisines, strings.Title(cuisine)) {
+			return false
+		}
+	}
+	return true
 }
 
 func dbCheck(conn *sqlx.DB) error {
@@ -134,8 +153,8 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 	return err
 }
 
-func loadRestaurants(conn *sqlx.DB) ([]RestaurantDB, error) {
-	var restaurants []RestaurantDB
+func loadRestaurants(conn *sqlx.DB) ([]*RestaurantDB, error) {
+	var restaurants []*RestaurantDB
 	err := conn.Select(&restaurants, `SELECT * FROM restaurants`)
 
 	return restaurants, err
