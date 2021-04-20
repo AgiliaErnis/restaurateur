@@ -15,7 +15,7 @@ type responseJSON struct {
 	Data   []*RestaurantDB
 }
 
-var allowedEndpoints = [...]string{"/restaurants"}
+var allowedEndpoints = [...]string{"/restaurants", "/prague-college/restaurants"}
 
 func logRequest(r *http.Request, handlerName string) {
 	method := r.Method
@@ -58,11 +58,25 @@ func filterRestaurants(restaurants []*RestaurantDB, req *http.Request, lat, lon 
 	return filteredRestaurants
 }
 
+func prepareResponse(w http.ResponseWriter, status int, response responseJSON) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	response.Status = status
+	res, err := json.Marshal(response)
+	if err != nil {
+		log.Println("Error while marshalling JSON response")
+	}
+	if status == http.StatusInternalServerError || err != nil {
+		w.Write([]byte("Internal server error"))
+	} else {
+		w.Write(res)
+	}
+}
+
 func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "catchAllHandler")
 	path := r.URL.Path
 	res := responseJSON{}
-	resStatus := http.StatusNotFound
 	found := false
 	for _, endpoint := range allowedEndpoints {
 		if endpoint == path {
@@ -71,45 +85,37 @@ func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if found {
-		resStatus = http.StatusMethodNotAllowed
-		res.Status = resStatus
 		res.Msg = fmt.Sprintf("Wrong method: %v", r.Method)
-	} else {
-		res.Status = resStatus
-		res.Msg = fmt.Sprintf("Invalid endpoint: %v", path)
+		prepareResponse(w, http.StatusMethodNotAllowed, res)
+		return
 	}
-	response, err := json.Marshal(res)
-	if err != nil {
-		resStatus = http.StatusInternalServerError
-		response = []byte("Internal server error")
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(resStatus)
-	w.Write(response)
+	res.Msg = fmt.Sprintf("Invalid endpoint: %v", path)
+	prepareResponse(w, http.StatusBadRequest, res)
 }
 
 func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "pcRestaurantsHandler")
 	pcLat := 50.0785714
 	pcLon := 14.4400922
-	conn, _ := dbInitialise()
-	// Null is sometimes "null" sometimes null
-	loadedRestaurants, _ := loadRestaurants(conn)
-	filteredRestaurants := filterRestaurants(loadedRestaurants, r, pcLat, pcLon)
-	resStatus := http.StatusOK
-	res := responseJSON{
-		Status: http.StatusOK,
-		Msg:    "Success",
-		Data:   filteredRestaurants,
-	}
-	response, err := json.Marshal(res)
+	conn, err := dbInitialise()
 	if err != nil {
-		resStatus = http.StatusInternalServerError
-		response = []byte("Internal server error")
+		log.Println("Database not initialized")
+		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(resStatus)
-	w.Write(response)
+	// Null is sometimes "null" sometimes null
+	loadedRestaurants, err := loadRestaurants(conn)
+	if err != nil {
+		log.Println("Couldn't load restaurants from db")
+		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		return
+	}
+	filteredRestaurants := filterRestaurants(loadedRestaurants, r, pcLat, pcLon)
+	res := responseJSON{
+		Msg:  "Success",
+		Data: filteredRestaurants,
+	}
+	prepareResponse(w, http.StatusOK, res)
 }
 
 func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
@@ -119,28 +125,33 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	lonParam := v.Get("lon")
 	lat, errLat := strconv.ParseFloat(latParam, 64)
 	lon, errLon := strconv.ParseFloat(lonParam, 64)
-	resStatus := http.StatusOK
 	res := responseJSON{}
 	if errLat != nil || errLon != nil {
-		resStatus = http.StatusBadRequest
-		res.Status = resStatus
 		res.Msg = fmt.Sprintf("Invalid coordinates(Lat: %s, Lon: %s)", latParam, lonParam)
-	} else {
-		conn, _ := dbInitialise()
-		loadedRestaurants, _ := loadRestaurants(conn)
-		filteredRestaurants := filterRestaurants(loadedRestaurants, r, lat, lon)
-		res.Status = resStatus
-		res.Msg = "Success"
-		res.Data = filteredRestaurants
+		prepareResponse(w, http.StatusBadRequest, res)
+		return
 	}
-	response, err := json.Marshal(res)
+	conn, err := dbInitialise()
 	if err != nil {
-		resStatus = http.StatusInternalServerError
-		response = []byte("Internal server error")
+		log.Println("Database not initialized")
+		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(resStatus)
-	w.Write(response)
+	loadedRestaurants, err := loadRestaurants(conn)
+	if err != nil {
+		log.Println("Couldn't load restaurants from db")
+		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		return
+	}
+	filteredRestaurants := filterRestaurants(loadedRestaurants, r, lat, lon)
+	res.Msg = "Success"
+	res.Data = filteredRestaurants
+	if err != nil {
+		log.Println("Database not initialized")
+		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		return
+	}
+	prepareResponse(w, http.StatusOK, res)
 }
 
 func main() {
