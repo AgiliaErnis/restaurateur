@@ -79,11 +79,11 @@ func (restaurant *RestaurantDB) isInPriceRange(priceRangeString string) bool {
 }
 
 func (restaurant *RestaurantDB) isInDistrict(districtString string) bool {
-    if districtString == "" {
-        return true
-    }
-    replacer := strings.NewReplacer(" ", "")
-    districtString = replacer.Replace(districtString)
+	if districtString == "" {
+		return true
+	}
+	replacer := strings.NewReplacer(" ", "")
+	districtString = replacer.Replace(districtString)
 	districts := strings.Split(districtString, ",")
 	for _, district := range districts {
 		if replacer.Replace(restaurant.District) == strings.Title(district) {
