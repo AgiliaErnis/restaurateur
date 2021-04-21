@@ -35,8 +35,7 @@ func logRequest(r *http.Request, handlerName string) {
 }
 
 func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
-	var andParams = [...]string{"vegetarian", "vegan", "gluten-free", "takeaway", "district"}
-	var nullParams = [...]string{"delivery-options"}
+	var andParams = [...]string{"vegetarian", "vegan", "gluten-free", "takeaway"}
 	var queries []string
 	pgQuery := "SELECT * from restaurants"
 	paramCtr := 1
@@ -56,14 +55,6 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 			paramCtr++
 		}
 	}
-	for _, param := range nullParams {
-		_, ok := params[param]
-		if ok {
-			param = strings.Replace(param, "-", "_", -1)
-			pgParam := fmt.Sprintf("%s IS NOT NULL", param)
-			queries = append(queries, pgParam)
-		}
-	}
 	if len(queries) > 0 {
 		pgQuery += " WHERE "
 	}
@@ -80,16 +71,17 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon float64) []*RestaurantDB {
 	var filteredRestaurants []*RestaurantDB
 	radiusParam := params.Get("radius")
-	cuisinesParam := params.Get("cuisines")
+	cuisineParam := params.Get("cuisine")
 	priceRangeParam := params.Get("price-range")
+	districtParam := params.Get("district")
 	radius, errRad := strconv.ParseFloat(radiusParam, 64)
 	if errRad != nil {
 		// default value
 		radius = 500
 	}
 	for _, r := range restaurants {
-		if radiusParam == "all" || r.isInRadius(lat, lon, radius) {
-			if r.hasCuisines(cuisinesParam) && r.isInPriceRange(priceRangeParam) {
+		if radiusParam == "ignore" || r.isInRadius(lat, lon, radius) {
+			if r.hasCuisines(cuisineParam) && r.isInPriceRange(priceRangeParam) && r.isInDistrict(districtParam) {
 				filteredRestaurants = append(filteredRestaurants, r)
 			}
 		}
@@ -155,7 +147,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 func getCoordinates(params url.Values) (float64, float64, error) {
 	addressParam := params.Get("address")
 	radiusParam := params.Get("radius")
-	if radiusParam == "all" {
+	if radiusParam == "ignore" {
 		return 0, 0, nil
 	} else if addressParam != "" {
 		var lat float64
