@@ -63,6 +63,14 @@ func (restaurant *RestaurantDB) isInRadius(lat, lon, radius float64) bool {
 	return distance <= radius
 }
 
+func (restaurant *RestaurantDB) inDistrict(district string) bool {
+	if district == "" {
+		return true
+	}
+	district = strings.Title(strings.Replace(district, " ", "", -1))
+	return strings.Replace(restaurant.District, " ", "", -1) == district
+}
+
 func (restaurant *RestaurantDB) isInPriceRange(priceRangeString string) bool {
 	if priceRangeString == "" {
 		return true

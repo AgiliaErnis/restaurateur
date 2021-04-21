@@ -39,6 +39,7 @@ func filterRestaurants(restaurants []*RestaurantDB, req *http.Request, lat, lon 
 	radiusParam := params.Get("radius")
 	cuisinesParam := params.Get("cuisines")
 	priceRangeParam := params.Get("price-range")
+	districtParam := params.Get("district")
 	radius, errRad := strconv.ParseFloat(radiusParam, 64)
 	if errRad != nil {
 		// default value
@@ -46,6 +47,7 @@ func filterRestaurants(restaurants []*RestaurantDB, req *http.Request, lat, lon 
 	}
 	_, vegan := params["vegan"]
 	_, vegetarian := params["vegetarian"]
+	_, delivery := params["delivery"]
 	_, glutenFree := params["glutenfree"]
 	_, takeaway := params["takeaway"]
 	// The filtering of cuisines, takeaway, glutenfree, vegan and vegetarian could be done in the db query
@@ -53,6 +55,7 @@ func filterRestaurants(restaurants []*RestaurantDB, req *http.Request, lat, lon 
 		if radiusParam == "all" || r.isInRadius(lat, lon, radius) {
 			if (vegan && !r.Vegan) || (vegetarian && !r.Vegetarian) ||
 				(glutenFree && !r.GlutenFree) || (takeaway && !r.Takeaway) ||
+				(delivery && r.DeliveryOptions == nil) || !r.inDistrict(districtParam) ||
 				!r.hasCuisines(cuisinesParam) || !r.isInPriceRange(priceRangeParam) {
 				continue
 			} else {
