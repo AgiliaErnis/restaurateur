@@ -68,7 +68,6 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 		pgQuery += " WHERE "
 	}
 	pgQuery += strings.Join(queries, " AND ")
-	log.Println(pgQuery)
 	var restaurants []*RestaurantDB
 	conn, err := dbInitialise()
 	err = conn.Select(&restaurants, pgQuery, values...)
@@ -90,9 +89,7 @@ func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon 
 	}
 	for _, r := range restaurants {
 		if radiusParam == "all" || r.isInRadius(lat, lon, radius) {
-			if !r.hasCuisines(cuisinesParam) || !r.isInPriceRange(priceRangeParam) {
-				continue
-			} else {
+			if r.hasCuisines(cuisinesParam) && r.isInPriceRange(priceRangeParam) {
 				filteredRestaurants = append(filteredRestaurants, r)
 			}
 		}
