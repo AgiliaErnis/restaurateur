@@ -34,6 +34,28 @@ const (
 	 );`
 )
 
+type RestaurantDB struct {
+	ID              int            `db:"id"`
+	Name            string         `db:"name"`
+	Address         string         `db:"address"`
+	District        string         `db:"district"`
+	Images          pq.StringArray `db:"images"`
+	Cuisines        pq.StringArray `db:"cuisines"`
+	PriceRange      string         `db:"price_range"`
+	Rating          string         `db:"rating"`
+	URL             string         `db:"url"`
+	PhoneNumber     string         `db:"phone_number"`
+	Lat             float64        `db:"lat"`
+	Lon             float64        `db:"lon"`
+	Vegan           bool           `db:"vegan"`
+	Vegetarian      bool           `db:"vegetarian"`
+	GlutenFree      bool           `db:"gluten_free"`
+	WeeklyMenu      string         `db:"weekly_menu"`
+	OpeningHours    string         `db:"opening_hours"`
+	Takeaway        bool           `db:"takeaway"`
+	DeliveryOptions pq.StringArray `db:"delivery_options"`
+}
+
 func dbCheck(conn *sqlx.DB) error {
 	var table string
 	err := conn.Get(&table, "SELECT table_name FROM information_schema.tables WHERE table_name=$1", "restaurants")
@@ -109,4 +131,11 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 		pq.Array(r.DeliveryOptions))
 
 	return err
+}
+
+func loadRestaurants(conn *sqlx.DB) ([]RestaurantDB, error) {
+	var restaurants []RestaurantDB
+	err := conn.Select(&restaurants, `SELECT * FROM restaurants`)
+
+	return restaurants, err
 }
