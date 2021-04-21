@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 )
@@ -33,30 +34,63 @@ func logRequest(r *http.Request, handlerName string) {
 		method, clientAddr, endpoint, headers, handlerName)
 }
 
-func filterRestaurants(restaurants []*RestaurantDB, req *http.Request, lat, lon float64) []*RestaurantDB {
+func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
+	var andParams = [...]string{"vegetarian", "vegan", "gluten-free", "takeaway", "district"}
+	var nullParams = [...]string{"delivery-options"}
+	var queries []string
+	pgQuery := "SELECT * from restaurants"
+	paramCtr := 1
+	var values []interface{}
+	for _, param := range andParams {
+		_, ok := params[param]
+		if ok {
+			param = strings.Replace(param, "-", "_", -1)
+			pgParam := fmt.Sprintf("%s=$%d", param, paramCtr)
+			queries = append(queries, pgParam)
+			value := params.Get(param)
+			if value == "" {
+				values = append(values, true)
+			} else {
+				values = append(values, value)
+			}
+			paramCtr++
+		}
+	}
+	for _, param := range nullParams {
+		_, ok := params[param]
+		if ok {
+			param = strings.Replace(param, "-", "_", -1)
+			pgParam := fmt.Sprintf("%s IS NOT NULL", param)
+			queries = append(queries, pgParam)
+		}
+	}
+	if len(queries) > 0 {
+		pgQuery += " WHERE "
+	}
+	pgQuery += strings.Join(queries, " AND ")
+	log.Println(pgQuery)
+	var restaurants []*RestaurantDB
+	conn, err := dbInitialise()
+	err = conn.Select(&restaurants, pgQuery, values...)
+	if err != nil {
+		return restaurants, err
+	}
+	return restaurants, nil
+}
+
+func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon float64) []*RestaurantDB {
 	var filteredRestaurants []*RestaurantDB
-	params := req.URL.Query()
 	radiusParam := params.Get("radius")
 	cuisinesParam := params.Get("cuisines")
 	priceRangeParam := params.Get("price-range")
-	districtParam := params.Get("district")
 	radius, errRad := strconv.ParseFloat(radiusParam, 64)
 	if errRad != nil {
 		// default value
 		radius = 500
 	}
-	_, vegan := params["vegan"]
-	_, vegetarian := params["vegetarian"]
-	_, delivery := params["delivery"]
-	_, glutenFree := params["glutenfree"]
-	_, takeaway := params["takeaway"]
-	// The filtering of cuisines, takeaway, glutenfree, vegan and vegetarian could be done in the db query
 	for _, r := range restaurants {
 		if radiusParam == "all" || r.isInRadius(lat, lon, radius) {
-			if (vegan && !r.Vegan) || (vegetarian && !r.Vegetarian) ||
-				(glutenFree && !r.GlutenFree) || (takeaway && !r.Takeaway) ||
-				(delivery && r.DeliveryOptions == nil) || !r.inDistrict(districtParam) ||
-				!r.hasCuisines(cuisinesParam) || !r.isInPriceRange(priceRangeParam) {
+			if !r.hasCuisines(cuisinesParam) || !r.isInPriceRange(priceRangeParam) {
 				continue
 			} else {
 				filteredRestaurants = append(filteredRestaurants, r)
@@ -103,22 +137,17 @@ func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 
 func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "pcRestaurantsHandler")
+	params := r.URL.Query()
 	pcLat := 50.0785714
 	pcLon := 14.4400922
-	conn, err := dbInitialise()
-	if err != nil {
-		log.Println("Database not initialized")
-		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
-		return
-	}
 	// Null is sometimes "null" sometimes null
-	loadedRestaurants, err := loadRestaurants(conn)
+	loadedRestaurants, err := getDBRestaurants(params)
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
 		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
 		return
 	}
-	filteredRestaurants := filterRestaurants(loadedRestaurants, r, pcLat, pcLon)
+	filteredRestaurants := filterRestaurants(loadedRestaurants, params, pcLat, pcLon)
 	res := responseJSON{
 		Msg:  "Success",
 		Data: filteredRestaurants,
@@ -126,8 +155,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	prepareResponse(w, http.StatusOK, res)
 }
 
-func getCoordinates(r *http.Request) (float64, float64, error) {
-	params := r.URL.Query()
+func getCoordinates(params url.Values) (float64, float64, error) {
 	addressParam := params.Get("address")
 	radiusParam := params.Get("radius")
 	if radiusParam == "all" {
@@ -168,26 +196,21 @@ func getCoordinates(r *http.Request) (float64, float64, error) {
 
 func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "restaurantsHandler")
-	lat, lon, err := getCoordinates(r)
+	params := r.URL.Query()
+	lat, lon, err := getCoordinates(params)
 	res := responseJSON{}
 	if err != nil {
 		res.Msg = fmt.Sprintf("%s", err)
 		prepareResponse(w, http.StatusBadRequest, res)
 		return
 	}
-	conn, err := dbInitialise()
-	if err != nil {
-		log.Println("Database not initialized")
-		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
-		return
-	}
-	loadedRestaurants, err := loadRestaurants(conn)
+	loadedRestaurants, err := getDBRestaurants(params)
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
 		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
 		return
 	}
-	filteredRestaurants := filterRestaurants(loadedRestaurants, r, lat, lon)
+	filteredRestaurants := filterRestaurants(loadedRestaurants, params, lat, lon)
 	res.Msg = "Success"
 	res.Data = filteredRestaurants
 	if err != nil {
