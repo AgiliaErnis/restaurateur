@@ -40,38 +40,21 @@ export default function Restaurants() {
     setFeatured(newFilters)
   }
 
-  const priceRangeFilterValues = () => priceRange.map((item) => {
-        if (priceRange.indexOf(item) === priceRange.length - 1) {
-            return item + "&"
-        }
-        else {
-            return item
-        }
-    }
-  )
-
-  const featuredFilterValues = () => featured.map((item) => {
-        return item + "&"
-  })
-
-  var chosenPriceRanges= priceRangeFilterValues();
-  var chosenFeatured = featuredFilterValues();
-
  const showFilteredResults = () => {
     var pragueCollegeRestaurants = "/prague-college/restaurants?"
-    if (chosenPriceRanges.length === 0 & chosenFeatured.length === 0) {
+    if (priceRange.length === 0 & featured.length === 0) {
       return pragueCollegeRestaurants
     }
-    if (chosenPriceRanges.length !== 0 & chosenFeatured.length !== 0) {
-      return pragueCollegeRestaurants +=
-        "price-range=" + chosenPriceRanges + chosenFeatured
+    if (priceRange.length !== 0 & featured.length !== 0) {
+      return pragueCollegeRestaurants +
+        "price-range=" + priceRange + "&" + featured.join("&")
     }
-    if (chosenPriceRanges.length !== 0) {
-      return pragueCollegeRestaurants +=
-        "price-range=" + chosenPriceRanges
+    if (priceRange.length !== 0) {
+      return pragueCollegeRestaurants +
+        "price-range=" + priceRange
     }
-    if (chosenPriceRanges.length !== 0) {
-        return pragueCollegeRestaurants += chosenFeatured
+    if (featured.length !== 0) {
+        return pragueCollegeRestaurants + featured.join("&")
    }
   }
 
@@ -103,7 +86,7 @@ export default function Restaurants() {
         />
         <div className="restaurant-cards-container">
           <div className="restaurant-cards-header">
-            <h1>Restaurants in Prague</h1>
+            <h1>Restaurants around Prague College</h1>
             <Select
               defaultValue="Sort by"
               options={sortOptions}
