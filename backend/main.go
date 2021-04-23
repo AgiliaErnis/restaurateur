@@ -61,6 +61,9 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	pgQuery += strings.Join(queries, " AND ")
 	var restaurants []*RestaurantDB
 	conn, err := dbInitialise()
+	if err != nil {
+		return restaurants, err
+	}
 	err = conn.Select(&restaurants, pgQuery, values...)
 	if err != nil {
 		return restaurants, err
@@ -77,7 +80,7 @@ func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon 
 	radius, errRad := strconv.ParseFloat(radiusParam, 64)
 	if errRad != nil {
 		// default value
-		radius = 500
+		radius = 1000
 	}
 	for _, r := range restaurants {
 		if radiusParam == "ignore" || r.isInRadius(lat, lon, radius) {
@@ -133,6 +136,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	loadedRestaurants, err := getDBRestaurants(params)
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
+		log.Println(err)
 		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
 		return
 	}
