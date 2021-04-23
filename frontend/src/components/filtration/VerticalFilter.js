@@ -29,6 +29,10 @@ export const VerticalFilter = (props) => {
         {
             filterValue: "vegan",
             value: "Vegan"
+        },
+        {
+            filterValue: "gluten-free",
+            value: "Gluten Free"
         }
     ]
 
