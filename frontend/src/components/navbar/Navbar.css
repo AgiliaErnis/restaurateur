@@ -1,5 +1,5 @@
 .navbar {
-  box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.27);
   height: 80px;
   display: flex;
   justify-content: center;
@@ -9,6 +9,11 @@
   position: sticky;
   top: 0;
   z-index: 999;
+  width: 100%;
+}
+
+.hidden {
+  display: none;
 }
 
 .navbar.active{
@@ -23,17 +28,19 @@
   align-items: center;
   height: 80px;
   width: 100%;
+  margin-right: 1%;
+  margin-left: 1%;
 }
 
 .navbar-logo {
   color: #fff;
   justify-self: start;
-  margin-left: 20px;
   cursor: pointer;
   text-decoration: none;
   font-size: 1.5rem;
   display: flex;
   align-items: center;
+  left: 0px;
 }
 
 .fa-utensils {
@@ -47,13 +54,29 @@
   grid-gap: 10px;
   list-style: none;
   text-align: center;
-  width: 60vw;
+  width: 55%;
   justify-content: end;
   margin-right: 2rem;
 }
 
+.nav-menu-updated {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  grid-gap: 5px;
+  list-style: none;
+  text-align: center;
+  width: 19.5%;
+  justify-content: end;
+  margin-right: 0.15%;
+}
+
 .nav-item {
   height: 80px;
+  text-align: center;
+}
+
+.nav-links.hover:hover {
+  border-bottom: none;
 }
 
 .nav-links {
@@ -68,6 +91,11 @@
 .nav-links:hover {
   border-bottom: 4px solid #fff;
   transition: all 0.2s ease-out;
+}
+
+.nav-links.hover.mobile {
+  color:#242222;
+  margin-left: 5%;
 }
 
 .nav-links {
@@ -86,15 +114,47 @@
   display: none;
 }
 
+.signup-btn {
+  margin-right: 3%;
+}
+
+@media screen and (max-width: 1444px) {
+  .nav-links.hover.mobile {
+    margin-left: 1.9%;
+  }
+}
+
 @media screen and (max-width: 1225px) {
   .nav-menu {
     margin-right: 0.5rem;
   }
+    .navbar-logo {
+    font-size: 1.35rem;
+  }
+  .nav-links {
+    color: #fff;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    padding: 0.4rem 0.8rem;
+    height: 100%;
+  }
 }
 
 @media screen and (max-width: 1120px) {
-
   .nav-menu {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 90vh;
+    position: absolute;
+    top: 80px;
+    left: -100%;
+    opacity: 1;
+    transition: all 0.5s ease;
+  }
+
+  .nav-menu-updated {
     display: flex;
     flex-direction: column;
     width: 100%;

@@ -1,38 +1,42 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+# This is a basic workflow to help you get started with Actions
 
 name: frontend
 
+# Controls when the action will run.
 on:
+  # Triggers the workflow on push or pull request events
   push:
     paths: frontend/**
-    branches: [main]
+    branches: [ main ]
   pull_request:
     paths: frontend/**
-    branches: [main]
+    branches: [ main ]
+
+# Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
   
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x, 14.x, 15.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+    defaults:
+      run:
+        working-directory: ./frontend
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run the tests
-      run: npm test
-
-    - name: Build
-      run: npm run build
+      - name: Clone repository
+        uses: actions/checkout@v2
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: npm install
+      - name: Test
+        run: npm test
+      - name: Generate build
+        run: npm run build
+      # Share artifact inside workflow
+      - name: Share artifact inside workflow
+        uses: actions/upload-artifact@v1
+        with:
+          name: react-github-actions-build
+          path: frontend/build
