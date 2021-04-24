@@ -6,7 +6,7 @@ function DistrictItem(props) {
   return (
     <>
         <li className='districts__item'>
-          <Link className='districts__item__link' to={props.path}>
+          <Link className='districts__item__link' to='/restaurants'>
             <h4>
               {props.district} ({props.num_of_restaurants} places)
             </h4>
