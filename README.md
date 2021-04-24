@@ -24,7 +24,7 @@ Preferences to take into account are:
 
 ## Usage
 
-https://user-images.githubusercontent.com/56120787/115972669-d5f55280-a560-11eb-8b14-62086422ba95.mp4
+https://user-images.githubusercontent.com/56120787/115972966-c1b25500-a562-11eb-9fd9-ca9e72279b14.mp4
 
 
 ## User Interface
