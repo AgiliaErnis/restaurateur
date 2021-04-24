@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './CollegeSection.css';
 import { Button } from '../button/Button';
-import { Link, BrowserRouter as Router } from 'react-router-dom';
 import Aos from 'aos';
 import 'aos/dist/aos.css';
 
@@ -24,7 +23,6 @@ function CollegeSection () {
   window.addEventListener('resize', showImage);
   return (
     <>
-      <Router>
       <div className= 'college-section'>
         <div className='container' data-aos="fade-up">
           <div
@@ -50,13 +48,12 @@ function CollegeSection () {
                   for their lunch-breaks as soon as possible. Click on Get Started
                   and find a suitable restaurant based on your own preferences.
                 </p>
-                <Link to='/restaurants'>
                   <Button buttonSize='btn--large'
                           buttonStyle='btn--search'
-                          className="btn-see-more">
+                          className="btn-see-more"
+                          path='/restaurants'>
                     Get Started
                   </Button>
-                </Link>
               </div>
             </div>{button &&
               <div className='col'>
@@ -69,7 +66,6 @@ function CollegeSection () {
           </div>
         </div>
       </div>
-      </Router>
     </>
   );
 }
