@@ -34,8 +34,20 @@ based on JavaScript Library – React.
 
 ### Running the application
 
+#### Frontend
+
 `$ cd frontend `
 
 `$ npm install `
 
 `$ npm start `
+
+#### Backend
+
+`$ cd backend `
+
+`$ go build `
+
+`$ ./backend `
+
+For more information check out backend README - https://github.com/AgiliaErnis/restaurateur/tree/25_update_logo_suggestions/backend#readme
