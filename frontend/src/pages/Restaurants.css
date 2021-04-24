@@ -27,4 +27,9 @@ body {
 
 .sort .css-1353rn1-control, .sort .css-z21ypx-control {
     border-radius: 5px !important;
+    height: 5px !important;
+}
+.restaurant-cards-header h1 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
 }

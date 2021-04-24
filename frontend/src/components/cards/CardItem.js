@@ -1,11 +1,10 @@
 import React from 'react';
-import { Link, BrowserRouter as Router } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './Cards.css';
 
 function CardItem(props) {
   return (
     <>
-      <Router>
         <li className='cards__item'>
           <Link className='cards__item__link' to="/restaurants">
             <figure className='cards__item__pic-wrap'
@@ -21,7 +20,6 @@ function CardItem(props) {
             </div>
           </Link>
         </li>
-      </Router>
     </>
   );
 }

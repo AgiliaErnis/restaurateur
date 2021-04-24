@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './CollegeSection.css';
+import { Link } from 'react-router-dom';
 import { Button } from '../button/Button';
-import { Link, BrowserRouter as Router } from 'react-router-dom';
 import Aos from 'aos';
 import 'aos/dist/aos.css';
 
@@ -24,7 +24,6 @@ function CollegeSection () {
   window.addEventListener('resize', showImage);
   return (
     <>
-      <Router>
       <div className= 'college-section'>
         <div className='container' data-aos="fade-up">
           <div
@@ -53,7 +52,8 @@ function CollegeSection () {
                 <Link to='/restaurants'>
                   <Button buttonSize='btn--large'
                           buttonStyle='btn--search'
-                          className="btn-see-more">
+                          className="btn-see-more"
+                  >
                     Get Started
                   </Button>
                 </Link>
@@ -69,7 +69,6 @@ function CollegeSection () {
           </div>
         </div>
       </div>
-      </Router>
     </>
   );
 }
