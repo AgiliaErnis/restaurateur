@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -215,6 +216,20 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	args := os.Args[1:]
+	if scraper.SliceContains(args, "--initialize") {
+		conn, err := dbInitialise()
+		if err != nil {
+			log.Println(err)
+			log.Fatal("Make sure the DB_DSN environment variable is set")
+		} else {
+			log.Println("Connection to postgres established, downloading data...")
+		}
+		err = storeRestaurants(conn)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	r := mux.NewRouter()
 	port := ":8080"
 	r.HandleFunc("/prague-college/restaurants", pcRestaurantsHandler).Methods(http.MethodGet)

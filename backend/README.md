@@ -17,6 +17,13 @@ Environment variable DB_DSN.
 Example:
 `export DB_DSN='user=postgres dbname=postgres password=postgres sslmode=disable'`
 
+**Downloading data**
+
+If you want to download the data about all restaurants and store it,
+you can use the following command:
+
+`$ ./backend --initialize`
+
 **Importing the restaurants table**
 
 There is a dump of the restaurants table in the backend folder `restaurants.sql`.
