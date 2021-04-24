@@ -26,12 +26,12 @@ exports[`testing Cards should render 1`] = `
           >
             <figure
               className="cards__item__pic-wrap"
-              data-category="Breakfast"
+              data-category="International"
             >
               <img
                 alt="Food Category"
                 className="cards__item__img"
-                src="images/Home/breakfast.webp"
+                src="images/Home/international.webp"
               />
             </figure>
             <div
@@ -40,7 +40,7 @@ exports[`testing Cards should render 1`] = `
               <h5
                 className="cards__item__text"
               >
-                Top breakfast places in Prague
+                View the city's more than 1000 International restaurants
               </h5>
             </div>
           </a>
@@ -55,7 +55,7 @@ exports[`testing Cards should render 1`] = `
           >
             <figure
               className="cards__item__pic-wrap"
-              data-category="Italian Food"
+              data-category="Italian"
             >
               <img
                 alt="Food Category"
@@ -69,7 +69,7 @@ exports[`testing Cards should render 1`] = `
               <h5
                 className="cards__item__text"
               >
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Explore all the Italian restaurants of Prague
               </h5>
             </div>
           </a>
@@ -88,12 +88,12 @@ exports[`testing Cards should render 1`] = `
           >
             <figure
               className="cards__item__pic-wrap"
-              data-category="Coffee"
+              data-category="Czech"
             >
               <img
                 alt="Food Category"
                 className="cards__item__img"
-                src="images/Home/coffee.jpg"
+                src="images/Home/czech.jpg"
               />
             </figure>
             <div
@@ -102,7 +102,7 @@ exports[`testing Cards should render 1`] = `
               <h5
                 className="cards__item__text"
               >
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Find your most suitable Czech restaurant
               </h5>
             </div>
           </a>
@@ -117,12 +117,12 @@ exports[`testing Cards should render 1`] = `
           >
             <figure
               className="cards__item__pic-wrap"
-              data-category="Dinner Places"
+              data-category="Gluten Free"
             >
               <img
                 alt="Food Category"
                 className="cards__item__img"
-                src="images/Home/dinner.webp"
+                src="images/Home/glutenfree.webp"
               />
             </figure>
             <div
@@ -131,7 +131,7 @@ exports[`testing Cards should render 1`] = `
               <h5
                 className="cards__item__text"
               >
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Check out  the restaurants with gluten free options
               </h5>
             </div>
           </a>
@@ -146,12 +146,12 @@ exports[`testing Cards should render 1`] = `
           >
             <figure
               className="cards__item__pic-wrap"
-              data-category="Healthy menus"
+              data-category="Vegan/Vegetarian"
             >
               <img
                 alt="Food Category"
                 className="cards__item__img"
-                src="images/Home/salad.webp"
+                src="images/Home/vegan.jpeg"
               />
             </figure>
             <div
@@ -160,7 +160,7 @@ exports[`testing Cards should render 1`] = `
               <h5
                 className="cards__item__text"
               >
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Check out the restaurants with vegan and vegetarian meals
               </h5>
             </div>
           </a>
