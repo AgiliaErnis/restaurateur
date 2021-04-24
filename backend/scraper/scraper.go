@@ -11,13 +11,12 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"sync"
-	"time"
 )
 
 const restuBaseURL = "https://www.restu.cz"
 
-type nominatimJSON []struct {
+// NominatimJSON is the returned JSON from nominatim.openstreetmap.org
+type NominatimJSON []struct {
 	PlaceID     int      `json:"place_id"`
 	Licence     string   `json:"licence"`
 	OsmType     string   `json:"osm_type"`
@@ -67,32 +66,21 @@ type RequestError struct {
 	Err        error
 }
 
-type restaurantPair struct {
-	restaurant Restaurant
-	err        error
-}
-type menuPair struct {
-	menu RestaurantMenu
-	err  error
-}
-
 func (req *RequestError) Error() string {
 	return fmt.Sprintf("Status %d: Error: %v", req.StatusCode, req.Err)
 }
 
-func getRestaurantMenu(link, restaurantName string, ch chan<- menuPair) {
+func getRestaurantMenu(link, restaurantName string) (RestaurantMenu, error) {
 	menu := RestaurantMenu{RestaurantName: restaurantName,
 		WeeklyMenu: make(map[string]string)}
 	url := restuBaseURL + link + "menu"
 	res, err := http.Get(url)
 	if err != nil {
-		ch <- menuPair{menu, err}
-		return
+		return menu, err
 	}
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		ch <- menuPair{menu, err}
-		return
+		return menu, err
 	}
 	doc.Find(".menu-section").Each(func(i int, s *goquery.Selection) {
 		foundDate := s.Find("h4").Text()
@@ -103,16 +91,16 @@ func getRestaurantMenu(link, restaurantName string, ch chan<- menuPair) {
 			menu.WeeklyMenu[foundDate] = item
 		})
 	})
-	ch <- menuPair{menu, nil}
-	return
+	return menu, nil
 }
 
-func getNominatimJSON(restaurant *Restaurant) (nominatimJSON, error) {
-	var nominatim nominatimJSON
+// GetNominatimJSON queries nominatim and returns the resulting JSON
+func GetNominatimJSON(address, city string) (NominatimJSON, error) {
+	var nominatim NominatimJSON
 	url := "https://nominatim.openstreetmap.org/search?street=" +
-		restaurant.Address + "&city=" + restaurant.District + "&format=json"
+		address + "&city=" + city + "&format=json"
 	res, err := http.Get(url)
-	log.Println("Getting coordinates for", restaurant.Address)
+	log.Println("Getting coordinates for", address)
 	if err != nil {
 		return nominatim, err
 	}
@@ -128,7 +116,7 @@ func getNominatimJSON(restaurant *Restaurant) (nominatimJSON, error) {
 }
 
 func (restaurant *Restaurant) setCoordinates() error {
-	nominatim, err := getNominatimJSON(restaurant)
+	nominatim, err := GetNominatimJSON(restaurant.Address, restaurant.District)
 	if len(nominatim) == 0 || err != nil {
 		restaurant.Lat = 0
 		restaurant.Lon = 0
@@ -143,28 +131,25 @@ func (restaurant *Restaurant) setCoordinates() error {
 	return nil
 }
 
-func visitLink(link, name, fullAddress string, ch chan<- restaurantPair) {
+func visitLink(link, name, fullAddress string) (Restaurant, error) {
 	address := strings.Split(fullAddress, ", ")[0]
 	newRestaurant := Restaurant{Name: name, Address: address}
 	url := restuBaseURL + link
 	res, err := http.Get(url)
 	if err != nil {
-		ch <- restaurantPair{newRestaurant, err}
-		return
+		return newRestaurant, err
 	}
 	var images []string
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		ch <- restaurantPair{newRestaurant, &RequestError{
-			StatusCode: res.StatusCode,
-			Err:        errors.New("Couldn't visit the link " + link),
-		}}
-		return
+		err := &RequestError{StatusCode: res.StatusCode,
+			Err: errors.New("Couldn't visit the link " + link),
+		}
+		return newRestaurant, err
 	}
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		ch <- restaurantPair{newRestaurant, err}
-		return
+		return newRestaurant, err
 	}
 	daysArray := [7]string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}
 	ctr := 0
@@ -200,7 +185,7 @@ func visitLink(link, name, fullAddress string, ch chan<- restaurantPair) {
 	tags := strings.Split(strings.Replace(restaurantTopics, "restaurantTopics': ", "", 1), ",")
 	doc.Find(".tag").Each(func(i int, s *goquery.Selection) {
 		tag := s.Text()
-		if !(sliceContains(tags, tag)) {
+		if !(SliceContains(tags, tag)) {
 			tags = append(tags, tag)
 		}
 	})
@@ -227,8 +212,7 @@ func visitLink(link, name, fullAddress string, ch chan<- restaurantPair) {
 			break
 		}
 	}
-	ch <- restaurantPair{newRestaurant, nil}
-	return
+	return newRestaurant, nil
 }
 
 func getLinks(doc *goquery.Document) []string {
@@ -258,7 +242,8 @@ func getAddresses(doc *goquery.Document) []string {
 	return addresses
 }
 
-func sliceContains(slice []string, val string) bool {
+// SliceContains checks whether a slice of strings contains a given string
+func SliceContains(slice []string, val string) bool {
 	for _, item := range slice {
 		if item == val {
 			return true
@@ -268,17 +253,17 @@ func sliceContains(slice []string, val string) bool {
 }
 
 func (restaurant *Restaurant) setVegan(veganRestaurants []string) {
-	found := sliceContains(veganRestaurants, restaurant.Name)
+	found := SliceContains(veganRestaurants, restaurant.Name)
 	restaurant.Vegan = found
 }
 
 func (restaurant *Restaurant) setVegetarian(vegetarianRestaurants []string) {
-	found := sliceContains(vegetarianRestaurants, restaurant.Name)
+	found := SliceContains(vegetarianRestaurants, restaurant.Name)
 	restaurant.Vegetarian = found
 }
 
 func (restaurant *Restaurant) setGlutenFree(glutenFreeRestaurants []string) {
-	found := sliceContains(glutenFreeRestaurants, restaurant.Name)
+	found := SliceContains(glutenFreeRestaurants, restaurant.Name)
 	restaurant.GlutenFree = found
 }
 
@@ -295,6 +280,7 @@ func (restaurant *Restaurant) setWeeklyMenu(menus []*RestaurantMenu) {
 // and returns information about found restaurants
 func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 	var restaurants []*Restaurant
+	dupMap := make(map[string]bool)
 	restaurantMenus, err := GetRestaurantMenus()
 	if err != nil {
 		return restaurants, err
@@ -311,38 +297,6 @@ func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 	if err != nil {
 		return restaurants, err
 	}
-	restaurantChannel := make(chan restaurantPair)
-	// set max go routines to not hammer the website too much (waitng for OSM afterwards anyway)
-	maxGoroutines := 5
-	guard := make(chan struct{}, maxGoroutines)
-	var workerWaitGroup sync.WaitGroup
-	var collectorWaitGroup sync.WaitGroup
-	collectorWaitGroup.Add(1)
-	go func() {
-		defer collectorWaitGroup.Done()
-		for {
-			pair, ok := <-restaurantChannel
-			if !ok {
-				return
-			}
-			restaurant := pair.restaurant
-			err := pair.err
-			if err != nil {
-				panic(err)
-			}
-			// calling setCoordinates only in 1 thread, because
-			// OSM has limits on calls per second
-			err = restaurant.setCoordinates()
-			if err != nil {
-				log.Println(err)
-			}
-			restaurant.setVegan(veganRestaurants)
-			restaurant.setVegetarian(vegetarianRestaurants)
-			restaurant.setGlutenFree(glutenFreeRestaurants)
-			restaurant.setWeeklyMenu(restaurantMenus)
-			restaurants = append(restaurants, &restaurant)
-		}
-	}()
 	pageNum := 1
 	for {
 		url := restuBaseURL + "/vyhledavani/?term=" + searchTerm +
@@ -370,19 +324,27 @@ func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 			link := links[i]
 			name := names[i]
 			address := addresses[i]
-			guard <- struct{}{}
-			go func(link, name, address string) {
-				workerWaitGroup.Add(1)
-				defer workerWaitGroup.Done()
-				visitLink(link, name, address, restaurantChannel)
-				<-guard
-			}(link, name, address)
+			restaurant, err := visitLink(link, name, address)
+			if err != nil {
+				return restaurants, err
+			}
+			restaurant.setVegan(veganRestaurants)
+			restaurant.setVegetarian(vegetarianRestaurants)
+			restaurant.setGlutenFree(glutenFreeRestaurants)
+			restaurant.setWeeklyMenu(restaurantMenus)
+			err = restaurant.setCoordinates()
+			if err != nil {
+				continue
+			}
+			currentKey := restaurant.Name + restaurant.Address
+			if dupMap[currentKey] {
+				log.Println("Skipping duplicate entry ->", restaurant.Name)
+			} else {
+				restaurants = append(restaurants, &restaurant)
+				dupMap[currentKey] = true
+			}
 		}
 		if len(links) == 0 {
-			workerWaitGroup.Wait()
-			close(restaurantChannel)
-			collectorWaitGroup.Wait()
-			restaurants = verifyCoordinates(restaurants)
 			return restaurants, nil
 		}
 		pageNum++
@@ -393,25 +355,6 @@ func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 // all restaurants with a weekly menu
 func GetRestaurantMenus() ([]*RestaurantMenu, error) {
 	var restaurantMenus []*RestaurantMenu
-	menuChannel := make(chan menuPair, 1)
-	var workerWaitGroup sync.WaitGroup
-	var collectorWaitGroup sync.WaitGroup
-	collectorWaitGroup.Add(1)
-	go func() {
-		defer collectorWaitGroup.Done()
-		for {
-			pair, ok := <-menuChannel
-			if !ok {
-				return
-			}
-			menu := pair.menu
-			err := pair.err
-			if err != nil {
-				panic(err)
-			}
-			restaurantMenus = append(restaurantMenus, &menu)
-		}
-	}()
 	pageNum := 1
 	for {
 		log.Printf("Processing menus page %d\n", pageNum)
@@ -437,16 +380,13 @@ func GetRestaurantMenus() ([]*RestaurantMenu, error) {
 		for i := range links {
 			link := links[i]
 			name := names[i]
-			go func(link, name string) {
-				defer workerWaitGroup.Done()
-				workerWaitGroup.Add(1)
-				getRestaurantMenu(link, name, menuChannel)
-			}(link, name)
+			menu, err := getRestaurantMenu(link, name)
+			if err != nil {
+				return restaurantMenus, err
+			}
+			restaurantMenus = append(restaurantMenus, &menu)
 		}
 		if len(links) == 0 {
-			workerWaitGroup.Wait()
-			close(menuChannel)
-			collectorWaitGroup.Wait()
 			return restaurantMenus, nil
 		}
 		pageNum++
@@ -485,23 +425,4 @@ func getFilteredRestaurants(urlSuffix string) ([]string, error) {
 		}
 		pageNum++
 	}
-}
-
-func verifyCoordinates(restaurants []*Restaurant) []*Restaurant {
-	var newRestaurants []*Restaurant
-	for _, restaurant := range restaurants {
-		if restaurant.Lat == 0 || restaurant.Lon == 0 {
-			log.Printf("Retrying to set coordinates for %q\n", restaurant.Name)
-			err := restaurant.setCoordinates()
-			time.Sleep(time.Second) // nominatim has a limit of 1 call per second
-			if restaurant.Lat != 0 && restaurant.Lon != 0 {
-				newRestaurants = append(newRestaurants, restaurant)
-			} else {
-				log.Println(err)
-			}
-		} else {
-			newRestaurants = append(newRestaurants, restaurant)
-		}
-	}
-	return newRestaurants
 }
