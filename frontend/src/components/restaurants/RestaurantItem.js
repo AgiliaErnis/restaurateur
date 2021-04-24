@@ -7,13 +7,15 @@ import MobileNavbar from '../navbar/MobileNavbar'
 function RestaurantItem(props) {
   const {click, handleClick }
     = MobileNavbar();
+
   return (
     <>
       <li className='restaurant_card_item'>
           <div className="content">
-              <PhotoSlider slides={props.photos} />
+          <PhotoSlider slides={props.photos} />
               <div className="restaurant_description">
-                <span className="restaurant-name">{props.name}
+            <span className="restaurant-name">
+              <div className="name-container">{props.name}</div>
                   <div className="save-container">
                     <i onClick={handleClick}
                       className={click ? "save-btn-active"
@@ -32,13 +34,13 @@ function RestaurantItem(props) {
                   <span className="rating-num">({props.rating})</span>
                   </div>
                   <span className="tags">{props.tags}</span>
-                  <span className="address">{props.address}</span>
-                  <span className="price-range">{props.price}</span>
+                  <span className="address">{props.address}, {props.district}</span>
+                  <span className="price-range">Price Range: {props.price}</span>
                   <span className="takeaway">
-                  <i className={props.takeaway === "true" ?
+                  <i className={props.takeaway === true ?
                     "fas fa-check" : "fas fa-times"}></i>Takeaway</span>
                   <span className="delivery">
-                    <i className={props.delivery === "true" ?
+                    <i className={props.delivery != null ?
                       "fas fa-check" : "fas fa-times"}></i>Delivery</span>
                   <div className="more-options">
                     <div className="option">

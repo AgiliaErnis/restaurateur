@@ -8,10 +8,11 @@ import (
 	"github.com/lib/pq"
 	"log"
 	"os"
+	"strings"
 )
 
 const (
-	SCHEMA = `CREATE TABLE restaurants (
+	schema = `CREATE TABLE restaurants (
 		 id SERIAL NOT NULL PRIMARY KEY,
 		 name TEXT NOT NULL,
 		 address TEXT NOT NULL,
@@ -34,6 +35,7 @@ const (
 	 );`
 )
 
+// RestaurantDB struct compatible with postgres
 type RestaurantDB struct {
 	ID              int            `db:"id"`
 	Name            string         `db:"name"`
@@ -56,20 +58,69 @@ type RestaurantDB struct {
 	DeliveryOptions pq.StringArray `db:"delivery_options"`
 }
 
+func (restaurant *RestaurantDB) isInRadius(lat, lon, radius float64) bool {
+	distance := haversine(lat, lon, restaurant.Lat, restaurant.Lon)
+	return distance <= radius
+}
+
+func (restaurant *RestaurantDB) isInPriceRange(priceRangeString string) bool {
+	if priceRangeString == "" {
+		return true
+	}
+	priceRanges := strings.Split(priceRangeString, ",")
+	for _, priceRange := range priceRanges {
+		replacer := strings.NewReplacer(" ", "", "Kč", "", "+", "-")
+		cleanedPriceRange := replacer.Replace(restaurant.PriceRange)
+		if cleanedPriceRange == priceRange {
+			return true
+		}
+	}
+	return false
+}
+
+func (restaurant *RestaurantDB) isInDistrict(districtString string) bool {
+	if districtString == "" {
+		return true
+	}
+	replacer := strings.NewReplacer(" ", "")
+	districtString = replacer.Replace(districtString)
+	districts := strings.Split(districtString, ",")
+	for _, district := range districts {
+		if replacer.Replace(restaurant.District) == strings.Title(district) {
+			return true
+		}
+	}
+	return false
+}
+
+func (restaurant *RestaurantDB) hasCuisines(cuisinesString string) bool {
+	if cuisinesString == "" {
+		return true
+	}
+	cuisinesString = strings.Replace(cuisinesString, " ", "", -1)
+	cuisines := strings.Split(cuisinesString, ",")
+	for _, cuisine := range cuisines {
+		if !scraper.SliceContains(restaurant.Cuisines, strings.Title(cuisine)) {
+			return false
+		}
+	}
+	return true
+}
+
 func dbCheck(conn *sqlx.DB) error {
 	var table string
 	err := conn.Get(&table, "SELECT table_name FROM information_schema.tables WHERE table_name=$1", "restaurants")
 	if err == sql.ErrNoRows {
 		log.Println("No table found, creating")
-		_, err = conn.Exec(SCHEMA)
+		_, err = conn.Exec(schema)
 	}
 
 	return err
 }
 
 func dbInitialise() (*sqlx.DB, error) {
-	var DB_DSN = os.Getenv("DB_DSN")
-	conn, err := sqlx.Connect("postgres", DB_DSN)
+	var dbDSN = os.Getenv("DB_DSN")
+	conn, err := sqlx.Connect("postgres", dbDSN)
 	if err != nil {
 		return nil, err
 	}
@@ -133,8 +184,8 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 	return err
 }
 
-func loadRestaurants(conn *sqlx.DB) ([]RestaurantDB, error) {
-	var restaurants []RestaurantDB
+func loadRestaurants(conn *sqlx.DB) ([]*RestaurantDB, error) {
+	var restaurants []*RestaurantDB
 	err := conn.Select(&restaurants, `SELECT * FROM restaurants`)
 
 	return restaurants, err

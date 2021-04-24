@@ -19,7 +19,7 @@ func TestSliceContains(t *testing.T) {
 		{[]string{"val"}, "val1", false},
 	}
 	for _, test := range sliceContainsTests {
-		if actual := sliceContains(test.inputSlice, test.inputVal); actual != test.expected {
+		if actual := SliceContains(test.inputSlice, test.inputVal); actual != test.expected {
 			t.Errorf("expected `%t` for slice %q and value %q, got `%t`",
 				test.expected, test.inputSlice, test.inputVal, actual)
 		}

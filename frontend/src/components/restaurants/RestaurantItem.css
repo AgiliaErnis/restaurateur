@@ -33,6 +33,10 @@
 
 .restaurant {
     border-radius: 4px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .restaurant_description {
@@ -50,8 +54,14 @@
     font-weight: bold;
     line-height: 22px;
     display: flex;
+    width: 100%;
 }
-
+.restaurant-name .name-container {
+    width:80%;
+}
+.restaurant-name .save-container  {
+    width: 20%;
+}
 .more-options {
     display: flex;
     background-color:#f3f0f0!important;
@@ -130,6 +140,7 @@
 .save-container {
     display: flex;
     flex-direction: column;
+    text-align: center;
 }
 
 .save-btn,.save-btn-active {
@@ -137,7 +148,6 @@
     cursor:pointer;
     color:rgb(216, 214, 214);
     transition:.2s;
-    margin-left: 180px;
     font-size: 22px;
 }
 
@@ -168,10 +178,9 @@
 .save-on-hover {
   display: none;
   font-size: 12px;
-  margin-left: 180px;
   position: absolute;
-  margin-left: 145px;
   margin-top: 30px;
+  margin-left: 8px;
 }
 
 .save-on-hover-hidden {
@@ -181,19 +190,17 @@
 .restaurant_description .saved {
   font-size:13px;
   animation: fade 1s;
-  margin-left: 180px;
   position: absolute;
-  margin-left: 167px;
   margin-top: 30px;
   font-weight: bold;
   line-height: 22px;
+  margin-left: 25px;
 }
 
 .saved-hidden {
   color: transparent;
-  margin-left: 280px;
+  margin-left: 25px;
   position: absolute;
-  margin-left: 165px;
   margin-top: 30px;
   font-weight: bold;
   font-weight: bold;
@@ -204,4 +211,8 @@
   0% {color: transparent;}
   50% {color: rgb(177, 107, 107);}
   100% {color:transparent;}
+}
+
+.error {
+    margin-top: 15rem;
 }
