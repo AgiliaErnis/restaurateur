@@ -50,4 +50,4 @@ based on JavaScript Library – React.
 
 `$ ./backend `
 
-For more information check out backend README - https://github.com/AgiliaErnis/restaurateur/tree/25_update_logo_suggestions/backend#readme
+For more information check out the backend README file - https://github.com/AgiliaErnis/restaurateur/tree/main/backend#readme
