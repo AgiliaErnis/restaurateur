@@ -76,6 +76,7 @@ func getAutocompleteCandidates(input string) ([]*restaurantAutocomplete, error) 
 
 func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	var andParams = [...]string{"vegetarian", "vegan", "gluten-free", "takeaway"}
+	var nullParams = [...]string{"delivery-options"}
 	var queries []string
 	var orderBy = ""
 	pgQuery := "SELECT * from restaurants"
@@ -104,6 +105,14 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 		values = append(values, searchString)
 		orderBy = fmt.Sprintf(" ORDER BY SIMILARITY(unaccent(name), unaccent($%d)) DESC", paramCtr)
 		paramCtr++
+	}
+	for _, param := range nullParams {
+		_, ok := params[param]
+		if ok {
+			param = strings.Replace(param, "-", "_", -1)
+			pgParam := fmt.Sprintf("%s IS NOT NULL", param)
+			queries = append(queries, pgParam)
+		}
 	}
 	if len(queries) > 0 {
 		pgQuery += " WHERE "
