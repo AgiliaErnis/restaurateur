@@ -26,7 +26,7 @@ function Navbar() {
       <nav className={click ? 'navbar active' : 'navbar'}>
         <div className='navbar-container'>
           <Link to='/' className='navbar-logo' onClick={closeMobileMenu}>
-           Restaurateur<i class="fas fa-utensils" />
+           Restaurateur<i className="fas fa-utensils" />
           </Link>
           <div className={click ? 'hidden' : searchbox}>
             <Searchbox />
@@ -49,20 +49,14 @@ function Navbar() {
                 Restaurants
               </Link>
             </li>
-            <li>
-              <Link
-                className='nav-links-mobile'
-                onClick={openLogInModal}
-              >
-                Log In
-              </Link>
-
-              <Link
-                className='nav-links-mobile'
-                onClick={openSignUpModal}
-              >
+            <li className='nav-links-mobile'
+                onClick={openLogInModal}>
+              Log In
+            </li>
+            <li
+              className='nav-links-mobile'
+              onClick={openSignUpModal}>
                 Sign Up
-              </Link>
             </li>
           </ul>
           {button &&
