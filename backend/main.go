@@ -16,23 +16,62 @@ import (
 type responseJSON struct {
 	Status int
 	Msg    string
-	Data   []*RestaurantDB
+	Data   []interface{}
 }
 
-var allowedEndpoints = [...]string{"/restaurants", "/prague-college/restaurants"}
+type restaurantAutocomplete struct {
+	ID       int
+	Name     string
+	District string
+}
+
+var allowedEndpoints = [...]string{"/restaurants", "/prague-college/restaurants", "/autocomplete"}
 
 func logRequest(r *http.Request, handlerName string) {
 	method := r.Method
 	endpoint := r.URL
 	clientAddr := r.RemoteAddr
-	headers, _ := json.Marshal(r.Header)
 	log.Printf("Incoming request\n"+
 		"Method: %q\n"+
 		"Client's address: %q\n"+
 		"Request URL: %q\n"+
-		"Request headers: %s\n"+
 		"Handler: %q\n",
-		method, clientAddr, endpoint, headers, handlerName)
+		method, clientAddr, endpoint, handlerName)
+}
+
+func getRestaurantDBInterfaces(restaurants []*RestaurantDB) []interface{} {
+	interfaces := make([]interface{}, len(restaurants))
+	for i, v := range restaurants {
+		interfaces[i] = v
+	}
+	return interfaces
+}
+
+func getAutocompleteInterfaces(restaurants []*restaurantAutocomplete) []interface{} {
+	interfaces := make([]interface{}, len(restaurants))
+	for i, v := range restaurants {
+		interfaces[i] = v
+	}
+	return interfaces
+}
+
+func getAutocompleteCandidates(input string) ([]*restaurantAutocomplete, error) {
+	pgQuery := "SELECT id, name, district FROM restaurants WHERE " +
+		"(unaccent(name) % unaccent($1))" +
+		" ORDER BY SIMILARITY(unaccent(name), unaccent($1)) DESC"
+	var restaurants []*restaurantAutocomplete
+	conn, err := dbInitialise()
+	if err != nil {
+		return restaurants, err
+	}
+	err = conn.Select(&restaurants, pgQuery, input)
+	if err != nil {
+		return restaurants, err
+	}
+	if len(restaurants) > 10 {
+		return restaurants[:10], nil
+	}
+	return restaurants, nil
 }
 
 func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
@@ -118,6 +157,23 @@ func prepareResponse(w http.ResponseWriter, status int, response responseJSON) {
 	}
 }
 
+func autocompleteHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "autocompleteHandler")
+	params := r.URL.Query()
+	autocompletedRestaurants, err := getAutocompleteCandidates(params.Get("input"))
+	if err != nil {
+		log.Println("Couldn't load restaurants from db")
+		log.Println(err)
+		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		return
+	}
+	res := responseJSON{
+		Msg:  "Success",
+		Data: getAutocompleteInterfaces(autocompletedRestaurants),
+	}
+	prepareResponse(w, http.StatusOK, res)
+}
+
 func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "catchAllHandler")
 	path := r.URL.Path
@@ -154,7 +210,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	filteredRestaurants := filterRestaurants(loadedRestaurants, params, pcLat, pcLon)
 	res := responseJSON{
 		Msg:  "Success",
-		Data: filteredRestaurants,
+		Data: getRestaurantDBInterfaces(filteredRestaurants),
 	}
 	prepareResponse(w, http.StatusOK, res)
 }
@@ -216,7 +272,7 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	filteredRestaurants := filterRestaurants(loadedRestaurants, params, lat, lon)
 	res.Msg = "Success"
-	res.Data = filteredRestaurants
+	res.Data = getRestaurantDBInterfaces(filteredRestaurants)
 	if err != nil {
 		log.Println("Database not initialized")
 		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
@@ -244,6 +300,7 @@ func main() {
 	port := ":8080"
 	r.HandleFunc("/prague-college/restaurants", pcRestaurantsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/restaurants", restaurantsHandler).Methods(http.MethodGet)
+	r.HandleFunc("/autocomplete", autocompleteHandler).Methods(http.MethodGet)
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
 	log.Println("Starting server on", port)
 	log.Fatal(http.ListenAndServe(port, r))
