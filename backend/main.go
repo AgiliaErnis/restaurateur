@@ -38,6 +38,7 @@ func logRequest(r *http.Request, handlerName string) {
 func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	var andParams = [...]string{"vegetarian", "vegan", "gluten-free", "takeaway"}
 	var queries []string
+	var orderBy = ""
 	pgQuery := "SELECT * from restaurants"
 	paramCtr := 1
 	var values []interface{}
@@ -56,10 +57,19 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 			paramCtr++
 		}
 	}
+	_, ok := params["search"]
+	if ok {
+		searchString := params.Get("search")
+		pgParam := fmt.Sprintf("(unaccent(name) %% unaccent($%d))", paramCtr)
+		queries = append(queries, pgParam)
+		values = append(values, searchString)
+		orderBy = fmt.Sprintf(" ORDER BY SIMILARITY(unaccent(name), unaccent($%d)) DESC", paramCtr)
+		paramCtr++
+	}
 	if len(queries) > 0 {
 		pgQuery += " WHERE "
 	}
-	pgQuery += strings.Join(queries, " AND ")
+	pgQuery += strings.Join(queries, " AND ") + orderBy
 	var restaurants []*RestaurantDB
 	conn, err := dbInitialise()
 	if err != nil {
