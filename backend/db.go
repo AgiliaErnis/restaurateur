@@ -112,6 +112,8 @@ func dbCheck(conn *sqlx.DB) error {
 	err := conn.Get(&table, "SELECT table_name FROM information_schema.tables WHERE table_name=$1", "restaurants")
 	if err == sql.ErrNoRows {
 		log.Println("No table found, creating")
+		_, err = conn.Exec("CREATE EXTENSION pg_trgm;")
+		_, err = conn.Exec("CREATE EXTENSION unaccent;")
 		_, err = conn.Exec(schema)
 	}
 
