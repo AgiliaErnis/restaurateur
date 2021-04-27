@@ -68,16 +68,22 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 		input = params.Get("name")
 	} else if address {
 		pgQuery = "SELECT id, name, address, district FROM restaurants WHERE " +
-			"(unaccent(address) % unaccent($1))" +
-			" ORDER BY SIMILARITY(unaccent(address), unaccent($1)) DESC"
+			"(regexp_replace(unaccent(address), '[[:digit:]/]', '', 'g') % unaccent($1)) " +
+			"ORDER BY SIMILARITY(unaccent(address), unaccent($1)) DESC"
 		input = params.Get("address")
 	}
+	log.Println(pgQuery)
 	var restaurants []*restaurantAutocomplete
 	conn, err := dbInitialise()
 	if err != nil {
 		return restaurants, err
 	}
-	_, err = conn.Exec("SELECT set_limit(0.1)")
+	inputLen := len(input)
+	if inputLen < 3 {
+		_, err = conn.Exec("SELECT set_limit(0.1)")
+	} else if inputLen < 5 {
+		_, err = conn.Exec("SELECT set_limit(0.2)")
+	} // else keep default of 0.3
 	err = conn.Select(&restaurants, pgQuery, input)
 	if err != nil {
 		return restaurants, err
@@ -171,9 +177,15 @@ func prepareResponse(w http.ResponseWriter, status int, response responseJSON) {
 		log.Println("Error while marshalling JSON response")
 	}
 	if status == http.StatusInternalServerError || err != nil {
-		w.Write([]byte("Internal server error"))
+		_, err := w.Write([]byte("Internal server error"))
+		if err != nil {
+			panic(err)
+		}
 	} else {
-		w.Write(res)
+		_, err := w.Write(res)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
