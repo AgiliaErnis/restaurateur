@@ -120,9 +120,12 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 			paramCtr++
 		}
 	}
-	_, ok := params["search"]
+	parameterArr, ok := params["search-name"]
+	if !ok {
+		parameterArr, ok = params["search-address"]
+	}
 	if ok {
-		searchString := params.Get("search")
+		searchString := parameterArr[0]
 		pgParam := fmt.Sprintf("(unaccent(name) %% unaccent($%d))", paramCtr)
 		queries = append(queries, pgParam)
 		values = append(values, searchString)
@@ -143,6 +146,7 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	if err != nil {
 		return restaurants, err
 	}
+
 	return restaurants, nil
 }
 
@@ -152,13 +156,8 @@ func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon 
 	cuisineParam := params.Get("cuisine")
 	priceRangeParam := params.Get("price-range")
 	districtParam := params.Get("district")
-	radius, errRad := strconv.ParseFloat(radiusParam, 64)
-	if errRad != nil {
-		// default value
-		radius = 1000
-	}
 	for _, r := range restaurants {
-		if radiusParam == "ignore" || r.isInRadius(lat, lon, radius) {
+		if r.isInRadius(lat, lon, radiusParam) {
 			if r.hasCuisines(cuisineParam) && r.isInPriceRange(priceRangeParam) && r.isInDistrict(districtParam) {
 				filteredRestaurants = append(filteredRestaurants, r)
 			}
@@ -167,13 +166,14 @@ func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon 
 	return filteredRestaurants
 }
 
-func prepareResponse(w http.ResponseWriter, status int, response responseJSON) {
+func writeResponse(w http.ResponseWriter, status int, response responseJSON) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	response.Status = status
 	res, err := json.Marshal(response)
 	if err != nil {
 		log.Println("Error while marshalling JSON response")
+		status = http.StatusInternalServerError
 	}
 	if status == http.StatusInternalServerError || err != nil {
 		_, err := w.Write([]byte("Internal server error"))
@@ -195,14 +195,14 @@ func autocompleteHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
 		log.Println(err)
-		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		writeResponse(w, http.StatusInternalServerError, responseJSON{})
 		return
 	}
 	res := responseJSON{
 		Msg:  "Success",
 		Data: getAutocompleteInterfaces(autocompletedRestaurants),
 	}
-	prepareResponse(w, http.StatusOK, res)
+	writeResponse(w, http.StatusOK, res)
 }
 
 func catchAllHandler(w http.ResponseWriter, r *http.Request) {
@@ -218,11 +218,11 @@ func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if found {
 		res.Msg = fmt.Sprintf("Wrong method: %v", r.Method)
-		prepareResponse(w, http.StatusMethodNotAllowed, res)
+		writeResponse(w, http.StatusMethodNotAllowed, res)
 		return
 	}
 	res.Msg = fmt.Sprintf("Invalid endpoint: %v", path)
-	prepareResponse(w, http.StatusBadRequest, res)
+	writeResponse(w, http.StatusBadRequest, res)
 }
 
 func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
@@ -235,7 +235,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
 		log.Println(err)
-		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		writeResponse(w, http.StatusInternalServerError, responseJSON{})
 		return
 	}
 	filteredRestaurants := filterRestaurants(loadedRestaurants, params, pcLat, pcLon)
@@ -243,7 +243,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 		Msg:  "Success",
 		Data: getRestaurantDBInterfaces(filteredRestaurants),
 	}
-	prepareResponse(w, http.StatusOK, res)
+	writeResponse(w, http.StatusOK, res)
 }
 
 func getCoordinates(params url.Values) (float64, float64, error) {
@@ -292,13 +292,13 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	res := responseJSON{}
 	if err != nil {
 		res.Msg = fmt.Sprintf("%s", err)
-		prepareResponse(w, http.StatusBadRequest, res)
+		writeResponse(w, http.StatusBadRequest, res)
 		return
 	}
 	loadedRestaurants, err := getDBRestaurants(params)
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
-		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		writeResponse(w, http.StatusInternalServerError, responseJSON{})
 		return
 	}
 	filteredRestaurants := filterRestaurants(loadedRestaurants, params, lat, lon)
@@ -306,10 +306,10 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	res.Data = getRestaurantDBInterfaces(filteredRestaurants)
 	if err != nil {
 		log.Println("Database not initialized")
-		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		writeResponse(w, http.StatusInternalServerError, responseJSON{})
 		return
 	}
-	prepareResponse(w, http.StatusOK, res)
+	writeResponse(w, http.StatusOK, res)
 }
 
 func main() {
