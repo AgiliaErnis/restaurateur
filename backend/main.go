@@ -72,7 +72,6 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 			"ORDER BY SIMILARITY(unaccent(address), unaccent($1)) DESC"
 		input = params.Get("address")
 	}
-	log.Println(pgQuery)
 	var restaurants []*restaurantAutocomplete
 	conn, err := dbInitialise()
 	if err != nil {
