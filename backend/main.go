@@ -22,6 +22,7 @@ type responseJSON struct {
 type restaurantAutocomplete struct {
 	ID       int
 	Name     string
+	Address  string
 	District string
 }
 
@@ -55,15 +56,28 @@ func getAutocompleteInterfaces(restaurants []*restaurantAutocomplete) []interfac
 	return interfaces
 }
 
-func getAutocompleteCandidates(input string) ([]*restaurantAutocomplete, error) {
-	pgQuery := "SELECT id, name, district FROM restaurants WHERE " +
-		"(unaccent(name) % unaccent($1))" +
-		" ORDER BY SIMILARITY(unaccent(name), unaccent($1)) DESC"
+func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, error) {
+	pgQuery := ""
+	input := ""
+	_, name := params["name"]
+	_, address := params["address"]
+	if name {
+		pgQuery = "SELECT id, name, address, district FROM restaurants WHERE " +
+			"(unaccent(name) % unaccent($1))" +
+			" ORDER BY SIMILARITY(unaccent(name), unaccent($1)) DESC"
+		input = params.Get("name")
+	} else if address {
+		pgQuery = "SELECT id, name, address, district FROM restaurants WHERE " +
+			"(unaccent(address) % unaccent($1))" +
+			" ORDER BY SIMILARITY(unaccent(address), unaccent($1)) DESC"
+		input = params.Get("address")
+	}
 	var restaurants []*restaurantAutocomplete
 	conn, err := dbInitialise()
 	if err != nil {
 		return restaurants, err
 	}
+	_, err = conn.Exec("SELECT set_limit(0.1)")
 	err = conn.Select(&restaurants, pgQuery, input)
 	if err != nil {
 		return restaurants, err
@@ -75,6 +89,11 @@ func getAutocompleteCandidates(input string) ([]*restaurantAutocomplete, error) 
 }
 
 func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
+	var restaurants []*RestaurantDB
+	conn, err := dbInitialise()
+	if err != nil {
+		return restaurants, err
+	}
 	var andParams = [...]string{"vegetarian", "vegan", "gluten-free", "takeaway"}
 	var queries []string
 	var orderBy = ""
@@ -103,17 +122,18 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 		queries = append(queries, pgParam)
 		values = append(values, searchString)
 		orderBy = fmt.Sprintf(" ORDER BY SIMILARITY(unaccent(name), unaccent($%d)) DESC", paramCtr)
+		searchStringLen := len(searchString)
+		if searchStringLen < 3 {
+			_, err = conn.Exec("SELECT set_limit(0.1)")
+		} else if searchStringLen < 5 {
+			_, err = conn.Exec("SELECT set_limit(0.2)")
+		} // else keep default of 0.3
 		paramCtr++
 	}
 	if len(queries) > 0 {
 		pgQuery += " WHERE "
 	}
 	pgQuery += strings.Join(queries, " AND ") + orderBy
-	var restaurants []*RestaurantDB
-	conn, err := dbInitialise()
-	if err != nil {
-		return restaurants, err
-	}
 	err = conn.Select(&restaurants, pgQuery, values...)
 	if err != nil {
 		return restaurants, err
@@ -160,7 +180,7 @@ func prepareResponse(w http.ResponseWriter, status int, response responseJSON) {
 func autocompleteHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "autocompleteHandler")
 	params := r.URL.Query()
-	autocompletedRestaurants, err := getAutocompleteCandidates(params.Get("input"))
+	autocompletedRestaurants, err := getAutocompleteCandidates(params)
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
 		log.Println(err)
