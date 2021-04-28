@@ -1,42 +1,34 @@
-import React, { useState} from 'react'
+import React, { useState, useContext } from 'react'
 import './VerticalFilter.css'
+import { filters } from './FiltersData'
+import { UserContext } from '../../UserContext';
 
 export const VerticalFilter = (props) => {
+    const { clickedDistrict, setClickedDistrict,
+        clickedSuggestion, setClickedSuggestion } = useContext(UserContext)
     const [seeMoreCuisines, setSeeMoreCuisines] = useState(false);
     const [seeMoreLocalities, setSeeMoreLocalities] = useState(false);
-    const [checkedPriceRange, setCheckedPriceRange] = useState([]);
-    const [checkedFeatured, setCheckedFeatured] = useState([]);
 
-    const priceRanges = [
+    const [ checkedFilters ] = useState([
         {
-            filterValue: "0-300",
-            value: "0 - 300 Kč"
+            category: "cuisine",
+            checkedOptions: []
         },
         {
-           filterValue: "300-600",
-            value: "300 - 600 Kč"
+            category: "district",
+            checkedOptions: []
         },
         {
-           filterValue: "600-",
-           value: "Over 600 Kč"
-        }]
+            category: "price-range",
+            checkedOptions: []
+        },
+        {
+            category: "other",
+            checkedOptions: []
+        },
+    ]);
 
-    const featuredOptions = [
-        {
-            filterValue: "vegetarian",
-            value: "Vegetarian"
-        },
-        {
-            filterValue: "vegan",
-            value: "Vegan"
-        },
-        {
-            filterValue: "gluten-free",
-            value: "Gluten Free"
-        }
-    ]
-
-    function handleClick () {
+    function handleClickCuisines () {
         setSeeMoreCuisines(!seeMoreCuisines)
     }
 
@@ -44,284 +36,130 @@ export const VerticalFilter = (props) => {
         setSeeMoreLocalities(!seeMoreLocalities)
     }
 
-    const handleTogglePriceRange = (value) => {
-        const currentIndex = checkedPriceRange.indexOf(value)
-        const newChecked = [...checkedPriceRange]
-
-        if (currentIndex === -1) {
-            newChecked.push(value);
-        } else {
-            newChecked.splice(currentIndex, 1)
+    const handleCheckboxToggle = (value, category) => {
+        if (clickedDistrict !== false) {
+            checkedFilters[1].checkedOptions.push(clickedDistrict);
+            setClickedDistrict(false);
         }
 
-        setCheckedPriceRange(newChecked);
-        props.handlePriceRangeFilters(newChecked);
-    }
-
-    const handleToggleFeatured = (value) => {
-        const currentIndex = checkedFeatured.indexOf(value)
-        const newcheckedFeatured = [...checkedFeatured]
-
-        if (currentIndex === -1) {
-            newcheckedFeatured.push(value);
-        } else {
-            newcheckedFeatured.splice(currentIndex, 1)
+        if (clickedSuggestion !== false) {
+            if (clickedSuggestion === "vegetarian"
+                ||
+                clickedSuggestion === "gluten-free")
+            {
+                checkedFilters[3].checkedOptions.push(clickedSuggestion)
+                setClickedSuggestion(false);
+            }
+            else {
+                checkedFilters[0].checkedOptions.push(clickedSuggestion)
+                setClickedSuggestion(false);
+            }
         }
 
-        setCheckedFeatured(newcheckedFeatured);
-        props.handleFeaturedFilters(newcheckedFeatured);
-    }
+        checkedFilters.map(filter => {
+            if (filter.category === category) {
+                const currentIndex = filter.checkedOptions.indexOf(value)
+
+            if (currentIndex === -1) {
+            filter.checkedOptions.push(value);
+        } else {
+            filter.checkedOptions.splice(currentIndex, 1)
+        }
+          props.handlecheckedFilters(checkedFilters);
+        }
+        return null
+    })
+}
 
     return (
         <div className="vertical-filter-container">
             <div className="filter-content">
                 <p>Filters</p>
+                {filters.map(filter => (
                 <div className="filter-div">
                     <div className="filter-inner-div">
-                        <p>Cuisine</p>
+                        <p>{filter.filterName}</p>
                         <div className="filter-options">
-                            <label>
-                                <input
-                                    className='option-input checkbox'
-                                    type='checkbox'
-                                />
-                                <span className="option-name">American</span>
-                            </label>
-                            <label>
-                                <input className='option-input checkbox'
-                                    type='checkbox' />
-                                <span className="option-name">Asian</span>
-                            </label>
-                            <label>
-                                <input className='option-input checkbox'
-                                    type='checkbox' />
-                                <span className="option-name">Italian</span>
-                            </label>
-                            <div className={seeMoreCuisines ?
-                                "cuisines_shown"
+                            {filter.options.map(option => {
+                                return (
+                                filter.options.indexOf(option) >= 3 ?
+                                          <div
+                                            onChange={() =>
+                                                handleCheckboxToggle(option.filterValue,
+                                                                        filter.category)}
+                                            className={filters.indexOf(filter) >= 3 ?
+                                                (seeMoreLocalities ? "shown" : "hidden")
+                                                :
+                                                (seeMoreCuisines ? "cuisines_shown" : "cuisines_hidden")}>
+                                               <label>
+                                                 <input
+                                                    className='option-input checkbox'
+                                                    type='checkbox'
+                                                    checked={clickedDistrict === option.filterValue ?
+                                                            true
+                                                            :
+                                                            clickedSuggestion === option.filterValue ?
+                                                                true
+                                                                :
+                                                                null}
+                                                    onClick={clickedDistrict === option.filterValue ?
+                                                        () => setClickedDistrict(false)
+                                                        :
+                                                        clickedSuggestion === option.filterValue ?
+                                                            () => setClickedSuggestion(false)
+                                                            : null}
+                                                />
+                                                 <span className="option-name">{option.value}</span>
+                                                </label>
+                                        </div>
+                                        :
+                                        <label onChange={() => handleCheckboxToggle(option.filterValue,
+                                            filter.category)}
+                                        >
+                                            <input
+                                                className='option-input checkbox'
+                                                type='checkbox'
+                                                checked={clickedDistrict === option.filterValue ?
+                                                    true
+                                                    :
+                                                    clickedSuggestion === option.filterValue ?
+                                                        true
+                                                        :
+                                                        null}
+                                                onClick={clickedDistrict === option.filterValue ?
+                                                    () => setClickedDistrict(false)
+                                                    :
+                                                    clickedSuggestion === option.filterValue ?
+                                                        () => setClickedSuggestion(false)
+                                                        :
+                                                        null}
+                                            />
+                                            <span className="option-name">{option.value}</span>
+                                        </label>
+                                    )
+                                }
+                            )
+                        }
+                    </div>
+                </div>
+                    {(filter.options.length > 3) ?
+                        <p className="see-more"
+                            onClick={filters.indexOf(filter) === 3 ?
+                                handleClickLocalities
                                 :
-                                "cuisines_hidden"}>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Indian</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Japanese</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Vietnamese</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Spanish</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">
-                                        Mediterranean
-                                </span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">French</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Thai</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Mexican</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">
-                                        International
-                                </span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Czech</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">English</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Balkan</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Brazil</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Russian</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Chinese</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Greek</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Arabic</span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">Korean</span>
-                                </label>
-                            </div>
-                        </div>
-                        <p className="see-more" onClick={handleClick}>
-                            {seeMoreCuisines ? "See less" : "See more"}
-                        </p>
-                    </div>
-                </div>
-                <div className="filter-div">
-                    <div className="filter-inner-div">
-                        <p>Price Range</p>
-                        <div className="filter-options">
-                            {priceRanges.map((priceRange) => (
-                                <label onChange={() => handleTogglePriceRange(priceRange.filterValue)}>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">
-                                        {priceRange.value}
-                                    </span>
-                                </label>))}
-                        </div>
-                    </div>
-                </div>
-                <div className="filter-div">
-                    <div className="filter-inner-div">
-                        <p>Services</p>
-                        <div className="filter-options">
-                            <label>
-                                <input className='option-input checkbox'
-                                    type='checkbox' />
-                                <span className="option-name">Delivery</span>
-                            </label>
-                            <label>
-                                <input className='option-input checkbox'
-                                    type='checkbox' />
-                                <span className="option-name">Takeaway</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div className="filter-div">
-                    <div className="filter-inner-div">
-                        <p>Localities</p>
-                        <div className="filter-options">
-                            <label>
-                                <input className='option-input checkbox'
-                                    type='checkbox' />
-                                <span className="option-name">
-                                    Prague 1
-                                </span>
-                            </label>
-                            <label>
-                                <input className='option-input checkbox'
-                                    type='checkbox' />
-                                <span className="option-name">Prague 2</span>
-                            </label>
-                            <label>
-                                <input className='option-input checkbox'
-                                    type='checkbox' />
-                                <span className="option-name">Prague 3</span>
-                            </label>
-                            <div className={seeMoreLocalities ?
-                                "shown"
+                                handleClickCuisines}
+                        >
+                            {filters.indexOf(filter) === 3 ?
+                                (seeMoreLocalities ? "See less" : "See more")
                                 :
-                                "hidden"}>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">
-                                        Prague 4
-                                    </span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">
-                                        Prague 5
-                                    </span>
-                                </label>
-                                <label>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">
-                                        Prague 6
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
-                        <p className="see-more" onClick={handleClickLocalities}>
-                            {seeMoreLocalities ? "See less" : "See more"}
+                                (seeMoreCuisines ? "See less" : "See more")
+                            }
                         </p>
-                    </div>
-                </div>
-                <div className="filter-div">
-                    <div className="filter-inner-div">
-                        <p>Suggested</p>
-                        <div className="filter-options">
-                            <label>
-                                <input className='option-input checkbox'
-                                    type='checkbox' />
-                                <span className="option-name">
-                                    Open Now (22:00)
-                                </span>
-                            </label>
-                            <label>
-                                <input className='option-input checkbox'
-                                    type='checkbox' />
-                                <span className="option-name">Near me</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div className="filter-div">
-                    <div className="filter-inner-div">
-                        <p>Featured</p>
-                        <div className="filter-options">
-                            {featuredOptions.map((featuredOption) => (
-                                <label onChange={() => handleToggleFeatured(featuredOption.filterValue)}>
-                                    <input className='option-input checkbox'
-                                        type='checkbox' />
-                                    <span className="option-name">
-                                        {featuredOption.value}
-                                    </span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                        :
+                        null
+                    }
+             </div>
+        ))}
                 <div className="filter-div">
                     <div className="filter-inner-div">
                         <p>Distance</p>

@@ -1,25 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './CollegeSection.css';
 import { Link } from 'react-router-dom';
 import { Button } from '../button/Button';
 import Aos from 'aos';
 import 'aos/dist/aos.css';
+import { UserContext } from '../../UserContext';
 
-function CollegeSection () {
-    useEffect(() => {
-    Aos.init({ duration: 1000 })
-    }, [])
-     const [button, setImage] = useState(true);
-   const showImage = () => {
+function CollegeSection() {
+  const { setPragueCollegePath } = useContext(UserContext)
+  const [button, setImage] = useState(true);
+  
+  const showImage = () => {
     if (window.innerWidth <= 1024) {
       setImage(false);
     } else {
       setImage(true);
     }
   };
-    useEffect(() => {
+
+  useEffect(() => {
    showImage();
   }, []);
+
+ useEffect(() => {
+  Aos.init({ duration: 1000 })
+  }, [])
 
   window.addEventListener('resize', showImage);
   return (
@@ -49,7 +54,7 @@ function CollegeSection () {
                   for their lunch-breaks as soon as possible. Click on Get Started
                   and find a suitable restaurant based on your own preferences.
                 </p>
-                <Link to='/restaurants'>
+                <Link to='/restaurants' onClick={() => setPragueCollegePath(true)}>
                   <Button buttonSize='btn--large'
                           buttonStyle='btn--search'
                           className="btn-see-more"

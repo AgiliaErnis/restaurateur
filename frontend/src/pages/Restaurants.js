@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { VerticalFilter } from '../components/filtration/VerticalFilter';
 import RestaurantItem from '../components/restaurants/RestaurantItem';
 import Select from 'react-select'
@@ -10,14 +10,16 @@ import RestaurantPagination from
   '../components/restaurants/pagination/Pagination';
 import { ImagePlaceHolder } from
   '../components/restaurants/PhotoSlider/ImagePlaceHolder';
+import { UserContext } from '../UserContext';
 
 export default function Restaurants() {
   const { customThemes, customStyles } = SelectStyle();
-  const { sortOptions, setSortResultHandler, } = SelectLogic();
+  const { sortOptions, setSortResultHandler } = SelectLogic();
+  const pragueCollegePath = useContext(UserContext)
+  const clickedDistrict = useContext(UserContext)
+  const clickedSuggestion = useContext(UserContext)
 
-  const [priceRange, setPriceRange] = useState([]);
-  const [featured, setFeatured] = useState([]);
-
+  const [checkedFilters, setCheckedFilters] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,35 +32,58 @@ export default function Restaurants() {
     setCurrentPage(pageNumber)
   }
 
-  const handlePriceRangeFilters = (filters) => {
+  const handlecheckedFilters = (filters) => {
     const newFilters = [...filters]
-    setPriceRange(newFilters)
+    setCheckedFilters(newFilters)
   }
+  const arrayOfPathValues = checkedFilters.filter(filter =>
+    filter.checkedOptions.length !== 0).map(noneEmptyFilter => {
+      if (noneEmptyFilter.category === "other") {
+        return noneEmptyFilter.checkedOptions.join("&")
+      }
+      else {
+        return noneEmptyFilter.category + "=" + noneEmptyFilter.checkedOptions
+      }
+    }
+  )
 
-  const handleFeaturedFilters = (filters) => {
-    const newFilters = [...filters]
-    setFeatured(newFilters)
+  const showFilteredResults = () => {
+    if (pragueCollegePath.pragueCollegePath === true) {
+      var pragueCollegeRestaurants = "/prague-college/restaurants?"
+      if (clickedDistrict.clickedDistrict !== false) {
+        pragueCollegeRestaurants += `district=${clickedDistrict.clickedDistrict}`
+      }
+      if (clickedSuggestion.clickedSuggestion !== false) {
+        if (clickedSuggestion.clickedSuggestion === "vegetarian"
+          ||
+          clickedSuggestion.clickedSuggestion === "gluten-free") {
+          pragueCollegeRestaurants += `${clickedSuggestion.clickedSuggestion}`
+        }
+        else {
+          pragueCollegeRestaurants += `cuisine=${clickedSuggestion.clickedSuggestion}`
+        }
+      }
+      return pragueCollegeRestaurants + arrayOfPathValues.join("&")
+    }
+    else {
+      var path = "/restaurants?radius=ignore&"
+      if (clickedDistrict.clickedDistrict !== false) {
+        path += `district=${clickedDistrict.clickedDistrict}`
+      }
+      if (clickedSuggestion.clickedSuggestion !== false) {
+        if (clickedSuggestion.clickedSuggestion === "vegetarian"
+          ||
+          clickedSuggestion.clickedSuggestion === "gluten-free") {
+            path += clickedSuggestion.clickedSuggestion
+          }
+        else {
+           path += `cuisine=${clickedSuggestion.clickedSuggestion}`
+        }
+      }
+      return path + arrayOfPathValues.join("&")
+    }
   }
-
- const showFilteredResults = () => {
-    var pragueCollegeRestaurants = "/prague-college/restaurants?"
-    if (priceRange.length === 0 & featured.length === 0) {
-      return pragueCollegeRestaurants
-    }
-    if (priceRange.length !== 0 & featured.length !== 0) {
-      return pragueCollegeRestaurants +
-        "price-range=" + priceRange + "&" + featured.join("&")
-    }
-    if (priceRange.length !== 0) {
-      return pragueCollegeRestaurants +
-        "price-range=" + priceRange
-    }
-    if (featured.length !== 0) {
-        return pragueCollegeRestaurants + featured.join("&")
-   }
-  }
-
-  var path = showFilteredResults();
+  const path = showFilteredResults();
 
   useEffect(() => {
     fetch(`${path}`).then(response => response.json()).then(
@@ -73,20 +98,26 @@ export default function Restaurants() {
   else {
     currentRestaurants = null
   }
+  console.log(showFilteredResults())
 
   return (
     <>
       <Navbar/>
       <div className="restaurants-hero-container">
         <VerticalFilter
-          handlePriceRangeFilters={filters =>
-            handlePriceRangeFilters(filters, "arrayOfPriceRanges")}
-          handleFeaturedFilters={filters =>
-            handleFeaturedFilters(filters, "arrayOfFeatured")}
+          handlecheckedFilters={filters =>
+            handlecheckedFilters(filters, "arrayOfcheckedFilterss")}
         />
         <div className="restaurant-cards-container">
           <div className="restaurant-cards-header">
-            <h1>Restaurants around Prague College</h1>
+            <h1>
+              {pragueCollegePath.pragueCollegePath === true
+                ?
+                "Restaurants around Prague College"
+                :
+                "Restaurants in Prague"
+              }
+            </h1>
             <Select
               defaultValue="Sort by"
               options={sortOptions}
@@ -115,13 +146,13 @@ export default function Restaurants() {
                   }) : "Cuisines are not available"}
                 address={filteredRestaurant.Address}
                 district={filteredRestaurant.District}
-                price={filteredRestaurant.PriceRange}
+                price={filteredRestaurant.checkedFilters}
                 takeaway={filteredRestaurant.Takeaway}
                 delivery={filteredRestaurant.DeliveryOptions}
               />
             })
             : <h1 className="error">
-              There are no results for these filters
+                There are no results for these filters
               </h1>
           }
         </div>
@@ -130,7 +161,9 @@ export default function Restaurants() {
         <RestaurantPagination
           restaurantsPerPage={restaurantsPerPage}
           totalRestaurants={restaurants.length}
-          paginate={paginate} />}
+          paginate={paginate}
+        />
+      }
     </>
   );
 }

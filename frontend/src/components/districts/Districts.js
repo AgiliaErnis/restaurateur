@@ -1,6 +1,7 @@
 import React from 'react';
 import DistrictItem from './District_item';
 import './Districts.css';
+import { PopularDistrictsData }  from './PopularDistrictsData'
 
 function Districts() {
   return (
@@ -9,32 +10,22 @@ function Districts() {
       <div className="districts__container">
         <div className="districts__wrapper">
           <ul className="districts__items">
-            <DistrictItem
-              district="Prague 1"
-              num_of_restaurants="50"
-            />
-            <DistrictItem
-              district="Prague 2"
-              num_of_restaurants="50"
-            />
-            <DistrictItem
-              district="Prague 3"
-              num_of_restaurants="50"
-            />
-        </ul>
-        <ul className="districts__items">
-            <DistrictItem
-              district="Prague 4"
-              num_of_restaurants="50"
-            />
-            <DistrictItem
-              district="Prague 5"
-              num_of_restaurants="50"
-            />
-            <DistrictItem
-              district="Prague 6"
-              num_of_restaurants="50"
-            />
+            {PopularDistrictsData.map(district =>
+            { return PopularDistrictsData.indexOf(district) < 3 &&
+                   <DistrictItem
+                    district= {district.district}
+                    num_of_restaurants={district.num_of_restaurants}
+                  />
+            })}
+          </ul>
+          <ul className="districts__items">
+            {PopularDistrictsData.map(district =>
+            { return PopularDistrictsData.indexOf(district) >= 3 &&
+                   <DistrictItem
+                    district= {district.district}
+                    num_of_restaurants={district.num_of_restaurants}
+                  />
+            })}
           </ul>
           </div>
         </div>

@@ -1,41 +1,36 @@
 import React from 'react';
 import './Cards.css';
 import CardItem from './CardItem';
+import { TopSuggestionsData } from './TopSuggestionsData'
 
 function Cards() {
+
   return (
     <div className='cards'>
       <h1>Check Out the Top Suggestions! </h1>
       <div className='cards__container'>
         <div className='cards__wrapper'>
           <ul className='cards__items'>
-            <CardItem
-              src='images/Home/international.webp'
-              text="View the city's more than 1000 International restaurants"
-              label='International'
+            {TopSuggestionsData.map(suggestion => {
+              return TopSuggestionsData.indexOf(suggestion) < 2 &&
+              <CardItem
+              src={suggestion.src}
+              text={suggestion.text}
+              label={suggestion.label}
+              filterValue={suggestion.filterValue}
             />
-            <CardItem
-              src='images/Home/italian.jpg'
-              text="Explore all the Italian restaurants of Prague"
-              label='Italian'
-            />
+            })}
           </ul>
           <ul className='cards__items'>
-            <CardItem
-              src='images/Home/czech.jpg'
-              text='Find your most suitable Czech restaurant'
-              label='Czech'
+            {TopSuggestionsData.map(suggestion => {
+              return TopSuggestionsData.indexOf(suggestion) >= 2 &&
+              <CardItem
+              src={suggestion.src}
+              text={suggestion.text}
+              label={suggestion.label}
+              filterValue={suggestion.filterValue}
             />
-            <CardItem
-              src='images/Home/glutenfree.webp'
-              text='Check out  the restaurants with gluten free options'
-              label='Gluten Free'
-            />
-            <CardItem
-              src='images/Home/vegan.jpeg'
-              text='Check out the restaurants with vegan and vegetarian meals'
-              label='Vegan/Vegetarian'
-            />
+            })}
           </ul>
         </div>
       </div>
