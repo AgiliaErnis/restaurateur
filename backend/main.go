@@ -100,6 +100,7 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 		return restaurants, err
 	}
 	var andParams = [...]string{"vegetarian", "vegan", "gluten-free", "takeaway"}
+	var nullParams = [...]string{"delivery-options"}
 	var queries []string
 	var orderBy = ""
 	pgQuery := "SELECT * from restaurants"
@@ -140,6 +141,14 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 			_, err = conn.Exec("SELECT set_limit(0.2)")
 		} // else keep default of 0.3
 		paramCtr++
+	}
+	for _, param := range nullParams {
+		_, ok := params[param]
+		if ok {
+			param = strings.Replace(param, "-", "_", -1)
+			pgParam := fmt.Sprintf("%s IS NOT NULL", param)
+			queries = append(queries, pgParam)
+		}
 	}
 	if len(queries) > 0 {
 		pgQuery += " WHERE "
