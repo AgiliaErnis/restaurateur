@@ -121,15 +121,18 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 		}
 	}
 	parameterArr, ok := params["search-name"]
+	pgParam := fmt.Sprintf("(unaccent(name) %% unaccent($%d))", paramCtr)
+	searchField := "name"
 	if !ok {
 		parameterArr, ok = params["search-address"]
+		searchField = "address"
+		pgParam = fmt.Sprintf("(regexp_replace(unaccent(address), '[[:digit:]/]', '', 'g') %% unaccent($%d)) ", paramCtr)
 	}
 	if ok {
 		searchString := parameterArr[0]
-		pgParam := fmt.Sprintf("(unaccent(name) %% unaccent($%d))", paramCtr)
 		queries = append(queries, pgParam)
 		values = append(values, searchString)
-		orderBy = fmt.Sprintf(" ORDER BY SIMILARITY(unaccent(name), unaccent($%d)) DESC", paramCtr)
+		orderBy = fmt.Sprintf(" ORDER BY SIMILARITY(unaccent(%s), unaccent($%d)) DESC", searchField, paramCtr)
 		searchStringLen := len(searchString)
 		if searchStringLen < 3 {
 			_, err = conn.Exec("SELECT set_limit(0.1)")
