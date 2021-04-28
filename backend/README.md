@@ -45,14 +45,32 @@ For now the server listens on port 8080, later the port should be configurable.
 
 ## Currently implemented
 
-HTTP server with two endpoints
+HTTP server with three endpoints
 
-| Method | Path                        | Handler       |
-|--------|-----------------------------|---------------|
+| Method | Path                        | Handler              |
+|--------|-----------------------------|----------------------|
 | GET    | /prague-college/restaurants | pcRestaurantsHandler |
-| GET | /restaurants | restaurantsHandler
+| GET    | /restaurants                | restaurantsHandler   |
+| GET    | /autocomplete               | autocompleteHandler  |
 
-## Query parameters
+
+## Query parameters for `/prague-college/restaurants` and `/restaurants`
+
+### search-name
+
+Name for which the database will be queried, results will be returned and ordered based on a similarity rating.
+
+**Example**
+
+`restaurants?radius=ignore&search-name=steak`
+
+### search-address
+
+Address for which the database will be queried, results will be returned and ordered based on a similarity rating.
+
+**Example**
+
+`prague-college/restaurants?search-address=manesova`
 
 ### radius
 
@@ -172,8 +190,6 @@ Filters out restaurants without a delivery option.
 
 `delivery-options`
 
----
-
 ## Example JSON responses
 ```json
 {
@@ -253,3 +269,41 @@ Filters out restaurants without a delivery option.
   "Data": null
 }
 ```
+---
+
+## Query parameters for `/autocomplete`
+
+### name
+
+Provides up to 10 candidates for autocompletion.
+
+**Example**
+
+`/autocomplete?name=steak`
+
+`/autocomplete?address=manesova`
+
+
+## Example JSON response
+
+```json
+{
+  "Status": 200,
+  "Msg": "Success",
+  "Data": [
+    {
+      "ID": 708,
+      "Name": "Empír steak",
+      "Address": "Beranových 39",
+      "District": "Praha 9"
+    },
+    {
+      "ID": 1061,
+      "Name": "SteakBurger",
+      "Address": "Krhanická 994/21a",
+      "District": "Praha 4"
+    }
+  ]
+}
+```
+
