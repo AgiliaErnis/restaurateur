@@ -51,7 +51,7 @@ export default function Restaurants() {
 
   const showFilteredResults = () => {
     if (pragueCollegePath.pragueCollegePath === true) {
-       var pragueCollegeRestaurants = `/prague-college/restaurants?radius=${checkedDistance.checkedDistance}`
+       var pragueCollegeRestaurants = `/prague-college/restaurants?radius=${checkedDistance.checkedDistance}&`
       if (clickedDistrict.clickedDistrict !== false) {
         pragueCollegeRestaurants += `district=${clickedDistrict.clickedDistrict}`
       }
