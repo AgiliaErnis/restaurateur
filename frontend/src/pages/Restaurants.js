@@ -18,6 +18,8 @@ export default function Restaurants() {
   const pragueCollegePath = useContext(UserContext)
   const clickedDistrict = useContext(UserContext)
   const clickedSuggestion = useContext(UserContext)
+  const checkedDistance = useContext(UserContext)
+  console.log(checkedDistance.checkedDistance)
 
   const [checkedFilters, setCheckedFilters] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
@@ -49,7 +51,7 @@ export default function Restaurants() {
 
   const showFilteredResults = () => {
     if (pragueCollegePath.pragueCollegePath === true) {
-      var pragueCollegeRestaurants = "/prague-college/restaurants?"
+       var pragueCollegeRestaurants = `/prague-college/restaurants?radius=${checkedDistance.checkedDistance}`
       if (clickedDistrict.clickedDistrict !== false) {
         pragueCollegeRestaurants += `district=${clickedDistrict.clickedDistrict}`
       }
@@ -84,6 +86,7 @@ export default function Restaurants() {
     }
   }
   const path = showFilteredResults();
+  console.log()
 
   useEffect(() => {
     fetch(`${path}`).then(response => response.json()).then(

@@ -11,6 +11,7 @@ function App() {
   const [pragueCollegePath, setPragueCollegePath] = useState(false);
   const [clickedDistrict, setClickedDistrict] = useState(false);
   const [clickedSuggestion, setClickedSuggestion] = useState(false);
+  const [checkedDistance, setCheckedDistance ] = useState("1000")
 
   return (
     <>
@@ -20,7 +21,8 @@ function App() {
           <UserContext.Provider value={{
             pragueCollegePath, setPragueCollegePath,
             clickedDistrict, setClickedDistrict,
-            clickedSuggestion, setClickedSuggestion
+            clickedSuggestion, setClickedSuggestion,
+            checkedDistance,setCheckedDistance
           }}>
             <Route path='/' exact component={Home} />
             <Route path='/restaurants' component={Restaurants} />

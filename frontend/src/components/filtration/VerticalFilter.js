@@ -5,7 +5,7 @@ import { UserContext } from '../../UserContext';
 
 export const VerticalFilter = (props) => {
     const { clickedDistrict, setClickedDistrict,
-        clickedSuggestion, setClickedSuggestion } = useContext(UserContext)
+        clickedSuggestion, setClickedSuggestion, checkedDistance,setCheckedDistance } = useContext(UserContext)
     const [seeMoreCuisines, setSeeMoreCuisines] = useState(false);
     const [seeMoreLocalities, setSeeMoreLocalities] = useState(false);
 
@@ -25,8 +25,26 @@ export const VerticalFilter = (props) => {
         {
             category: "other",
             checkedOptions: []
-        },
+        }
     ]);
+    const distanceOptions = [
+        {
+            filterValue: "ignore",
+            value: "Bird's-eye view"
+        },
+        {
+            filterValue: "500",
+            value: "500 meters radius",
+        },
+        {
+            filterValue: "1000",
+            value: "1km radius"
+        },
+        {
+            filterValue: "3000",
+            value: "5km radius",
+        }
+    ]
 
     function handleClickCuisines () {
         setSeeMoreCuisines(!seeMoreCuisines)
@@ -59,7 +77,6 @@ export const VerticalFilter = (props) => {
         checkedFilters.map(filter => {
             if (filter.category === category) {
                 const currentIndex = filter.checkedOptions.indexOf(value)
-
             if (currentIndex === -1) {
             filter.checkedOptions.push(value);
         } else {
@@ -164,34 +181,20 @@ export const VerticalFilter = (props) => {
                     <div className="filter-inner-div">
                         <p>Distance</p>
                         <div className="filter-options">
-                            <label>
-                                <input className='radio' type='radio'
-                                    name='distance-option' />
-                                <div className="checkmark"></div>
-                                <span className="option-name">
-                                    Bird's-eye view
-                                </span>
-                            </label>
-                            <label>
-                                <input className='radio' type='radio'
-                                    name='distance-option' />
-                                <div className="checkmark"></div>
-                                <span className="option-name">
-                                    500 meters radius
-                                </span>
-                            </label>
-                            <label>
-                                <input className='radio' type='radio'
-                                    name='distance-option' />
-                                <div className="checkmark"></div>
-                                <span className="option-name">1 km radius</span>
-                            </label>
-                            <label>
-                                <input className='radio' type='radio'
-                                    name='distance-option' />
-                                <div className="checkmark"></div>
-                                <span className="option-name">3 km radius</span>
-                            </label>
+                            {distanceOptions.map(option => {
+                                return (
+                                    <label onChange={() => setCheckedDistance(option.filterValue)}>
+                                        <input className='radio' type='radio'
+                                            name='distance-option'
+                                            checked={checkedDistance === option.filterValue ? true : null}
+                                            />
+                                        <div className="checkmark"></div>
+                                        <span className="option-name">
+                                            {option.value}
+                                        </span>
+                                    </label>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>
