@@ -18,6 +18,7 @@ exports[`testing Cards should render 1`] = `
       >
         <li
           className="cards__item"
+          onClick={[Function]}
         >
           <a
             className="cards__item__link"
@@ -47,6 +48,7 @@ exports[`testing Cards should render 1`] = `
         </li>
         <li
           className="cards__item"
+          onClick={[Function]}
         >
           <a
             className="cards__item__link"
@@ -80,6 +82,7 @@ exports[`testing Cards should render 1`] = `
       >
         <li
           className="cards__item"
+          onClick={[Function]}
         >
           <a
             className="cards__item__link"
@@ -109,6 +112,7 @@ exports[`testing Cards should render 1`] = `
         </li>
         <li
           className="cards__item"
+          onClick={[Function]}
         >
           <a
             className="cards__item__link"
@@ -138,6 +142,7 @@ exports[`testing Cards should render 1`] = `
         </li>
         <li
           className="cards__item"
+          onClick={[Function]}
         >
           <a
             className="cards__item__link"
@@ -146,7 +151,7 @@ exports[`testing Cards should render 1`] = `
           >
             <figure
               className="cards__item__pic-wrap"
-              data-category="Vegan/Vegetarian"
+              data-category="Vegetarian"
             >
               <img
                 alt="Food Category"
@@ -160,7 +165,7 @@ exports[`testing Cards should render 1`] = `
               <h5
                 className="cards__item__text"
               >
-                Check out the restaurants with vegan and vegetarian meals
+                Check out the restaurants with vegetarian meals
               </h5>
             </div>
           </a>
