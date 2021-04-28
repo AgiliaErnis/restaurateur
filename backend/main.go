@@ -61,6 +61,7 @@ func getAutocompleteCandidates(input string) ([]*restaurantAutocomplete, error) 
 		" ORDER BY SIMILARITY(unaccent(name), unaccent($1)) DESC"
 	var restaurants []*restaurantAutocomplete
 	conn, err := dbGetConn()
+	defer conn.Close()
 	if err != nil {
 		return restaurants, err
 	}
@@ -120,6 +121,7 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	pgQuery += strings.Join(queries, " AND ") + orderBy
 	var restaurants []*RestaurantDB
 	conn, err := dbGetConn()
+	defer conn.Close()
 	if err != nil {
 		return restaurants, err
 	}

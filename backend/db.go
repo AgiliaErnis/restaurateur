@@ -188,6 +188,7 @@ func loadRestaurants(conn *sqlx.DB) ([]*RestaurantDB, error) {
 
 func dbInit() {
 	conn, err := dbGetConn()
+	defer conn.Close()
 	dbCheck(conn)
 	if err != nil {
 		log.Println(err)
