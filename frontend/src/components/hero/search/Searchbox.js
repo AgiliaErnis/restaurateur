@@ -45,7 +45,7 @@ function Searchbox () {
 
   useEffect(() => {
     showSearch();
-  }, []);
+  }, [showSearch]);
 
   window.addEventListener('resize', showSearch);
 

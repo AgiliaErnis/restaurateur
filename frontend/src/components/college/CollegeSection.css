@@ -1,0 +1,140 @@
+.college-section {
+  color: black;
+  background-color: #fff;
+  padding: 5rem;
+
+
+}
+.container {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  max-width: 1520px;
+  width: 100%;
+  margin: 0 auto;justify-content: center;
+  align-items: center;
+}
+
+.home__hero-row {
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: stretch;
+}
+
+.col {
+  width: 50%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-wrapper {
+  max-width: 540px;
+  padding-top: 0;
+  margin-right: 2rem;
+}
+
+.top-line {
+  color: black;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.text-wrapper h1 {
+  margin-bottom: 24px;
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 600;
+  color: black;
+  text-align: start;
+}
+
+.prague-college-logo {
+  width: 7%;
+  height: 7%;
+  border: none;
+  border-radius: none;
+}
+
+.text-wrapper .btn {
+  border-radius: 7px;
+  background-color: rgb(255, 174, 0);
+}
+
+.dark {
+ color: rgb(255, 174, 0);
+}
+
+.description {
+  max-width: 440px;
+  margin-bottom: 35px;
+  font-size: 18px;
+  line-height: 24px;
+}
+
+.img-wrapper {
+  max-width: 545px;
+   padding-top: 0;
+  margin-left: 2rem;
+}
+
+.student-img {
+  max-width: 100%;
+  width: 110%;
+  margin-top: 0;
+  margin-right: 0;
+  margin-left: 10px;
+  padding-right: 0;
+  border: 0;
+  max-width: 100%;
+  vertical-align: middle;
+  display: inline-block;
+  border-radius: 7px;
+  border: 1px solid #e7e7e7;
+}
+
+@media screen and (max-width: 1024px) {
+  .container {
+   display: flex;
+    flex-flow: column;
+    align-items: center;
+    max-width: 1120px;
+    width: 90%;
+    margin: 0 auto;
+  }
+  .text-wrapper .btn {
+    width: inherit;
+  }
+
+  .text-wrapper, .description, .text-wrapper h1 {
+    align-items: center;
+    text-align: center;
+    max-width: none;
+  }
+  .row {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .text-wrapper {
+
+    margin-right: 0;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .col {
+    max-width: 100%;
+    flex-basis: 100%;
+    justify-content: center;
+  align-items: center;
+  }
+}

@@ -11,7 +11,7 @@ const SignUpForm = ({ submitForm }) => {
   );
 
   return (
-      <form  className='form' noValidate>
+      <form onSubmit={handleSubmit} className='form' noValidate>
         <div className='form-inputs'>
           <label className='form-label'>Username</label>
           <input

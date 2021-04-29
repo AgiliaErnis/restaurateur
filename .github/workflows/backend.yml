@@ -3,10 +3,16 @@ name: backend
 on:
   push:
     paths: backend/**
+  pull_request:
+    paths: backend/**
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v2
 
@@ -24,4 +30,13 @@ jobs:
         run: go build .
 
       - name: Lint check
-        run: golint .
+        run: golint ./...
+
+      - name: Vet check
+        run: go vet ./...
+
+      - name: Format check
+        run: if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then exit 1; fi
+
+      - name: Run tests
+        run: go test ./...

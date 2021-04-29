@@ -1,0 +1,218 @@
+.restaurant_card_item {
+    display: flex;
+    flex-direction: column;
+    margin: 2rem;
+    width: 700px;
+    border: 1px solid #e7e7e7;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.restaurant_card_item:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: 0.3s ease-in-out;
+}
+
+.content {
+    display: flex;
+    flex-direction: row;
+    margin: 0.5rem;
+
+}
+
+.MuiBox-root-2 {
+    margin-bottom: none !important;
+}
+
+.image-container {
+    width: 320px;
+    height: 230px;
+}
+
+.restaurant {
+    border-radius: 4px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.restaurant_description {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-left: 0.9rem;
+    justify-content: center;
+}
+
+.restaurant-name {
+    margin-bottom: 5px;
+    font-size: 22px;
+    cursor: pointer;
+    font-weight: bold;
+    line-height: 22px;
+    display: flex;
+    width: 100%;
+}
+.restaurant-name .name-container {
+    width:80%;
+}
+.restaurant-name .save-container  {
+    width: 20%;
+}
+.more-options {
+    display: flex;
+    background-color:#f3f0f0!important;
+    cursor: pointer;
+    font-weight: 400;
+    transition: background .1s ease,box-shadow .1s ease,color .1s ease;
+    margin-top: 0.7rem;
+    margin-right: 1rem;height: 40px;
+    border-radius: 4px;
+}
+
+.option {
+    width: 33.3%;
+    line-height: 40px;
+    font-size: 14px;
+    color: #595c60;
+    text-align: center;
+    align-items: center;
+    border-right: 1px solid #c0bfbf;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.option i {
+    font-size: 13px;
+    margin-left: 5px;
+}
+
+.option:hover {
+    color: #000000;
+    transition: 0.3s ease-out;
+}
+
+.option.view{
+    border-right: none;
+}
+
+.rating-container {
+    display: flex;
+    align-items: center;
+}
+
+.rating-num {
+    margin-top: 3px;
+    margin-left: 5px;
+}
+
+.fas.fa-check {
+    color: rgb(4, 155, 4);
+    margin-right: 0.4rem;
+    font-size: 15px;
+}
+
+.delivery .fas.fa-times, .takeaway .fas.fa-times {
+    color: #cb202d;
+    margin-right: 0.4rem;
+    font-size: 17px;
+}
+
+.tags {
+    color: rgba(117,114,128,1);
+}
+
+.address, .tags, .price-range {
+   margin-inline-start: 2px;
+   margin-top: 0.2rem;
+   font-size: 14px;
+}
+
+.takeaway, .delivery {
+    margin-inline-start: 5px;
+    margin-top: 0.2rem;
+    font-weight: 500;
+}
+
+.save-container {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.save-btn,.save-btn-active {
+    position: relative;
+    cursor:pointer;
+    color:rgb(216, 214, 214);
+    transition:.2s;
+    font-size: 22px;
+}
+
+.save-btn:hover + .save-on-hover {
+   color:rgb(150, 148, 148);
+   display: block;
+}
+
+.save-btn:before,
+.save-btn-active:before {
+  font-family:fontawesome;
+  content:'\f02e';
+  font-style:normal;
+}
+
+.saved {
+  transition:.6s;
+  z-index:-2;
+  font-size:2px;
+  color:transparent;
+  font-weight:400;
+}
+
+.save-btn-active {
+  color: #f44336;
+}
+
+.save-on-hover {
+  display: none;
+  font-size: 12px;
+  position: absolute;
+  margin-top: 30px;
+  margin-left: 8px;
+}
+
+.save-on-hover-hidden {
+  display: none;
+}
+
+.restaurant_description .saved {
+  font-size:13px;
+  animation: fade 1s;
+  position: absolute;
+  margin-top: 30px;
+  font-weight: bold;
+  line-height: 22px;
+  margin-left: 25px;
+}
+
+.saved-hidden {
+  color: transparent;
+  margin-left: 25px;
+  position: absolute;
+  margin-top: 30px;
+  font-weight: bold;
+  font-weight: bold;
+  line-height: 22px;
+}
+
+@keyframes fade {
+  0% {color: transparent;}
+  50% {color: rgb(177, 107, 107);}
+  100% {color:transparent;}
+}
+
+.error {
+    margin-top: 15rem;
+}

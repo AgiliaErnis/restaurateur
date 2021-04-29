@@ -1,0 +1,172 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`testing Cards should render 1`] = `
+<div
+  className="cards"
+>
+  <h1>
+    Check Out the Top Suggestions! 
+  </h1>
+  <div
+    className="cards__container"
+  >
+    <div
+      className="cards__wrapper"
+    >
+      <ul
+        className="cards__items"
+      >
+        <li
+          className="cards__item"
+        >
+          <a
+            className="cards__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <figure
+              className="cards__item__pic-wrap"
+              data-category="International"
+            >
+              <img
+                alt="Food Category"
+                className="cards__item__img"
+                src="images/Home/international.webp"
+              />
+            </figure>
+            <div
+              className="cards__item__info"
+            >
+              <h5
+                className="cards__item__text"
+              >
+                View the city's more than 1000 International restaurants
+              </h5>
+            </div>
+          </a>
+        </li>
+        <li
+          className="cards__item"
+        >
+          <a
+            className="cards__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <figure
+              className="cards__item__pic-wrap"
+              data-category="Italian"
+            >
+              <img
+                alt="Food Category"
+                className="cards__item__img"
+                src="images/Home/italian.jpg"
+              />
+            </figure>
+            <div
+              className="cards__item__info"
+            >
+              <h5
+                className="cards__item__text"
+              >
+                Explore all the Italian restaurants of Prague
+              </h5>
+            </div>
+          </a>
+        </li>
+      </ul>
+      <ul
+        className="cards__items"
+      >
+        <li
+          className="cards__item"
+        >
+          <a
+            className="cards__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <figure
+              className="cards__item__pic-wrap"
+              data-category="Czech"
+            >
+              <img
+                alt="Food Category"
+                className="cards__item__img"
+                src="images/Home/czech.jpg"
+              />
+            </figure>
+            <div
+              className="cards__item__info"
+            >
+              <h5
+                className="cards__item__text"
+              >
+                Find your most suitable Czech restaurant
+              </h5>
+            </div>
+          </a>
+        </li>
+        <li
+          className="cards__item"
+        >
+          <a
+            className="cards__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <figure
+              className="cards__item__pic-wrap"
+              data-category="Gluten Free"
+            >
+              <img
+                alt="Food Category"
+                className="cards__item__img"
+                src="images/Home/glutenfree.webp"
+              />
+            </figure>
+            <div
+              className="cards__item__info"
+            >
+              <h5
+                className="cards__item__text"
+              >
+                Check out  the restaurants with gluten free options
+              </h5>
+            </div>
+          </a>
+        </li>
+        <li
+          className="cards__item"
+        >
+          <a
+            className="cards__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <figure
+              className="cards__item__pic-wrap"
+              data-category="Vegan/Vegetarian"
+            >
+              <img
+                alt="Food Category"
+                className="cards__item__img"
+                src="images/Home/vegan.jpeg"
+              />
+            </figure>
+            <div
+              className="cards__item__info"
+            >
+              <h5
+                className="cards__item__text"
+              >
+                Check out the restaurants with vegan and vegetarian meals
+              </h5>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+`;

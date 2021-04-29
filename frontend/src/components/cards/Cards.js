@@ -10,36 +10,31 @@ function Cards() {
         <div className='cards__wrapper'>
           <ul className='cards__items'>
             <CardItem
-              src='images/Home/breakfast.webp'
-              text='Top breakfast places in Prague'
-              label='Breakfast'
-              path='/restaurants'
+              src='images/Home/international.webp'
+              text="View the city's more than 1000 International restaurants"
+              label='International'
             />
             <CardItem
               src='images/Home/italian.jpg'
-              text='Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
-              label='Italian Food'
-              path='/restaurants'
+              text="Explore all the Italian restaurants of Prague"
+              label='Italian'
             />
           </ul>
           <ul className='cards__items'>
             <CardItem
-              src='images/Home/coffee.jpg'
-              text='Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
-              label='Coffee'
-              path='/restaurants'
+              src='images/Home/czech.jpg'
+              text='Find your most suitable Czech restaurant'
+              label='Czech'
             />
             <CardItem
-              src='images/Home/dinner.webp'
-              text='Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
-              label='Dinner Places'
-              path='/restaurants'
+              src='images/Home/glutenfree.webp'
+              text='Check out  the restaurants with gluten free options'
+              label='Gluten Free'
             />
             <CardItem
-              src='images/Home/salad.webp'
-              text='Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
-              label='Healthy menus'
-              path='/restaurants'
+              src='images/Home/vegan.jpeg'
+              text='Check out the restaurants with vegan and vegetarian meals'
+              label='Vegan/Vegetarian'
             />
           </ul>
         </div>

@@ -2,37 +2,36 @@
 
 name: frontend
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
+  # Triggers the workflow on push or pull request events
   push:
+    paths: frontend/**
     branches: [ main ]
-    paths: /frontend/**
   pull_request:
+    paths: frontend/**
     branches: [ main ]
-    paths: /frontend/**
 
-  # Allows you to run this workflow manually from the Actions tab
+# Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
+  
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
-        with:
-           ref: frontend
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
       - name: Install dependencies
-        run: npm install    
+        run: npm install
       - name: Test
         run: npm test
-        env:
-          CI: true
       - name: Generate build
         run: npm run build
       # Share artifact inside workflow
@@ -40,4 +39,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: react-github-actions-build
-          path: build
+          path: frontend/build

@@ -5,15 +5,14 @@
   "main": "index.js",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/lab": "^4.0.0-alpha.57",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.3",
-    "chalk": "^4.1.0",
-    "each-async": "^1.1.1",
-    "enzyme": "^3.11.0",
-    "indent-string": "^4.0.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "aos": "^2.3.4",
+    "react": "^16.0.2",
+    "react-dom": "^16.0.1",
     "react-icons": "^4.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
@@ -47,6 +46,10 @@
     ]
   },
   "devDependencies": {
-    "jest": "^26.6.0"
-  }
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.6",
+    "jest": "^26.6.0",
+    "react-dev-utils": "^11.0.4"
+  },
+  "proxy" : "http://localhost:8080"
 }

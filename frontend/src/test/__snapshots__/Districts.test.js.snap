@@ -1,0 +1,144 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`testing CollegeSection should render 1`] = `
+<div
+  className="districts"
+>
+  <h1>
+    Popular districts in 
+    <b>
+      Prague
+    </b>
+  </h1>
+  <div
+    className="districts__container"
+  >
+    <div
+      className="districts__wrapper"
+    >
+      <ul
+        className="districts__items"
+      >
+        <li
+          className="districts__item"
+        >
+          <a
+            className="districts__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <h4>
+              Prague 1
+               (
+              50
+               places)
+            </h4>
+            <i
+              class="fas fa-angle-right"
+            />
+          </a>
+        </li>
+        <li
+          className="districts__item"
+        >
+          <a
+            className="districts__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <h4>
+              Prague 2
+               (
+              50
+               places)
+            </h4>
+            <i
+              class="fas fa-angle-right"
+            />
+          </a>
+        </li>
+        <li
+          className="districts__item"
+        >
+          <a
+            className="districts__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <h4>
+              Prague 3
+               (
+              50
+               places)
+            </h4>
+            <i
+              class="fas fa-angle-right"
+            />
+          </a>
+        </li>
+      </ul>
+      <ul
+        className="districts__items"
+      >
+        <li
+          className="districts__item"
+        >
+          <a
+            className="districts__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <h4>
+              Prague 4
+               (
+              50
+               places)
+            </h4>
+            <i
+              class="fas fa-angle-right"
+            />
+          </a>
+        </li>
+        <li
+          className="districts__item"
+        >
+          <a
+            className="districts__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <h4>
+              Prague 5
+               (
+              50
+               places)
+            </h4>
+            <i
+              class="fas fa-angle-right"
+            />
+          </a>
+        </li>
+        <li
+          className="districts__item"
+        >
+          <a
+            className="districts__item__link"
+            href="/restaurants"
+            onClick={[Function]}
+          >
+            <h4>
+              Prague 6
+               (
+              50
+               places)
+            </h4>
+            <i
+              class="fas fa-angle-right"
+            />
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+`;
