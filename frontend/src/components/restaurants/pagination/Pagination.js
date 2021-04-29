@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function RestaurantPagination({ restaurantsPerPage, totalRestaurants, paginate }) {
+export default function RestaurantPagination({ restaurantsPerPage, totalRestaurants, paginate, page }) {
 
   const pageNumbers = [];
   for (let i = 1; i <= Math.ceil(totalRestaurants / restaurantsPerPage); i++) {
@@ -29,6 +29,8 @@ export default function RestaurantPagination({ restaurantsPerPage, totalRestaura
           showFirstButton
           showLastButton
           onChange={(e, value) => paginate(value)}
+          page={page}
+          onClick={window.scrollTo(0,0)}
         />
         </div>
     )
