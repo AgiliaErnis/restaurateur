@@ -149,7 +149,7 @@ export default function Restaurants() {
                   }) : "Cuisines are not available"}
                 address={filteredRestaurant.Address}
                 district={filteredRestaurant.District}
-                price={filteredRestaurant.checkedFilters}
+                price={filteredRestaurant.PriceRange}
                 takeaway={filteredRestaurant.Takeaway}
                 delivery={filteredRestaurant.DeliveryOptions}
               />
