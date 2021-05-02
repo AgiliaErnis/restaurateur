@@ -301,7 +301,7 @@ func main() {
 	if initialize {
 		dbInit()
 	}
-	if portNum < 1023 || portNum > 65536 {
+	if portNum < 1024 || portNum > 65535 {
 		log.Fatal("Invalid port number, use a number from 1024-65535")
 	}
 	port := fmt.Sprintf(":%d", portNum)
