@@ -313,6 +313,7 @@ func getCoordinates(params url.Values) (float64, float64, error) {
 }
 
 func restaurantHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "restaurantHandler")
 	res := responseJSON{}
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
