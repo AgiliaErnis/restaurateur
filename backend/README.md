@@ -47,11 +47,12 @@ For now the server listens on port 8080, later the port should be configurable.
 
 HTTP server with three endpoints
 
-| Method | Path                        | Handler              |
-|--------|-----------------------------|----------------------|
-| GET    | /prague-college/restaurants | pcRestaurantsHandler |
-| GET    | /restaurants                | restaurantsHandler   |
-| GET    | /autocomplete               | autocompleteHandler  |
+| Method | Path                         | Handler              |
+|--------|------------------------------|----------------------|
+| GET    | /prague-college/restaurants  | pcRestaurantsHandler |
+| GET    | /restaurants                 | restaurantsHandler   |
+| GET    | /autocomplete                | autocompleteHandler  |
+| GET    | /restaurant/{restaurant-id}  | restaurantHandler    |
 
 
 ## Query parameters for `/prague-college/restaurants` and `/restaurants`
