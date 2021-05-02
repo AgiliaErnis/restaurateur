@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Button } from '../button/Button';
 import MobileNavbar from './MobileNavbar'
 import { Link } from 'react-router-dom';
@@ -6,14 +6,29 @@ import './Navbar.css';
 import { Modal } from '../forms/Modal'
 import Searchbox from '../search/Searchbox';
 import NavbarLogic from './NavbarLogic';
+import { UserContext } from '../../UserContext';
 
 function Navbar() {
-  const { click, button, showButton, handleClick, closeMobileMenu }
+  const { click, button, showButton,
+          handleClick, closeMenuDiscardChanges }
     = MobileNavbar();
   const { navMenuClassName, searchbox, showLogInModal,
           showSignUpModal, openLogInModal, openSignUpModal,
           setShowLogInModal, setShowSignUpModal }
     = NavbarLogic();
+  const { pragueCollegePath, setPragueCollegePath } = useContext(UserContext)
+
+   function setRestaurantsNavLink () {
+    switch(window.location.pathname){
+      case '/restaurants':
+         return (pragueCollegePath === true ?
+           "All Restaurants"
+           :
+           "PC Restaurants")
+      default:
+        return "All Restaurants";
+    }
+  }
 
   useEffect(() => {
    showButton();
@@ -25,7 +40,7 @@ function Navbar() {
     <>
       <nav className={click ? 'navbar active' : 'navbar'}>
         <div className='navbar-container'>
-          <Link to='/' className='navbar-logo' onClick={closeMobileMenu}>
+          <Link to='/' className='navbar-logo' onClick={closeMenuDiscardChanges}>
            Restaurateur<i class="fas fa-utensils" />
           </Link>
           <div className={click ? 'hidden' : searchbox}>
@@ -36,7 +51,7 @@ function Navbar() {
           </div>
           <ul className={click ? 'nav-menu active' : navMenuClassName}>
             <li className='nav-item'>
-              <Link to='/' className='nav-links' onClick={closeMobileMenu}>
+              <Link to='/' className='nav-links' onClick={closeMenuDiscardChanges}>
                 Home
               </Link>
             </li>
@@ -44,9 +59,12 @@ function Navbar() {
               <Link
                 to='/restaurants'
                 className='nav-links'
-                onClick={closeMobileMenu}
+                onClick={setRestaurantsNavLink() === "All Restaurants" ?
+                  () => setPragueCollegePath(false)
+                  :
+                  () => setPragueCollegePath(true)}
               >
-                Restaurants
+                {setRestaurantsNavLink()}
               </Link>
             </li>
             <li>
