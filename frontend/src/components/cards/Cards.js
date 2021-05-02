@@ -1,10 +1,9 @@
 import React from 'react';
-import './Cards.css';
 import CardItem from './CardItem';
 import { TopSuggestionsData } from './TopSuggestionsData'
+import './Cards.css';
 
 function Cards() {
-
   return (
     <div className='cards'>
       <h1>Check Out the Top Suggestions! </h1>
@@ -13,23 +12,23 @@ function Cards() {
           <ul className='cards__items'>
             {TopSuggestionsData.map(suggestion => {
               return TopSuggestionsData.indexOf(suggestion) < 2 &&
-              <CardItem
-              src={suggestion.src}
-              text={suggestion.text}
-              label={suggestion.label}
-              filterValue={suggestion.filterValue}
-            />
+                      <CardItem
+                        src={suggestion.src}
+                        text={suggestion.text}
+                        label={suggestion.label}
+                        filterValue={suggestion.filterValue}
+                      />
             })}
           </ul>
           <ul className='cards__items'>
             {TopSuggestionsData.map(suggestion => {
               return TopSuggestionsData.indexOf(suggestion) >= 2 &&
-              <CardItem
-              src={suggestion.src}
-              text={suggestion.text}
-              label={suggestion.label}
-              filterValue={suggestion.filterValue}
-            />
+                      <CardItem
+                        src={suggestion.src}
+                        text={suggestion.text}
+                        label={suggestion.label}
+                        filterValue={suggestion.filterValue}
+                      />
             })}
           </ul>
         </div>

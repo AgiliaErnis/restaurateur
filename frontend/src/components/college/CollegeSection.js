@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import './CollegeSection.css';
 import { Link } from 'react-router-dom';
 import { Button } from '../button/Button';
 import Aos from 'aos';
 import 'aos/dist/aos.css';
 import { UserContext } from '../../UserContext';
+import './CollegeSection.css';
 
 function CollegeSection() {
   const { setPragueCollegePath } = useContext(UserContext)
-  const [button, setImage] = useState(true);
-  
+  const [image, setImage] = useState(true);
+
   const showImage = () => {
     if (window.innerWidth <= 1024) {
       setImage(false);
@@ -22,11 +22,12 @@ function CollegeSection() {
    showImage();
   }, []);
 
- useEffect(() => {
-  Aos.init({ duration: 1000 })
+  useEffect(() => {
+    Aos.init({ duration: 1000 })
   }, [])
 
   window.addEventListener('resize', showImage);
+
   return (
     <>
       <div className= 'college-section'>
@@ -42,9 +43,11 @@ function CollegeSection() {
               <div className='text-wrapper'>
                 <div className='top-line'>
                   For Prague College Students
-                  <img src='images/Home/PC.png'
-                       className="prague-college-logo"
-                       alt="pc logo" />
+                  <img
+                    src='images/Home/PC.png'
+                    className="prague-college-logo"
+                    alt="pc logo"
+                  />
                 </div>
                 <h1 className= 'heading'>
                   Find the best food places near the Prague College
@@ -55,22 +58,27 @@ function CollegeSection() {
                   and find a suitable restaurant based on your own preferences.
                 </p>
                 <Link to='/restaurants' onClick={() => setPragueCollegePath(true)}>
-                  <Button buttonSize='btn--large'
-                          buttonStyle='btn--search'
-                          className="btn-see-more"
+                  <Button
+                    buttonSize='btn--large'
+                    buttonStyle='btn--search'
+                    className="btn-see-more"
                   >
                     Get Started
                   </Button>
                 </Link>
               </div>
-            </div>{button &&
+            </div>
+            {image &&
               <div className='col'>
                 <div className='img-wrapper'>
-                  <img src='images/Home/lnch.jpg'
-                       alt='Student'
-                       className='student-img' />
+                  <img
+                    src='images/Home/lnch.jpg'
+                    alt='Student'
+                    className='student-img'
+                  />
                 </div>
-            </div>}
+              </div>
+            }
           </div>
         </div>
       </div>

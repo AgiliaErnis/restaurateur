@@ -19,7 +19,6 @@ export default function Restaurants() {
   const clickedDistrict = useContext(UserContext)
   const clickedSuggestion = useContext(UserContext)
   const checkedDistance = useContext(UserContext)
-  console.log(checkedDistance.checkedDistance)
 
   const [checkedFilters, setCheckedFilters] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
@@ -51,42 +50,43 @@ export default function Restaurants() {
 
   const showFilteredResults = () => {
     if (pragueCollegePath.pragueCollegePath === true) {
-       var pragueCollegeRestaurants = `/prague-college/restaurants?radius=${checkedDistance.checkedDistance}&`
+      var pragueCollegeRestaurants =
+        `/prague-college/restaurants?radius=${checkedDistance.checkedDistance}&`
+
       if (clickedDistrict.clickedDistrict !== false) {
         pragueCollegeRestaurants += `district=${clickedDistrict.clickedDistrict}`
       }
+
       if (clickedSuggestion.clickedSuggestion !== false) {
-        if (clickedSuggestion.clickedSuggestion === "vegetarian"
-          ||
+        if (clickedSuggestion.clickedSuggestion === "vegetarian" ||
           clickedSuggestion.clickedSuggestion === "gluten-free") {
           pragueCollegeRestaurants += `${clickedSuggestion.clickedSuggestion}`
-        }
-        else {
-          pragueCollegeRestaurants += `cuisine=${clickedSuggestion.clickedSuggestion}`
+        } else {
+          pragueCollegeRestaurants +=
+            `cuisine=${clickedSuggestion.clickedSuggestion}`
         }
       }
       return pragueCollegeRestaurants + arrayOfPathValues.join("&")
-    }
-    else {
-      var path = "/restaurants?radius=ignore&"
-      if (clickedDistrict.clickedDistrict !== false) {
-        path += `district=${clickedDistrict.clickedDistrict}`
+    } else {
+        var path = "/restaurants?radius=ignore&"
+        if (clickedDistrict.clickedDistrict !== false) {
+          path += `district=${clickedDistrict.clickedDistrict}`
       }
       if (clickedSuggestion.clickedSuggestion !== false) {
         if (clickedSuggestion.clickedSuggestion === "vegetarian"
           ||
           clickedSuggestion.clickedSuggestion === "gluten-free") {
             path += clickedSuggestion.clickedSuggestion
-          }
-        else {
-           path += `cuisine=${clickedSuggestion.clickedSuggestion}`
+          } else {
+              path += `cuisine=${clickedSuggestion.clickedSuggestion}`
         }
       }
       return path + arrayOfPathValues.join("&")
     }
   }
+
   const path = showFilteredResults();
-  console.log()
+
 
   useEffect(() => {
     fetch(`${path}`).then(response => response.json()).then(
@@ -97,11 +97,9 @@ export default function Restaurants() {
   if (restaurants !== null) {
     var currentRestaurants = restaurants.slice(
       indexOfFirstRestaurant, indexOfLastRestaurant);
+  } else {
+      currentRestaurants = null
   }
-  else {
-    currentRestaurants = null
-  }
-  console.log(showFilteredResults())
 
   return (
     <>
@@ -132,7 +130,7 @@ export default function Restaurants() {
               isSearchable
             />
           </div>
-          {restaurants ?
+          {restaurants.length !== 0 ?
             currentRestaurants.map(filteredRestaurant => {
               return <RestaurantItem
                 photos={filteredRestaurant.Images.length !== 0 ?
@@ -143,10 +141,14 @@ export default function Restaurants() {
                 tags={filteredRestaurant.Cuisines !== null ?
                   filteredRestaurant.Cuisines.map((cuisine) => {
                     if (filteredRestaurant.Cuisines.indexOf(cuisine) ===
-                      filteredRestaurant.Cuisines.length - 1)
-                  { return cuisine }
-                  else { return cuisine + ","}
-                  }) : "Cuisines are not available"}
+                      filteredRestaurant.Cuisines.length - 1) {
+                      return cuisine
+                    } else {
+                        return cuisine + ","
+                      }
+                    })
+                    :
+                    "Cuisines are not available"}
                 address={filteredRestaurant.Address}
                 district={filteredRestaurant.District}
                 price={filteredRestaurant.PriceRange}
@@ -154,9 +156,10 @@ export default function Restaurants() {
                 delivery={filteredRestaurant.DeliveryOptions}
               />
             })
-            : <h1 className="error">
-                There are no results for these filters
-              </h1>
+            :
+            <h1 className="error">
+              There are no results for these filters
+            </h1>
           }
         </div>
       </div>

@@ -1,15 +1,17 @@
 import React, { useState, useContext } from 'react'
-import './VerticalFilter.css'
-import { filters } from './FiltersData'
+import { FiltersData, distanceOptions } from './FiltersData'
 import { UserContext } from '../../UserContext';
+import './VerticalFilter.css'
 
 export const VerticalFilter = (props) => {
     const { clickedDistrict, setClickedDistrict,
-        clickedSuggestion, setClickedSuggestion, checkedDistance,setCheckedDistance } = useContext(UserContext)
+            clickedSuggestion, setClickedSuggestion,
+            checkedDistance, setCheckedDistance } = useContext(UserContext)
+
     const [seeMoreCuisines, setSeeMoreCuisines] = useState(false);
     const [seeMoreLocalities, setSeeMoreLocalities] = useState(false);
 
-    const [ checkedFilters ] = useState([
+    const [checkedFilters] = useState([
         {
             category: "cuisine",
             checkedOptions: []
@@ -27,24 +29,6 @@ export const VerticalFilter = (props) => {
             checkedOptions: []
         }
     ]);
-    const distanceOptions = [
-        {
-            filterValue: "ignore",
-            value: "Bird's-eye view"
-        },
-        {
-            filterValue: "500",
-            value: "500 meters radius",
-        },
-        {
-            filterValue: "1000",
-            value: "1km radius"
-        },
-        {
-            filterValue: "3000",
-            value: "5km radius",
-        }
-    ]
 
     function handleClickCuisines () {
         setSeeMoreCuisines(!seeMoreCuisines)
@@ -67,116 +51,118 @@ export const VerticalFilter = (props) => {
             {
                 checkedFilters[3].checkedOptions.push(clickedSuggestion)
                 setClickedSuggestion(false);
-            }
-            else {
+            } else {
                 checkedFilters[0].checkedOptions.push(clickedSuggestion)
                 setClickedSuggestion(false);
             }
         }
 
         checkedFilters.map(filter => {
+
             if (filter.category === category) {
                 const currentIndex = filter.checkedOptions.indexOf(value)
-            if (currentIndex === -1) {
-            filter.checkedOptions.push(value);
-        } else {
-            filter.checkedOptions.splice(currentIndex, 1)
-        }
-          props.handlecheckedFilters(checkedFilters);
-        }
-        return null
-    })
-}
+                if (currentIndex === -1) {
+                    filter.checkedOptions.push(value);
+                } else {
+                    filter.checkedOptions.splice(currentIndex, 1)
+                }
+                props.handlecheckedFilters(checkedFilters);
+            }
+            return null
+         })
+    }
 
     return (
         <div className="vertical-filter-container">
             <div className="filter-content">
                 <p>Filters</p>
-                {filters.map(filter => (
-                <div className="filter-div">
-                    <div className="filter-inner-div">
-                        <p>{filter.filterName}</p>
-                        <div className="filter-options">
-                            {filter.options.map(option => {
-                                return (
-                                filter.options.indexOf(option) >= 3 ?
-                                          <div
-                                            onChange={() =>
-                                                handleCheckboxToggle(option.filterValue,
-                                                                        filter.category)}
-                                            className={filters.indexOf(filter) >= 3 ?
-                                                (seeMoreLocalities ? "shown" : "hidden")
+                {FiltersData.map(filter => (
+                    <div className="filter-div">
+                        <div className="filter-inner-div">
+                            <p>{filter.filterName}</p>
+                            <div className="filter-options">
+                                {filter.options.map(option => {
+                                    return (
+                                        filter.options.indexOf(option) >= 3 ?
+                                                <div
+                                                    onChange={() =>
+                                                        handleCheckboxToggle(option.filterValue,
+                                                                                filter.category)}
+                                                    className={FiltersData.indexOf(filter) >= 3 ?
+                                                        (seeMoreLocalities ? "shown" : "hidden")
+                                                        :
+                                                        (seeMoreCuisines ? "cuisines_shown" : "cuisines_hidden")}>
+                                                    <label>
+                                                        <input
+                                                            className='option-input checkbox'
+                                                            type='checkbox'
+                                                            checked={clickedDistrict === option.filterValue ?
+                                                                    true
+                                                                    :
+                                                                    clickedSuggestion === option.filterValue ?
+                                                                        true
+                                                                        :
+                                                                        null}
+                                                            onClick={clickedDistrict === option.filterValue ?
+                                                                () => setClickedDistrict(false)
+                                                                :
+                                                                clickedSuggestion === option.filterValue ?
+                                                                    () => setClickedSuggestion(false)
+                                                                    : null}
+                                                        />
+                                                        <span className="option-name">{option.value}</span>
+                                                    </label>
+                                                </div>
                                                 :
-                                                (seeMoreCuisines ? "cuisines_shown" : "cuisines_hidden")}>
-                                               <label>
-                                                 <input
-                                                    className='option-input checkbox'
-                                                    type='checkbox'
-                                                    checked={clickedDistrict === option.filterValue ?
+                                                <label
+                                                    onChange={() => handleCheckboxToggle(option.filterValue,
+                                                                                         filter.category)}
+                                                >
+                                                    <input
+                                                        className='option-input checkbox'
+                                                        type='checkbox'
+                                                        checked={clickedDistrict === option.filterValue ?
                                                             true
                                                             :
                                                             clickedSuggestion === option.filterValue ?
                                                                 true
                                                                 :
                                                                 null}
-                                                    onClick={clickedDistrict === option.filterValue ?
-                                                        () => setClickedDistrict(false)
-                                                        :
-                                                        clickedSuggestion === option.filterValue ?
-                                                            () => setClickedSuggestion(false)
-                                                            : null}
-                                                />
-                                                 <span className="option-name">{option.value}</span>
+                                                        onClick={clickedDistrict === option.filterValue ?
+                                                            () => setClickedDistrict(false)
+                                                            :
+                                                            clickedSuggestion === option.filterValue ?
+                                                                () => setClickedSuggestion(false)
+                                                                :
+                                                                null}
+                                                    />
+                                                    <span className="option-name">{option.value}</span>
                                                 </label>
-                                        </div>
-                                        :
-                                        <label onChange={() => handleCheckboxToggle(option.filterValue,
-                                            filter.category)}
-                                        >
-                                            <input
-                                                className='option-input checkbox'
-                                                type='checkbox'
-                                                checked={clickedDistrict === option.filterValue ?
-                                                    true
-                                                    :
-                                                    clickedSuggestion === option.filterValue ?
-                                                        true
-                                                        :
-                                                        null}
-                                                onClick={clickedDistrict === option.filterValue ?
-                                                    () => setClickedDistrict(false)
-                                                    :
-                                                    clickedSuggestion === option.filterValue ?
-                                                        () => setClickedSuggestion(false)
-                                                        :
-                                                        null}
-                                            />
-                                            <span className="option-name">{option.value}</span>
-                                        </label>
+                                            )
+                                        }
                                     )
                                 }
-                            )
+                            </div>
+                        </div>
+                        {(filter.options.length > 3) ?
+                            <p
+                                className="see-more"
+                                onClick={FiltersData.indexOf(filter) === 3 ?
+                                    handleClickLocalities
+                                    :
+                                    handleClickCuisines}
+                            >
+                                {FiltersData.indexOf(filter) === 3 ?
+                                    (seeMoreLocalities ? "See less" : "See more")
+                                    :
+                                    (seeMoreCuisines ? "See less" : "See more")
+                                }
+                            </p>
+                            :
+                            null
                         }
-                    </div>
                 </div>
-                    {(filter.options.length > 3) ?
-                        <p className="see-more"
-                            onClick={filters.indexOf(filter) === 3 ?
-                                handleClickLocalities
-                                :
-                                handleClickCuisines}
-                        >
-                            {filters.indexOf(filter) === 3 ?
-                                (seeMoreLocalities ? "See less" : "See more")
-                                :
-                                (seeMoreCuisines ? "See less" : "See more")
-                            }
-                        </p>
-                        :
-                        null
-                    }
-             </div>
-        ))}
+            ))}
                 <div className="filter-div">
                     <div className="filter-inner-div">
                         <p>Distance</p>

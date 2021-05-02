@@ -11,7 +11,7 @@ function App() {
   const [pragueCollegePath, setPragueCollegePath] = useState(false);
   const [clickedDistrict, setClickedDistrict] = useState(false);
   const [clickedSuggestion, setClickedSuggestion] = useState(false);
-  const [checkedDistance, setCheckedDistance ] = useState("1000")
+  const [checkedDistance, setCheckedDistance] = useState("1000")
 
   return (
     <>
