@@ -63,7 +63,7 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 	_, name := params["name"]
 	_, address := params["address"]
 	if name {
-		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') FROM restaurants WHERE " +
+		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') as image FROM restaurants WHERE " +
 			"(unaccent(name) % unaccent($1))" +
 			" ORDER BY SIMILARITY(unaccent(name), unaccent($1)) DESC"
 		input = params.Get("name")
@@ -92,6 +92,20 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 		return restaurants[:10], nil
 	}
 	return restaurants, nil
+}
+
+func getRestaurantArrByID(id int) ([]*RestaurantDB, error) {
+	var restaurant []*RestaurantDB
+	queryString := "SELECT * FROM restaurants where id=$1"
+	conn, err := dbInitialise()
+	if err != nil {
+		return restaurant, err
+	}
+	err = conn.Select(&restaurant, queryString, id)
+	if err != nil {
+		return restaurant, err
+	}
+	return restaurant, nil
 }
 
 func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
@@ -298,6 +312,30 @@ func getCoordinates(params url.Values) (float64, float64, error) {
 	return lat, lon, nil
 }
 
+func restaurantHandler(w http.ResponseWriter, r *http.Request) {
+	res := responseJSON{}
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		log.Println(err)
+		writeResponse(w, http.StatusInternalServerError, res)
+		return
+	}
+	restaurant, err := getRestaurantArrByID(id)
+	if err != nil {
+		log.Println(err)
+		writeResponse(w, http.StatusInternalServerError, res)
+		return
+	}
+	res.Data = getRestaurantDBInterfaces(restaurant)
+	if len(restaurant) != 1 {
+		res.Msg = fmt.Sprintf("ID number %d not found in database", id)
+		writeResponse(w, http.StatusBadRequest, res)
+		return
+	}
+	res.Msg = "Success"
+	writeResponse(w, http.StatusOK, res)
+}
+
 func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "restaurantsHandler")
 	params := r.URL.Query()
@@ -345,6 +383,7 @@ func main() {
 	port := ":8080"
 	r.HandleFunc("/prague-college/restaurants", pcRestaurantsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/restaurants", restaurantsHandler).Methods(http.MethodGet)
+	r.HandleFunc("/restaurant/{id:[0-9]+}", restaurantHandler).Methods(http.MethodGet)
 	r.HandleFunc("/autocomplete", autocompleteHandler).Methods(http.MethodGet)
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
 	log.Println("Starting server on", port)
