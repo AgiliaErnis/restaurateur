@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { useSpring, animated } from "react-spring";
 import SignUpForm from './signup/SignUpForm'
 import LoginForm from './login/LogInForm'
-import './AnimatedForms.css'
 import FormSuccess from "./signup/FormSuccess";
+import './AnimatedForms.css'
 
 export const AnimatedForms = ({signup,login}) => {
-
   const [signupFormStatus, setSignupFormStatus] = useState(signup);
   const [loginFormStatus, setLoginFormStatus] = useState(login);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -14,6 +13,7 @@ export const AnimatedForms = ({signup,login}) => {
   const loginProps = useSpring({
     left: signupFormStatus ? -500 : 0, // Login form sliding positions
   });
+  
   const signupProps = useSpring({
     left: loginFormStatus ? 500 : 0, // Signup form sliding positions
   });
