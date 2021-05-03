@@ -28,7 +28,12 @@ const LogInForm = () => {
           <input className='checkbox-input' type='checkbox'/>
           <span>Remember me</span>
         </div>
-        <Button className='form-input-btn' buttonStyle="btn--form" buttonSize="btn--large" type='submit'>
+        <Button
+          className='form-input-btn'
+          buttonStyle="btn--form"
+          buttonSize="btn--large"
+          type='submit'
+        >
           Log in
         </Button>
       </form>
