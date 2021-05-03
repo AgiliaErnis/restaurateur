@@ -188,13 +188,17 @@ func loadRestaurants(conn *sqlx.DB) ([]*RestaurantDB, error) {
 
 func dbInit() {
 	conn, err := dbGetConn()
-	defer conn.Close()
-	dbCheck(conn)
 	if err != nil {
-		log.Println(err)
-		log.Fatal("Make sure the DB_DSN environment variable is set")
+		log.Println("Make sure the DB_DSN environment variable is set")
+		log.Fatal(err)
 	} else {
 		log.Println("Connection to postgres established, downloading data...")
+	}
+	defer conn.Close()
+	err = dbCheck(conn)
+	if err != nil {
+		log.Println("Couldn't create schema")
+		log.Fatal(err)
 	}
 	err = storeRestaurants(conn)
 	if err != nil {
