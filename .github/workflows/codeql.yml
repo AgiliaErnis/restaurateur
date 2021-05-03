@@ -2,11 +2,18 @@ name: "Code Scanning - CodeQL"
 
 # Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events
-  push:
-    branches: [ main, release-0.2.0, release-0.1.1]
-  pull_request:
-    branches: [ main, release-0.2.0, release-0.1.1]
+  # Runs on schedule, every week on Sunday 4:30AM
+  schedule:
+    #        ┌───────────── minute (0 - 59)
+    #        │  ┌───────────── hour (0 - 23)
+    #        │  │ ┌───────────── day of the month (1 - 31)
+    #        │  │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #        │  │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #        │  │ │ │ │
+    #        │  │ │ │ │
+    #        │  │ │ │ │
+    #        *  * * * *
+    - cron: '30 4 * * SUN'
     
 # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
