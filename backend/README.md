@@ -1,5 +1,17 @@
 # WIP
 
+## Documentation
+
+Documentation can be seen in Swagger UI on `/docs/index.html`
+The API can be tested directly on that page by clicking on **try out**
+and inputting query parameters.
+
+Generate new documentation:
+
+`$ swag init -g main.go`
+
+
+
 ## Starting the server
 
 `$ cd backend `

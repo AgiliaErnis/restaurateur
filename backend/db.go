@@ -37,25 +37,25 @@ const (
 
 // RestaurantDB struct compatible with postgres
 type RestaurantDB struct {
-	ID              int            `db:"id"`
-	Name            string         `db:"name"`
-	Address         string         `db:"address"`
-	District        string         `db:"district"`
-	Images          pq.StringArray `db:"images"`
-	Cuisines        pq.StringArray `db:"cuisines"`
-	PriceRange      string         `db:"price_range"`
-	Rating          string         `db:"rating"`
-	URL             string         `db:"url"`
-	PhoneNumber     string         `db:"phone_number"`
-	Lat             float64        `db:"lat"`
-	Lon             float64        `db:"lon"`
-	Vegan           bool           `db:"vegan"`
-	Vegetarian      bool           `db:"vegetarian"`
-	GlutenFree      bool           `db:"gluten_free"`
-	WeeklyMenu      string         `db:"weekly_menu"`
-	OpeningHours    string         `db:"opening_hours"`
-	Takeaway        bool           `db:"takeaway"`
-	DeliveryOptions pq.StringArray `db:"delivery_options"`
+	ID              int            `db:"id" json:"ID" example:"1"`
+	Name            string         `db:"name" json:"Name" example:"Steakhouse"`
+	Address         string         `db:"address" json:"Address" example:"Polská 12"`
+	District        string         `db:"district" json:"District" example:"Praha 1"`
+	Images          pq.StringArray `db:"images" json:"Images" example:"image1.com, image2.com"`
+	Cuisines        pq.StringArray `db:"cuisines" json:"Cuisines" example:"Italian,Czech"`
+	PriceRange      string         `db:"price_range" json:"PriceRange" example:"300-600 Kč"`
+	Rating          string         `db:"rating" json:"Rating" example:"4.6"`
+	URL             string         `db:"url" json:"URL" example:"http://restaurant.com"`
+	PhoneNumber     string         `db:"phone_number" json:"PhoneNumber" example:"+420123456789"`
+	Lat             float64        `db:"lat" json:"Lat" example:"50.03493"`
+	Lon             float64        `db:"lon" json:"Lon" example:"14.30320"`
+	Vegan           bool           `db:"vegan" json:"Vegan"`
+	Vegetarian      bool           `db:"vegetarian" json:"Vegetarian"`
+	GlutenFree      bool           `db:"gluten_free" json:"GlutenFree"`
+	WeeklyMenu      string         `db:"weekly_menu" json:"WeeklyMenu"`
+	OpeningHours    string         `db:"opening_hours" json:"OpeningHours"`
+	Takeaway        bool           `db:"takeaway" json:"Takeaway"`
+	DeliveryOptions pq.StringArray `db:"delivery_options" json:"DeliveryOptions"`
 }
 
 func (restaurant *RestaurantDB) isInRadius(lat, lon, radius float64) bool {

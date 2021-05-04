@@ -1,11 +1,18 @@
+// @title Restaurateur API
+// @version 0.2.0
+// @description Provides info about restaurants in Prague
+// @host localhost:8080
+// @BasePath /
 package main
 
 import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	_ "github.com/AgiliaErnis/restaurateur/backend/docs"
 	"github.com/AgiliaErnis/restaurateur/backend/scraper"
 	"github.com/gorilla/mux"
+	"github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 	"net/url"
@@ -13,16 +20,77 @@ import (
 	"strings"
 )
 
+type response interface {
+	WriteResponse()
+}
+
 type responseJSON struct {
-	Status int
-	Msg    string
-	Data   []interface{}
+	Status int             `json:"Status" example:"200"`
+	Msg    string          `json:"Msg" example:"Success"`
+	Data   []*RestaurantDB `json:"Data"`
+}
+
+type responseErrorJSON struct {
+	Status int      `json:"Status"`
+	Msg    string   `json:"Msg" example:"Error message"`
+	Data   struct{} `json:"Data"`
+}
+
+type responseAutocompleteJSON struct {
+	Status int                       `json:"Status" example:"200"`
+	Msg    string                    `json:"Msg" example:"Success"`
+	Data   []*restaurantAutocomplete `json:"Data"`
+}
+
+func (r *responseAutocompleteJSON) WriteResponse(w http.ResponseWriter, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	r.Status = status
+	res, err := json.Marshal(r)
+	if err != nil {
+		log.Println("Error while marshalling JSON response")
+	}
+	if status == http.StatusInternalServerError || err != nil {
+		w.Write([]byte("Internal server error"))
+	} else {
+		w.Write(res)
+	}
+}
+
+func (r *responseJSON) WriteResponse(w http.ResponseWriter, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	r.Status = status
+	res, err := json.Marshal(r)
+	if err != nil {
+		log.Println("Error while marshalling JSON response")
+	}
+	if status == http.StatusInternalServerError || err != nil {
+		w.Write([]byte("Internal server error"))
+	} else {
+		w.Write(res)
+	}
+}
+
+func (r *responseErrorJSON) WriteResponse(w http.ResponseWriter, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	r.Status = status
+	res, err := json.Marshal(r)
+	if err != nil {
+		log.Println("Error while marshalling JSON response")
+	}
+	if status == http.StatusInternalServerError || err != nil {
+		w.Write([]byte("Internal server error"))
+	} else {
+		w.Write(res)
+	}
 }
 
 type restaurantAutocomplete struct {
-	ID       int
-	Name     string
-	District string
+	ID       int    `json:"ID" example:"1"`
+	Name     string `json:"Name" example:"Steakhouse"`
+	District string `json:"District" example:"Praha 1"`
 }
 
 var allowedEndpoints = [...]string{"/restaurants", "/prague-college/restaurants", "/autocomplete"}
@@ -37,22 +105,6 @@ func logRequest(r *http.Request, handlerName string) {
 		"Request URL: %q\n"+
 		"Handler: %q\n",
 		method, clientAddr, endpoint, handlerName)
-}
-
-func getRestaurantDBInterfaces(restaurants []*RestaurantDB) []interface{} {
-	interfaces := make([]interface{}, len(restaurants))
-	for i, v := range restaurants {
-		interfaces[i] = v
-	}
-	return interfaces
-}
-
-func getAutocompleteInterfaces(restaurants []*restaurantAutocomplete) []interface{} {
-	interfaces := make([]interface{}, len(restaurants))
-	for i, v := range restaurants {
-		interfaces[i] = v
-	}
-	return interfaces
 }
 
 func getAutocompleteCandidates(input string) ([]*restaurantAutocomplete, error) {
@@ -85,7 +137,7 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	var values []interface{}
 	for _, param := range andParams {
 		_, ok := params[param]
-		if ok {
+		if ok && params.Get(param) != "false" {
 			param = strings.Replace(param, "-", "_", -1)
 			pgParam := fmt.Sprintf("%s=$%d", param, paramCtr)
 			queries = append(queries, pgParam)
@@ -153,21 +205,17 @@ func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon 
 	return filteredRestaurants
 }
 
-func prepareResponse(w http.ResponseWriter, status int, response responseJSON) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	response.Status = status
-	res, err := json.Marshal(response)
-	if err != nil {
-		log.Println("Error while marshalling JSON response")
-	}
-	if status == http.StatusInternalServerError || err != nil {
-		w.Write([]byte("Internal server error"))
-	} else {
-		w.Write(res)
-	}
-}
-
+// autocompleteHandler godoc
+// @Summary Autocomplete backend
+// @Description Provides restaurant candidates for autocompletion based on provided input
+// @Tags autocomplete
+// @Param name query string false "name of searched restaurant"
+// @Param address query string false "address of searched restaurant"
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseAutocompleteJSON
+// @Failure 500 {string} []byte
+// @Router /autocomplete [get]
 func autocompleteHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "autocompleteHandler")
 	params := r.URL.Query()
@@ -175,20 +223,21 @@ func autocompleteHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
 		log.Println(err)
-		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		res := responseAutocompleteJSON{}
+		res.WriteResponse(w, http.StatusInternalServerError)
 		return
 	}
-	res := responseJSON{
+	res := responseAutocompleteJSON{
 		Msg:  "Success",
-		Data: getAutocompleteInterfaces(autocompletedRestaurants),
+		Data: autocompletedRestaurants,
 	}
-	prepareResponse(w, http.StatusOK, res)
+	res.WriteResponse(w, http.StatusOK)
 }
 
 func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "catchAllHandler")
 	path := r.URL.Path
-	res := responseJSON{}
+	res := responseErrorJSON{}
 	found := false
 	for _, endpoint := range allowedEndpoints {
 		if endpoint == path {
@@ -198,13 +247,21 @@ func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if found {
 		res.Msg = fmt.Sprintf("Wrong method: %v", r.Method)
-		prepareResponse(w, http.StatusMethodNotAllowed, res)
+		res.WriteResponse(w, http.StatusMethodNotAllowed)
 		return
 	}
 	res.Msg = fmt.Sprintf("Invalid endpoint: %v", path)
-	prepareResponse(w, http.StatusBadRequest, res)
+	res.WriteResponse(w, http.StatusBadRequest)
 }
 
+// pcRestaurantsHandler godoc
+// @Summary Returns restaurants around Prague College
+// @Tags PC restaurants
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseJSON
+// @Failure 405 {object} responseErrorJSON
+// @Router /prague-college/restaurants [get]
 func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "pcRestaurantsHandler")
 	params := r.URL.Query()
@@ -215,15 +272,16 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
 		log.Println(err)
-		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		res := responseJSON{}
+		res.WriteResponse(w, http.StatusInternalServerError)
 		return
 	}
 	filteredRestaurants := filterRestaurants(loadedRestaurants, params, pcLat, pcLon)
 	res := responseJSON{
 		Msg:  "Success",
-		Data: getRestaurantDBInterfaces(filteredRestaurants),
+		Data: filteredRestaurants,
 	}
-	prepareResponse(w, http.StatusOK, res)
+	res.WriteResponse(w, http.StatusOK)
 }
 
 func getCoordinates(params url.Values) (float64, float64, error) {
@@ -265,6 +323,27 @@ func getCoordinates(params url.Values) (float64, float64, error) {
 	return lat, lon, nil
 }
 
+// restaurantsHandler godoc
+// @Summary Returns restaurants based on queries
+// @Tags restaurants
+// @Accept  json
+// @Produce  json
+// @Param radius query string false "Radius (in meters) of the area around a provided or pre-selected starting point. Restaurants in this area will be returned. Radius can be ignored when specified with radius=ignore and lat and lon parameters will no longer be required. When no radius is provided, a default value of 1000 meters is used."
+// @Param address query string false "Starting point for a search in a given radius."
+// @Param lat query float64 false "Latitude in degrees. Lat is required if radius is not set to ignore."
+// @Param lon query float64 false "Longitude in degrees. Lon is required if radius is not set to ignore."
+// @Param cuisine query string false "Filters restaurants based on a list of cuisines, separated by commas -> cuisine=Czech,English. A restaurant will be returned only if it satisfies all provided cuisines.Available cuisines: American, Italian, Asian, Indian, Japanese, Vietnamese, Spanish, Mediterranean, French, Thai, Mexican, International, Czech, English, Balkan, Brazil, Russian, Chinese, Greek, Arabic, Korean."
+// @Param price-range query string false "Filters restaurants based on a list of price ranges, separated by commas -> price-range=0-300,600-. A restaurant will be returned if it satisfies at least one provided price range. Available price ranges: 0-300,300-600,600-"
+// @Param district query string false "Filters restaurants based on a list districts, separated by commas. A restaurant will be returned if it is in one of the provided districts. Example: district=Praha 1,Praha2"
+// @Param vegetarian query bool false "Filters out all non vegetarian restaurants."
+// @Param vegan query bool false "Filters out all non vegan restaurants."
+// @Param gluten-free query bool false "Filters out all non gluten free restaurants."
+// @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
+// @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
+// @Success 200 {object} responseJSON
+// @Failure 400 {object} responseErrorJSON
+// @Failure 500 {string} []byte
+// @Router /restaurants [get]
 func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "restaurantsHandler")
 	params := r.URL.Query()
@@ -272,24 +351,26 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	res := responseJSON{}
 	if err != nil {
 		res.Msg = fmt.Sprintf("%s", err)
-		prepareResponse(w, http.StatusBadRequest, res)
+		res.WriteResponse(w, http.StatusBadRequest)
 		return
 	}
 	loadedRestaurants, err := getDBRestaurants(params)
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
-		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		res := responseJSON{}
+		res.WriteResponse(w, http.StatusInternalServerError)
 		return
 	}
 	filteredRestaurants := filterRestaurants(loadedRestaurants, params, lat, lon)
 	res.Msg = "Success"
-	res.Data = getRestaurantDBInterfaces(filteredRestaurants)
+	res.Data = filteredRestaurants
 	if err != nil {
 		log.Println("Database not initialized")
-		prepareResponse(w, http.StatusInternalServerError, responseJSON{})
+		res := responseJSON{}
+		res.WriteResponse(w, http.StatusInternalServerError)
 		return
 	}
-	prepareResponse(w, http.StatusOK, res)
+	res.WriteResponse(w, http.StatusOK)
 }
 
 func main() {
@@ -309,6 +390,7 @@ func main() {
 	r.HandleFunc("/prague-college/restaurants", pcRestaurantsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/restaurants", restaurantsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/autocomplete", autocompleteHandler).Methods(http.MethodGet)
+	r.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
 	log.Println("Starting server on", port)
 	log.Fatal(http.ListenAndServe(port, r))

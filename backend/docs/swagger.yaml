@@ -1,0 +1,244 @@
+basePath: /
+definitions:
+  main.RestaurantDB:
+    properties:
+      Address:
+        example: Polská 12
+        type: string
+      Cuisines:
+        example: Italian, Czech
+        type: string
+      DeliveryOptions:
+        type: string
+      District:
+        example: Praha 1
+        type: string
+      GlutenFree:
+        type: boolean
+      ID:
+        example: 1
+        type: integer
+      Images:
+        example: image1.com
+        type: string
+      Lat:
+        example: 50.03493
+        type: number
+      Lon:
+        example: 14.3032
+        type: number
+      Name:
+        example: Steakhouse
+        type: string
+      OpeningHours:
+        type: string
+      PhoneNumber:
+        example: "+420123456789"
+        type: string
+      PriceRange:
+        example: 300-600 Kč
+        type: string
+      Rating:
+        example: "4.6"
+        type: string
+      Takeaway:
+        type: boolean
+      URL:
+        example: http://restaurant.com
+        type: string
+      Vegan:
+        type: boolean
+      Vegetarian:
+        type: boolean
+      WeeklyMenu:
+        type: string
+    type: object
+  main.responseAutocompleteJSON:
+    properties:
+      Msg:
+        example: Success
+        type: string
+      Status:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/main.restaurantAutocomplete'
+        type: array
+    type: object
+  main.responseErrorJSON:
+    properties:
+      Data:
+        type: object
+      Msg:
+        example: Error message
+        type: string
+      Status:
+        type: integer
+    type: object
+  main.responseJSON:
+    properties:
+      Data:
+        items:
+          $ref: '#/definitions/main.RestaurantDB'
+        type: array
+      Msg:
+        example: Success
+        type: string
+      Status:
+        example: 200
+        type: integer
+    type: object
+  main.restaurantAutocomplete:
+    properties:
+      District:
+        example: Praha 1
+        type: string
+      ID:
+        example: 1
+        type: integer
+      Name:
+        example: Steakhouse
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Provides info about restaurants in Prague
+  license: {}
+  title: Restaurateur API
+  version: 0.2.0
+paths:
+  /autocomplete:
+    get:
+      consumes:
+      - application/json
+      description: Provides restaurant candidates for autocompletion based on provided
+        input
+      parameters:
+      - description: name of searched restaurant
+        in: query
+        name: name
+        type: string
+      - description: address of searched restaurant
+        in: query
+        name: address
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.responseAutocompleteJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Autocomplete backend
+      tags:
+      - autocomplete
+  /prague-college/restaurants:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.responseJSON'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/main.responseErrorJSON'
+      summary: Returns restaurants around Prague College
+      tags:
+      - PC restaurants
+  /restaurants:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Radius (in meters) of the area around a provided or pre-selected
+          starting point. Restaurants in this area will be returned. Radius can be
+          ignored when specified with radius=ignore and lat and lon parameters will
+          no longer be required. When no radius is provided, a default value of 1000
+          meters is used.
+        in: query
+        name: radius
+        type: string
+      - description: Starting point for a search in a given radius.
+        in: query
+        name: address
+        type: string
+      - description: Latitude in degrees. Lat is required if radius is not set to
+          ignore.
+        in: query
+        name: lat
+        type: number
+      - description: Longitude in degrees. Lon is required if radius is not set to
+          ignore.
+        in: query
+        name: lon
+        type: number
+      - description: 'Filters restaurants based on a list of cuisines, separated by
+          commas -> cuisine=Czech,English. A restaurant will be returned only if it
+          satisfies all provided cuisines.Available cuisines: American, Italian, Asian,
+          Indian, Japanese, Vietnamese, Spanish, Mediterranean, French, Thai, Mexican,
+          International, Czech, English, Balkan, Brazil, Russian, Chinese, Greek,
+          Arabic, Korean.'
+        in: query
+        name: cuisine
+        type: string
+      - description: 'Filters restaurants based on a list of price ranges, separated
+          by commas -> price-range=0-300,600-. A restaurant will be returned if it
+          satisfies at least one provided price range. Available price ranges: 0-300,300-600,600-'
+        in: query
+        name: price-range
+        type: string
+      - description: 'Filters restaurants based on a list districts, separated by
+          commas. A restaurant will be returned if it is in one of the provided districts.
+          Example: district=Praha 1,Praha2'
+        in: query
+        name: district
+        type: string
+      - description: Filters out all non vegetarian restaurants.
+        in: query
+        name: vegetarian
+        type: boolean
+      - description: Filters out all non vegan restaurants.
+        in: query
+        name: vegan
+        type: boolean
+      - description: Filters out all non gluten free restaurants.
+        in: query
+        name: gluten-free
+        type: boolean
+      - description: Filters out all restaurants that don't have a takeaway option.
+        in: query
+        name: takeaway
+        type: boolean
+      - description: Filters out all restaurants that don't have a delivery option.
+        in: query
+        name: delivery-options
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.responseErrorJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Returns restaurants based on queries
+      tags:
+      - restaurants
+swagger: "2.0"
