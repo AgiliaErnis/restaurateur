@@ -91,6 +91,7 @@ type restaurantAutocomplete struct {
 	ID       int    `json:"ID" example:"1"`
 	Name     string `json:"Name" example:"Steakhouse"`
 	District string `json:"District" example:"Praha 1"`
+    Image    string `json:"Image" example:"url.com"`
 }
 
 var allowedEndpoints = [...]string{"/restaurants", "/prague-college/restaurants", "/autocomplete"}
@@ -111,12 +112,35 @@ func getAutocompleteCandidates(input string) ([]*restaurantAutocomplete, error) 
 	pgQuery := "SELECT id, name, district FROM restaurants WHERE " +
 		"(unaccent(name) % unaccent($1))" +
 		" ORDER BY SIMILARITY(unaccent(name), unaccent($1)) DESC"
+
+func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, error) {
+	pgQuery := ""
+	input := ""
+	_, name := params["name"]
+	_, address := params["address"]
+	if name {
+		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') as image FROM restaurants WHERE " +
+			"(unaccent(name) % unaccent($1))" +
+			" ORDER BY SIMILARITY(unaccent(name), unaccent($1)) DESC"
+		input = params.Get("name")
+	} else if address {
+		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') as image FROM restaurants WHERE " +
+			"(regexp_replace(unaccent(address), '[[:digit:]/]', '', 'g') % unaccent($1)) " +
+			"ORDER BY SIMILARITY(unaccent(address), unaccent($1)) DESC"
+		input = params.Get("address")
+	}
 	var restaurants []*restaurantAutocomplete
 	conn, err := dbGetConn()
 	defer conn.Close()
 	if err != nil {
 		return restaurants, err
 	}
+	inputLen := len(input)
+	if inputLen < 3 {
+		_, err = conn.Exec("SELECT set_limit(0.1)")
+	} else if inputLen < 5 {
+		_, err = conn.Exec("SELECT set_limit(0.2)")
+	} // else keep default of 0.3
 	err = conn.Select(&restaurants, pgQuery, input)
 	if err != nil {
 		return restaurants, err
@@ -127,7 +151,26 @@ func getAutocompleteCandidates(input string) ([]*restaurantAutocomplete, error) 
 	return restaurants, nil
 }
 
+func getRestaurantArrByID(id int) ([]*RestaurantDB, error) {
+	var restaurant []*RestaurantDB
+	queryString := "SELECT * FROM restaurants where id=$1"
+	conn, err := dbInitialise()
+	if err != nil {
+		return restaurant, err
+	}
+	err = conn.Select(&restaurant, queryString, id)
+	if err != nil {
+		return restaurant, err
+	}
+	return restaurant, nil
+}
+
 func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
+	var restaurants []*RestaurantDB
+	conn, err := dbInitialise()
+	if err != nil {
+		return restaurants, err
+	}
 	var andParams = [...]string{"vegetarian", "vegan", "gluten-free", "takeaway"}
 	var nullParams = [...]string{"delivery-options"}
 	var queries []string
@@ -150,13 +193,25 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 			paramCtr++
 		}
 	}
-	_, ok := params["search"]
+	parameterArr, ok := params["search-name"]
+	pgParam := fmt.Sprintf("(unaccent(name) %% unaccent($%d))", paramCtr)
+	searchField := "name"
+	if !ok {
+		parameterArr, ok = params["search-address"]
+		searchField = "address"
+		pgParam = fmt.Sprintf("(regexp_replace(unaccent(address), '[[:digit:]/]', '', 'g') %% unaccent($%d)) ", paramCtr)
+	}
 	if ok {
-		searchString := params.Get("search")
-		pgParam := fmt.Sprintf("(unaccent(name) %% unaccent($%d))", paramCtr)
+		searchString := parameterArr[0]
 		queries = append(queries, pgParam)
 		values = append(values, searchString)
-		orderBy = fmt.Sprintf(" ORDER BY SIMILARITY(unaccent(name), unaccent($%d)) DESC", paramCtr)
+		orderBy = fmt.Sprintf(" ORDER BY SIMILARITY(unaccent(%s), unaccent($%d)) DESC", searchField, paramCtr)
+		searchStringLen := len(searchString)
+		if searchStringLen < 3 {
+			_, err = conn.Exec("SELECT set_limit(0.1)")
+		} else if searchStringLen < 5 {
+			_, err = conn.Exec("SELECT set_limit(0.2)")
+		} // else keep default of 0.3
 		paramCtr++
 	}
 	for _, param := range nullParams {
@@ -173,14 +228,15 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	pgQuery += strings.Join(queries, " AND ") + orderBy
 	var restaurants []*RestaurantDB
 	conn, err := dbGetConn()
-	defer conn.Close()
 	if err != nil {
 		return restaurants, err
 	}
+	defer conn.Close()
 	err = conn.Select(&restaurants, pgQuery, values...)
 	if err != nil {
 		return restaurants, err
 	}
+
 	return restaurants, nil
 }
 
@@ -190,13 +246,8 @@ func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon 
 	cuisineParam := params.Get("cuisine")
 	priceRangeParam := params.Get("price-range")
 	districtParam := params.Get("district")
-	radius, errRad := strconv.ParseFloat(radiusParam, 64)
-	if errRad != nil {
-		// default value
-		radius = 1000
-	}
 	for _, r := range restaurants {
-		if radiusParam == "ignore" || r.isInRadius(lat, lon, radius) {
+		if r.isInRadius(lat, lon, radiusParam) {
 			if r.hasCuisines(cuisineParam) && r.isInPriceRange(priceRangeParam) && r.isInDistrict(districtParam) {
 				filteredRestaurants = append(filteredRestaurants, r)
 			}
@@ -216,10 +267,32 @@ func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon 
 // @Success 200 {object} responseAutocompleteJSON
 // @Failure 500 {string} []byte
 // @Router /autocomplete [get]
+func writeResponse(w http.ResponseWriter, status int, response responseJSON) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	response.Status = status
+	res, err := json.Marshal(response)
+	if err != nil {
+		log.Println("Error while marshalling JSON response")
+		status = http.StatusInternalServerError
+	}
+	if status == http.StatusInternalServerError || err != nil {
+		_, err := w.Write([]byte("Internal server error"))
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		_, err := w.Write(res)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
 func autocompleteHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "autocompleteHandler")
 	params := r.URL.Query()
-	autocompletedRestaurants, err := getAutocompleteCandidates(params.Get("input"))
+	autocompletedRestaurants, err := getAutocompleteCandidates(params)
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
 		log.Println(err)
@@ -344,6 +417,31 @@ func getCoordinates(params url.Values) (float64, float64, error) {
 // @Failure 400 {object} responseErrorJSON
 // @Failure 500 {string} []byte
 // @Router /restaurants [get]
+func restaurantHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "restaurantHandler")
+	res := responseJSON{}
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		log.Println(err)
+		writeResponse(w, http.StatusInternalServerError, res)
+		return
+	}
+	restaurant, err := getRestaurantArrByID(id)
+	if err != nil {
+		log.Println(err)
+		writeResponse(w, http.StatusInternalServerError, res)
+		return
+	}
+	res.Data = getRestaurantDBInterfaces(restaurant)
+	if len(restaurant) != 1 {
+		res.Msg = fmt.Sprintf("ID number %d not found in database", id)
+		writeResponse(w, http.StatusBadRequest, res)
+		return
+	}
+	res.Msg = "Success"
+	writeResponse(w, http.StatusOK, res)
+}
+
 func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "restaurantsHandler")
 	params := r.URL.Query()
@@ -389,6 +487,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/prague-college/restaurants", pcRestaurantsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/restaurants", restaurantsHandler).Methods(http.MethodGet)
+	r.HandleFunc("/restaurant/{id:[0-9]+}", restaurantHandler).Methods(http.MethodGet)
 	r.HandleFunc("/autocomplete", autocompleteHandler).Methods(http.MethodGet)
 	r.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)

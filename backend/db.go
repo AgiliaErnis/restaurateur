@@ -8,6 +8,7 @@ import (
 	"github.com/lib/pq"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -58,7 +59,15 @@ type RestaurantDB struct {
 	DeliveryOptions pq.StringArray `db:"delivery_options" json:"DeliveryOptions"`
 }
 
-func (restaurant *RestaurantDB) isInRadius(lat, lon, radius float64) bool {
+func (restaurant *RestaurantDB) isInRadius(lat, lon float64, radiusParam string) bool {
+	if radiusParam == "ignore" {
+		return true
+	}
+	radius, errRad := strconv.ParseFloat(radiusParam, 64)
+	if errRad != nil {
+		// default value
+		radius = 1000
+	}
 	distance := haversine(lat, lon, restaurant.Lat, restaurant.Lon)
 	return distance <= radius
 }
