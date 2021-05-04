@@ -90,8 +90,9 @@ func (r *responseErrorJSON) WriteResponse(w http.ResponseWriter, status int) {
 type restaurantAutocomplete struct {
 	ID       int    `json:"ID" example:"1"`
 	Name     string `json:"Name" example:"Steakhouse"`
+	Address  string `json:"Address" example:"Polská 13"`
 	District string `json:"District" example:"Praha 1"`
-    Image    string `json:"Image" example:"url.com"`
+	Image    string `json:"Image" example:"url.com"`
 }
 
 var allowedEndpoints = [...]string{"/restaurants", "/prague-college/restaurants", "/autocomplete"}
@@ -107,11 +108,6 @@ func logRequest(r *http.Request, handlerName string) {
 		"Handler: %q\n",
 		method, clientAddr, endpoint, handlerName)
 }
-
-func getAutocompleteCandidates(input string) ([]*restaurantAutocomplete, error) {
-	pgQuery := "SELECT id, name, district FROM restaurants WHERE " +
-		"(unaccent(name) % unaccent($1))" +
-		" ORDER BY SIMILARITY(unaccent(name), unaccent($1)) DESC"
 
 func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, error) {
 	pgQuery := ""
@@ -131,10 +127,10 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 	}
 	var restaurants []*restaurantAutocomplete
 	conn, err := dbGetConn()
-	defer conn.Close()
 	if err != nil {
 		return restaurants, err
 	}
+	defer conn.Close()
 	inputLen := len(input)
 	if inputLen < 3 {
 		_, err = conn.Exec("SELECT set_limit(0.1)")
@@ -154,7 +150,7 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 func getRestaurantArrByID(id int) ([]*RestaurantDB, error) {
 	var restaurant []*RestaurantDB
 	queryString := "SELECT * FROM restaurants where id=$1"
-	conn, err := dbInitialise()
+	conn, err := dbGetConn()
 	if err != nil {
 		return restaurant, err
 	}
@@ -167,10 +163,11 @@ func getRestaurantArrByID(id int) ([]*RestaurantDB, error) {
 
 func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	var restaurants []*RestaurantDB
-	conn, err := dbInitialise()
+	conn, err := dbGetConn()
 	if err != nil {
 		return restaurants, err
 	}
+	defer conn.Close()
 	var andParams = [...]string{"vegetarian", "vegan", "gluten-free", "takeaway"}
 	var nullParams = [...]string{"delivery-options"}
 	var queries []string
@@ -226,12 +223,6 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 		pgQuery += " WHERE "
 	}
 	pgQuery += strings.Join(queries, " AND ") + orderBy
-	var restaurants []*RestaurantDB
-	conn, err := dbGetConn()
-	if err != nil {
-		return restaurants, err
-	}
-	defer conn.Close()
 	err = conn.Select(&restaurants, pgQuery, values...)
 	if err != nil {
 		return restaurants, err
@@ -256,17 +247,6 @@ func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon 
 	return filteredRestaurants
 }
 
-// autocompleteHandler godoc
-// @Summary Autocomplete backend
-// @Description Provides restaurant candidates for autocompletion based on provided input
-// @Tags autocomplete
-// @Param name query string false "name of searched restaurant"
-// @Param address query string false "address of searched restaurant"
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} responseAutocompleteJSON
-// @Failure 500 {string} []byte
-// @Router /autocomplete [get]
 func writeResponse(w http.ResponseWriter, status int, response responseJSON) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -289,6 +269,17 @@ func writeResponse(w http.ResponseWriter, status int, response responseJSON) {
 	}
 }
 
+// autocompleteHandler godoc
+// @Summary Autocomplete backend
+// @Description Provides restaurant candidates for autocompletion based on provided input
+// @Tags autocomplete
+// @Param name query string false "name of searched restaurant"
+// @Param address query string false "address of searched restaurant"
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseAutocompleteJSON
+// @Failure 500 {string} []byte
+// @Router /autocomplete [get]
 func autocompleteHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "autocompleteHandler")
 	params := r.URL.Query()
@@ -332,6 +323,14 @@ func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 // @Tags PC restaurants
 // @Accept  json
 // @Produce  json
+// @Param radius query string false "Radius (in meters) of the area around a provided or pre-selected starting point. Restaurants in this area will be returned. Radius can be ignored when specified with radius=ignore and lat and lon parameters will no longer be required. When no radius is provided, a default value of 1000 meters is used."
+// @Param cuisine query string false "Filters restaurants based on a list of cuisines, separated by commas -> cuisine=Czech,English. A restaurant will be returned only if it satisfies all provided cuisines.Available cuisines: American, Italian, Asian, Indian, Japanese, Vietnamese, Spanish, Mediterranean, French, Thai, Mexican, International, Czech, English, Balkan, Brazil, Russian, Chinese, Greek, Arabic, Korean."
+// @Param price-range query string false "Filters restaurants based on a list of price ranges, separated by commas -> price-range=0-300,600-. A restaurant will be returned if it satisfies at least one provided price range. Available price ranges: 0-300,300-600,600-"
+// @Param vegetarian query bool false "Filters out all non vegetarian restaurants."
+// @Param vegan query bool false "Filters out all non vegan restaurants."
+// @Param gluten-free query bool false "Filters out all non gluten free restaurants."
+// @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
+// @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
 // @Success 200 {object} responseJSON
 // @Failure 405 {object} responseErrorJSON
 // @Router /prague-college/restaurants [get]
@@ -423,23 +422,23 @@ func restaurantHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		log.Println(err)
-		writeResponse(w, http.StatusInternalServerError, res)
+		res.WriteResponse(w, http.StatusInternalServerError)
 		return
 	}
 	restaurant, err := getRestaurantArrByID(id)
 	if err != nil {
 		log.Println(err)
-		writeResponse(w, http.StatusInternalServerError, res)
+		res.WriteResponse(w, http.StatusInternalServerError)
 		return
 	}
-	res.Data = getRestaurantDBInterfaces(restaurant)
+	res.Data = restaurant
 	if len(restaurant) != 1 {
 		res.Msg = fmt.Sprintf("ID number %d not found in database", id)
-		writeResponse(w, http.StatusBadRequest, res)
+		res.WriteResponse(w, http.StatusBadRequest)
 		return
 	}
 	res.Msg = "Success"
-	writeResponse(w, http.StatusOK, res)
+	res.WriteResponse(w, http.StatusOK)
 }
 
 func restaurantsHandler(w http.ResponseWriter, r *http.Request) {

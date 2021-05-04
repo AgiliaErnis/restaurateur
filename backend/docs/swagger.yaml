@@ -6,7 +6,7 @@ definitions:
         example: Polská 12
         type: string
       Cuisines:
-        example: Italian, Czech
+        example: Italian,Czech
         type: string
       DeliveryOptions:
         type: string
@@ -19,7 +19,7 @@ definitions:
         example: 1
         type: integer
       Images:
-        example: image1.com
+        example: image1.com, image2.com
         type: string
       Lat:
         example: 50.03493
@@ -55,15 +55,16 @@ definitions:
     type: object
   main.responseAutocompleteJSON:
     properties:
+      Data:
+        items:
+          $ref: '#/definitions/main.restaurantAutocomplete'
+        type: array
       Msg:
         example: Success
         type: string
       Status:
+        example: 200
         type: integer
-      data:
-        items:
-          $ref: '#/definitions/main.restaurantAutocomplete'
-        type: array
     type: object
   main.responseErrorJSON:
     properties:
@@ -90,12 +91,18 @@ definitions:
     type: object
   main.restaurantAutocomplete:
     properties:
+      Address:
+        example: Polská 13
+        type: string
       District:
         example: Praha 1
         type: string
       ID:
         example: 1
         type: integer
+      Image:
+        example: url.com
+        type: string
       Name:
         example: Steakhouse
         type: string
@@ -141,6 +148,50 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - description: Radius (in meters) of the area around a provided or pre-selected
+          starting point. Restaurants in this area will be returned. Radius can be
+          ignored when specified with radius=ignore and lat and lon parameters will
+          no longer be required. When no radius is provided, a default value of 1000
+          meters is used.
+        in: query
+        name: radius
+        type: string
+      - description: 'Filters restaurants based on a list of cuisines, separated by
+          commas -> cuisine=Czech,English. A restaurant will be returned only if it
+          satisfies all provided cuisines.Available cuisines: American, Italian, Asian,
+          Indian, Japanese, Vietnamese, Spanish, Mediterranean, French, Thai, Mexican,
+          International, Czech, English, Balkan, Brazil, Russian, Chinese, Greek,
+          Arabic, Korean.'
+        in: query
+        name: cuisine
+        type: string
+      - description: 'Filters restaurants based on a list of price ranges, separated
+          by commas -> price-range=0-300,600-. A restaurant will be returned if it
+          satisfies at least one provided price range. Available price ranges: 0-300,300-600,600-'
+        in: query
+        name: price-range
+        type: string
+      - description: Filters out all non vegetarian restaurants.
+        in: query
+        name: vegetarian
+        type: boolean
+      - description: Filters out all non vegan restaurants.
+        in: query
+        name: vegan
+        type: boolean
+      - description: Filters out all non gluten free restaurants.
+        in: query
+        name: gluten-free
+        type: boolean
+      - description: Filters out all restaurants that don't have a takeaway option.
+        in: query
+        name: takeaway
+        type: boolean
+      - description: Filters out all restaurants that don't have a delivery option.
+        in: query
+        name: delivery-options
+        type: boolean
       produces:
       - application/json
       responses:
