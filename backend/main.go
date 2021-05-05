@@ -12,22 +12,40 @@ import (
 	_ "github.com/AgiliaErnis/restaurateur/backend/docs"
 	"github.com/AgiliaErnis/restaurateur/backend/scraper"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/securecookie"
+	"github.com/gorilla/sessions"
 	"github.com/swaggo/http-swagger"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
+
+var store *sessions.CookieStore
 
 type response interface {
 	WriteResponse()
+}
+
+type user struct {
+	Name     string
+	Email    string
+	Password string
+}
+
+type userResponse struct {
+	Name  string
+	Email string
 }
 
 type responseJSON struct {
 	Status int             `json:"Status" example:"200"`
 	Msg    string          `json:"Msg" example:"Success"`
 	Data   []*RestaurantDB `json:"Data"`
+	User   *userResponse   `json:"User"`
 }
 
 type responseErrorJSON struct {
@@ -51,9 +69,15 @@ func (r *responseAutocompleteJSON) WriteResponse(w http.ResponseWriter, status i
 		log.Println("Error while marshalling JSON response")
 	}
 	if status == http.StatusInternalServerError || err != nil {
-		w.Write([]byte("Internal server error"))
+		_, err = w.Write([]byte("Internal server error"))
+		if err != nil {
+			log.Fatal(err)
+		}
 	} else {
-		w.Write(res)
+		_, err = w.Write(res)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -66,9 +90,15 @@ func (r *responseJSON) WriteResponse(w http.ResponseWriter, status int) {
 		log.Println("Error while marshalling JSON response")
 	}
 	if status == http.StatusInternalServerError || err != nil {
-		w.Write([]byte("Internal server error"))
+		_, err = w.Write([]byte("Internal server error"))
+		if err != nil {
+			log.Fatal(err)
+		}
 	} else {
-		w.Write(res)
+		_, err = w.Write(res)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -81,9 +111,15 @@ func (r *responseErrorJSON) WriteResponse(w http.ResponseWriter, status int) {
 		log.Println("Error while marshalling JSON response")
 	}
 	if status == http.StatusInternalServerError || err != nil {
-		w.Write([]byte("Internal server error"))
+		_, err = w.Write([]byte("Internal server error"))
+		if err != nil {
+			log.Fatal(err)
+		}
 	} else {
-		w.Write(res)
+		_, err = w.Write(res)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -95,7 +131,7 @@ type restaurantAutocomplete struct {
 	Image    string `json:"Image" example:"url.com"`
 }
 
-var allowedEndpoints = [...]string{"/restaurants", "/prague-college/restaurants", "/autocomplete"}
+var allowedEndpoints = [...]string{"/restaurants", "/prague-college/restaurants", "/autocomplete", "user", "login", "register"}
 
 func logRequest(r *http.Request, handlerName string) {
 	method := r.Method
@@ -115,12 +151,12 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 	_, name := params["name"]
 	_, address := params["address"]
 	if name {
-		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') as image FROM restaurants WHERE " +
+		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') as image FROM restaurants_bak WHERE " +
 			"(unaccent(name) % unaccent($1))" +
 			" ORDER BY SIMILARITY(unaccent(name), unaccent($1)) DESC"
 		input = params.Get("name")
 	} else if address {
-		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') as image FROM restaurants WHERE " +
+		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') as image FROM restaurants_bak WHERE " +
 			"(regexp_replace(unaccent(address), '[[:digit:]/]', '', 'g') % unaccent($1)) " +
 			"ORDER BY SIMILARITY(unaccent(address), unaccent($1)) DESC"
 		input = params.Get("address")
@@ -149,7 +185,7 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 
 func getRestaurantArrByID(id int) ([]*RestaurantDB, error) {
 	var restaurant []*RestaurantDB
-	queryString := "SELECT * FROM restaurants where id=$1"
+	queryString := "SELECT * FROM restaurants_bak where id=$1"
 	conn, err := dbGetConn()
 	if err != nil {
 		return restaurant, err
@@ -172,7 +208,7 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	var nullParams = [...]string{"delivery-options"}
 	var queries []string
 	var orderBy = ""
-	pgQuery := "SELECT * from restaurants"
+	pgQuery := "SELECT * from restaurants_bak"
 	paramCtr := 1
 	var values []interface{}
 	for _, param := range andParams {
@@ -344,7 +380,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
 		log.Println(err)
-		res := responseJSON{}
+		res := responseErrorJSON{}
 		res.WriteResponse(w, http.StatusInternalServerError)
 		return
 	}
@@ -352,6 +388,12 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	res := responseJSON{
 		Msg:  "Success",
 		Data: filteredRestaurants,
+	}
+	auth, id := isAuthenticated(w, r)
+	log.Println("AUTH:", auth)
+	if auth {
+		user, _ := getUserByID(id)
+		res.User = &userResponse{Name: user.Name, Email: user.Email}
 	}
 	res.WriteResponse(w, http.StatusOK)
 }
@@ -433,9 +475,15 @@ func restaurantHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	res.Data = restaurant
 	if len(restaurant) != 1 {
-		res.Msg = fmt.Sprintf("ID number %d not found in database", id)
-		res.WriteResponse(w, http.StatusBadRequest)
+		resErr := responseErrorJSON{}
+		resErr.Msg = fmt.Sprintf("ID number %d not found in database", id)
+		resErr.WriteResponse(w, http.StatusBadRequest)
 		return
+	}
+	auth, id := isAuthenticated(w, r)
+	if auth {
+		user, _ := getUserByID(id)
+		res.User = &userResponse{Name: user.Name, Email: user.Email}
 	}
 	res.Msg = "Success"
 	res.WriteResponse(w, http.StatusOK)
@@ -447,26 +495,145 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	lat, lon, err := getCoordinates(params)
 	res := responseJSON{}
 	if err != nil {
-		res.Msg = fmt.Sprintf("%s", err)
-		res.WriteResponse(w, http.StatusBadRequest)
+		resErr := responseErrorJSON{}
+		resErr.Msg = fmt.Sprintf("%s", err)
+		resErr.WriteResponse(w, http.StatusBadRequest)
 		return
 	}
 	loadedRestaurants, err := getDBRestaurants(params)
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
-		res := responseJSON{}
+		res := responseErrorJSON{}
 		res.WriteResponse(w, http.StatusInternalServerError)
 		return
 	}
 	filteredRestaurants := filterRestaurants(loadedRestaurants, params, lat, lon)
 	res.Msg = "Success"
 	res.Data = filteredRestaurants
+	auth, id := isAuthenticated(w, r)
+	if auth {
+		user, _ := getUserByID(id)
+		res.User = &userResponse{Name: user.Name, Email: user.Email}
+	}
 	if err != nil {
 		log.Println("Database not initialized")
-		res := responseJSON{}
+		res := responseErrorJSON{}
 		res.WriteResponse(w, http.StatusInternalServerError)
 		return
 	}
+	res.WriteResponse(w, http.StatusOK)
+}
+
+func isAuthenticated(w http.ResponseWriter, r *http.Request) (bool, int) {
+	session, err := store.Get(r, "session-id")
+	if err != nil {
+		log.Println(err)
+		return false, 0
+	}
+	log.Println("isAuthenticated", r.URL)
+	// Check if user is authenticated
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth ||
+		!(session.Values["expires"].(int64) > time.Now().Unix()) {
+		return false, 0
+	}
+	// add 15 min to cookie
+	session.Values["expires"] = time.Now().Add(time.Minute * 15).Unix()
+	session.Options.MaxAge = 60 * 15
+	err = session.Save(r, w)
+	if err != nil {
+		log.Println(err)
+		return false, 0
+	}
+	return true, session.Values["user-id"].(int)
+}
+
+func init() {
+
+	authKey := securecookie.GenerateRandomKey(64)
+	encryptionKey := securecookie.GenerateRandomKey(32)
+
+	store = sessions.NewCookieStore(
+		authKey,
+		encryptionKey,
+	)
+
+	store.Options = &sessions.Options{
+		MaxAge:   60 * 15, // 15 min
+		HttpOnly: true,
+	}
+}
+
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO: Validate input
+	logRequest(r, "registerHandler")
+	user := &user{}
+	res := responseJSON{}
+	err := json.NewDecoder(r.Body).Decode(user)
+	if err != nil {
+		log.Println(err)
+		res.WriteResponse(w, http.StatusInternalServerError)
+		return
+	}
+	pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Println(err)
+		res.WriteResponse(w, http.StatusInternalServerError)
+		return
+	}
+	user.Password = string(pass)
+	err = saveUser(user)
+	if err != nil {
+		log.Println(err)
+		res.WriteResponse(w, http.StatusInternalServerError)
+	}
+	res.Msg = "Registration successful!"
+	res.WriteResponse(w, http.StatusOK)
+}
+
+func userHandler(w http.ResponseWriter, r *http.Request) {
+	auth, id := isAuthenticated(w, r)
+	if auth {
+		res := responseJSON{}
+		user, _ := getUserByID(id)
+		res.User = &userResponse{Name: user.Name, Email: user.Email}
+		res.Msg = "Success"
+		res.WriteResponse(w, http.StatusOK)
+		return
+	}
+	resErr := responseErrorJSON{}
+	resErr.Msg = "Not authenticated"
+	resErr.WriteResponse(w, http.StatusForbidden)
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session-id")
+	user := &user{}
+	err := json.NewDecoder(r.Body).Decode(user)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	dbUser, err := getUserByEmail(user.Email)
+	errf := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password))
+	res := responseJSON{}
+	if errf != nil {
+		resErr := responseErrorJSON{}
+		resErr.Msg = "Invalid password"
+		resErr.WriteResponse(w, http.StatusForbidden)
+		return
+	}
+	session.Values["user-id"] = dbUser.ID
+	session.Values["authenticated"] = true
+	t := time.Now().Add(time.Minute * 15).Unix()
+	session.Values["expires"] = t
+	err = session.Save(r, w)
+	if err != nil {
+		log.Println(err)
+		res.WriteResponse(w, http.StatusInternalServerError)
+		return
+	}
+	res.Msg = "Log in successful!"
+	res.User = &userResponse{Name: dbUser.Name, Email: dbUser.Email}
 	res.WriteResponse(w, http.StatusOK)
 }
 
@@ -488,6 +655,9 @@ func main() {
 	r.HandleFunc("/restaurants", restaurantsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/restaurant/{id:[0-9]+}", restaurantHandler).Methods(http.MethodGet)
 	r.HandleFunc("/autocomplete", autocompleteHandler).Methods(http.MethodGet)
+	r.HandleFunc("/register", registerHandler).Methods(http.MethodPost)
+	r.HandleFunc("/user", userHandler).Methods(http.MethodGet)
+	r.HandleFunc("/login", loginHandler).Methods(http.MethodPost)
 	r.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
 	log.Println("Starting server on", port)

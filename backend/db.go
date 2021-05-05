@@ -36,6 +36,13 @@ const (
 	 );`
 )
 
+type userDB struct {
+	ID       int
+	Name     string
+	Email    string
+	Password string
+}
+
 // RestaurantDB struct compatible with postgres
 type RestaurantDB struct {
 	ID              int            `db:"id" json:"ID" example:"1"`
@@ -170,8 +177,7 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 		r.Address,
 		r.District,
 		pq.Array(r.Images),
-		pq.Array(r.Cuisines),
-		r.PriceRange,
+		pq.Array(r.Cuisines), r.PriceRange,
 		r.Rating,
 		r.URL,
 		r.PhoneNumber,
@@ -193,6 +199,44 @@ func loadRestaurants(conn *sqlx.DB) ([]*RestaurantDB, error) {
 	err := conn.Select(&restaurants, `SELECT * FROM restaurants`)
 
 	return restaurants, err
+}
+
+func getUserByID(id int) (*user, error) {
+	user := &user{}
+	conn, err := dbGetConn()
+	if err != nil {
+		log.Println(err)
+		return user, err
+	}
+	err = conn.QueryRowx(`SELECT name, email, password FROM restaurateur_user where id=$1`, id).StructScan(user)
+	return user, err
+}
+
+func saveUser(user *user) error {
+	log.Println(user.Name, user.Email, user.Password)
+	conn, err := dbGetConn()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	stmt, err := conn.Prepare("INSERT INTO restaurateur_user (name, email, password) VALUES ($1, $2, $3)")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(user.Name, user.Email, user.Password)
+	return err
+}
+
+func getUserByEmail(email string) (*userDB, error) {
+	user := &userDB{}
+	conn, err := dbGetConn()
+	if err != nil {
+		log.Println(err)
+		return user, err
+	}
+	err = conn.QueryRowx("SELECT * FROM restaurateur_user where email = $1", email).StructScan(user)
+	log.Println(err)
+	return user, err
 }
 
 func dbInit() {
