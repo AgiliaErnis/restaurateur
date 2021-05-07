@@ -125,22 +125,15 @@ func dbCheck(conn *sqlx.DB) error {
 		_, err = conn.Exec("CREATE EXTENSION unaccent;")
 		_, err = conn.Exec(schema)
 	}
-
 	return err
 }
 
-func dbInitialise() (*sqlx.DB, error) {
-	var dbDSN = os.Getenv("DB_DSN")
+func dbGetConn() (*sqlx.DB, error) {
+	dbDSN := os.Getenv("DB_DSN")
 	conn, err := sqlx.Connect("postgres", dbDSN)
 	if err != nil {
 		return nil, err
 	}
-
-	err = dbCheck(conn)
-	if err != nil {
-		return nil, err
-	}
-
 	return conn, nil
 }
 
@@ -200,4 +193,24 @@ func loadRestaurants(conn *sqlx.DB) ([]*RestaurantDB, error) {
 	err := conn.Select(&restaurants, `SELECT * FROM restaurants`)
 
 	return restaurants, err
+}
+
+func dbInit() {
+	conn, err := dbGetConn()
+	if err != nil {
+		log.Println("Make sure the DB_DSN environment variable is set")
+		log.Fatal(err)
+	} else {
+		log.Println("Connection to postgres established, downloading data...")
+	}
+	defer conn.Close()
+	err = dbCheck(conn)
+	if err != nil {
+		log.Println("Couldn't create schema")
+		log.Fatal(err)
+	}
+	err = storeRestaurants(conn)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -2,13 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/AgiliaErnis/restaurateur/backend/scraper"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -74,7 +74,8 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 		input = params.Get("address")
 	}
 	var restaurants []*restaurantAutocomplete
-	conn, err := dbInitialise()
+	conn, err := dbGetConn()
+	defer conn.Close()
 	if err != nil {
 		return restaurants, err
 	}
@@ -97,7 +98,7 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 func getRestaurantArrByID(id int) ([]*RestaurantDB, error) {
 	var restaurant []*RestaurantDB
 	queryString := "SELECT * FROM restaurants where id=$1"
-	conn, err := dbInitialise()
+	conn, err := dbGetConn()
 	if err != nil {
 		return restaurant, err
 	}
@@ -110,10 +111,11 @@ func getRestaurantArrByID(id int) ([]*RestaurantDB, error) {
 
 func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	var restaurants []*RestaurantDB
-	conn, err := dbInitialise()
+	conn, err := dbGetConn()
 	if err != nil {
 		return restaurants, err
 	}
+	defer conn.Close()
 	var andParams = [...]string{"vegetarian", "vegan", "gluten-free", "takeaway"}
 	var nullParams = [...]string{"delivery-options"}
 	var queries []string
@@ -173,7 +175,6 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	if err != nil {
 		return restaurants, err
 	}
-
 	return restaurants, nil
 }
 
@@ -366,22 +367,19 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	args := os.Args[1:]
-	if scraper.SliceContains(args, "--initialize") {
-		conn, err := dbInitialise()
-		if err != nil {
-			log.Println(err)
-			log.Fatal("Make sure the DB_DSN environment variable is set")
-		} else {
-			log.Println("Connection to postgres established, downloading data...")
-		}
-		err = storeRestaurants(conn)
-		if err != nil {
-			log.Fatal(err)
-		}
+	var initialize bool
+	flag.BoolVar(&initialize, "initialize", false, "Initializes the database and downloads restaurant data")
+	var portNum int
+	flag.IntVar(&portNum, "p", 8080, "Port number")
+	flag.Parse()
+	if initialize {
+		dbInit()
 	}
+	if portNum < 1024 || portNum > 65535 {
+		log.Fatal("Invalid port number, use a number from 1024-65535")
+	}
+	port := fmt.Sprintf(":%d", portNum)
 	r := mux.NewRouter()
-	port := ":8080"
 	r.HandleFunc("/prague-college/restaurants", pcRestaurantsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/restaurants", restaurantsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/restaurant/{id:[0-9]+}", restaurantHandler).Methods(http.MethodGet)
