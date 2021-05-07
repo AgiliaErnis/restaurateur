@@ -11,6 +11,7 @@ import (
 	"fmt"
 	_ "github.com/AgiliaErnis/restaurateur/backend/docs"
 	"github.com/AgiliaErnis/restaurateur/backend/scraper"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -19,12 +20,19 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
-var store *sessions.CookieStore
+var (
+	// ORIGIN_ALLOWED is `scheme://dns[:port]`, or `*` (insecure)
+	originsOk = handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
+	headersOk = handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	methodsOk = handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"})
+	store     *sessions.CookieStore
+)
 
 type response interface {
 	WriteResponse()
@@ -548,10 +556,8 @@ func isAuthenticated(w http.ResponseWriter, r *http.Request) (bool, int) {
 }
 
 func init() {
-
 	authKey := securecookie.GenerateRandomKey(64)
 	encryptionKey := securecookie.GenerateRandomKey(32)
-
 	store = sessions.NewCookieStore(
 		authKey,
 		encryptionKey,
@@ -661,5 +667,5 @@ func main() {
 	r.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
 	log.Println("Starting server on", port)
-	log.Fatal(http.ListenAndServe(port, r))
+	log.Fatal(http.ListenAndServe(port, handlers.CORS(originsOk, headersOk, methodsOk)(r)))
 }
