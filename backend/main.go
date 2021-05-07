@@ -231,7 +231,6 @@ func getDBRestaurants(params url.Values) ([]*restaurantDB, error) {
 	if err != nil {
 		return restaurants, err
 	}
-
 	return restaurants, nil
 }
 
