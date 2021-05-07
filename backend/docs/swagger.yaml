@@ -88,6 +88,9 @@ definitions:
       Status:
         example: 200
         type: integer
+      User:
+        $ref: '#/definitions/main.userResponse'
+        type: object
     type: object
   main.restaurantAutocomplete:
     properties:
@@ -105,6 +108,26 @@ definitions:
         type: string
       Name:
         example: Steakhouse
+        type: string
+    type: object
+  main.user:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  main.userResponse:
+    properties:
+      email:
+        type: string
+      name:
         type: string
     type: object
 host: localhost:8080
@@ -144,6 +167,37 @@ paths:
       summary: Autocomplete backend
       tags:
       - autocomplete
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user if the request headers contain an authenticated
+        cookie.
+      parameters:
+      - description: Logs in a new user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/main.user'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.responseErrorJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Logs in a user
+      tags:
+      - login
   /prague-college/restaurants:
     get:
       consumes:
@@ -206,6 +260,63 @@ paths:
       summary: Returns restaurants around Prague College
       tags:
       - PC restaurants
+  /register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create a new user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/main.user'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.responseErrorJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Registers a user
+      tags:
+      - register
+  /restaurant/{restaurant-id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: restaurant-id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.responseErrorJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Provides info about a specific restaurant
+      tags:
+      - restaurant
   /restaurants:
     get:
       consumes:
@@ -292,4 +403,51 @@ paths:
       summary: Returns restaurants based on queries
       tags:
       - restaurants
+  /user:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a user if the request headers contain an authenticated
+        cookie.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.responseErrorJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Deletes a user
+      tags:
+      - userDelete
+    get:
+      consumes:
+      - application/json
+      description: Returns a JSON with user info if the request headers contain an
+        authenticated cookie.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.responseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.responseErrorJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get info about a user
+      tags:
+      - user
 swagger: "2.0"

@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	schema = `CREATE TABLE restaurants (
+	restaurantsSchema = `CREATE TABLE restaurants (
 		 id SERIAL NOT NULL PRIMARY KEY,
 		 name TEXT NOT NULL,
 		 address TEXT NOT NULL,
@@ -34,6 +34,12 @@ const (
 		 takeaway BOOLEAN,
 		 delivery_options TEXT
 	 );`
+	restaurateurUsersSchema = `CREATE TABLE restaurateur_users (
+        id SERIAL PRIMARY KEY,
+        name TEXT,
+        email TEXT UNIQUE,
+        password TEXT
+    );`
 )
 
 type userDB struct {
@@ -123,16 +129,38 @@ func (restaurant *RestaurantDB) hasCuisines(cuisinesString string) bool {
 	return true
 }
 
-func dbCheck(conn *sqlx.DB) error {
+func dbCheck() {
 	var table string
-	err := conn.Get(&table, "SELECT table_name FROM information_schema.tables WHERE table_name=$1", "restaurants")
+	conn, err := dbGetConn()
+	if err != nil {
+		log.Println("Make sure the DB_DSN environment variable is set")
+		log.Fatal(err)
+	}
+	defer conn.Close()
+	err = conn.Get(&table, "SELECT table_name FROM information_schema.tables WHERE table_name=$1", "restaurants")
 	if err == sql.ErrNoRows {
-		log.Println("No table found, creating")
+		log.Println("No restaurants table found, creating")
 		_, err = conn.Exec("CREATE EXTENSION pg_trgm;")
 		_, err = conn.Exec("CREATE EXTENSION unaccent;")
-		_, err = conn.Exec(schema)
+		_, err = conn.Exec(restaurantsSchema)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = storeRestaurants(conn)
+		if err != nil {
+			log.Println("Couldn't store restaurants")
+			log.Fatal(err)
+		}
 	}
-	return err
+	err = conn.Get(&table, "SELECT table_name FROM information_schema.tables WHERE table_name=$1", "restaurateur_users")
+	if err == sql.ErrNoRows {
+		log.Println("No restaurateur_users table found, creating")
+		_, err = conn.Exec(restaurateurUsersSchema)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	log.Println("Database ready")
 }
 
 func dbGetConn() (*sqlx.DB, error) {
@@ -205,21 +233,18 @@ func getUserByID(id int) (*user, error) {
 	user := &user{}
 	conn, err := dbGetConn()
 	if err != nil {
-		log.Println(err)
 		return user, err
 	}
-	err = conn.QueryRowx(`SELECT name, email, password FROM restaurateur_user where id=$1`, id).StructScan(user)
+	err = conn.QueryRowx(`SELECT name, email, password FROM restaurateur_users where id=$1`, id).StructScan(user)
 	return user, err
 }
 
 func saveUser(user *user) error {
-	log.Println(user.Name, user.Email, user.Password)
 	conn, err := dbGetConn()
 	if err != nil {
-		log.Println(err)
 		return err
 	}
-	stmt, err := conn.Prepare("INSERT INTO restaurateur_user (name, email, password) VALUES ($1, $2, $3)")
+	stmt, err := conn.Prepare("INSERT INTO restaurateur_users (name, email, password) VALUES ($1, $2, $3)")
 	if err != nil {
 		return err
 	}
@@ -227,34 +252,25 @@ func saveUser(user *user) error {
 	return err
 }
 
+func deleteUser(id int) error {
+	conn, err := dbGetConn()
+	if err != nil {
+		return err
+	}
+	stmt, err := conn.Prepare("DELETE from restaurateur_users WHERE id=$1")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(id)
+	return err
+}
+
 func getUserByEmail(email string) (*userDB, error) {
 	user := &userDB{}
 	conn, err := dbGetConn()
 	if err != nil {
-		log.Println(err)
 		return user, err
 	}
-	err = conn.QueryRowx("SELECT * FROM restaurateur_user where email = $1", email).StructScan(user)
-	log.Println(err)
+	err = conn.QueryRowx("SELECT * FROM restaurateur_users where email = $1", email).StructScan(user)
 	return user, err
-}
-
-func dbInit() {
-	conn, err := dbGetConn()
-	if err != nil {
-		log.Println("Make sure the DB_DSN environment variable is set")
-		log.Fatal(err)
-	} else {
-		log.Println("Connection to postgres established, downloading data...")
-	}
-	defer conn.Close()
-	err = dbCheck(conn)
-	if err != nil {
-		log.Println("Couldn't create schema")
-		log.Fatal(err)
-	}
-	err = storeRestaurants(conn)
-	if err != nil {
-		log.Fatal(err)
-	}
 }

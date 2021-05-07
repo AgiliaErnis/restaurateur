@@ -17,6 +17,8 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/swaggo/http-swagger"
 	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/go-playground/validator.v9"
+	"html"
 	"log"
 	"net/http"
 	"net/url"
@@ -39,14 +41,21 @@ type response interface {
 }
 
 type user struct {
-	Name     string
-	Email    string
-	Password string
+	Name     string `json:"username" validate:"required,min=2,max=32"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6,max=64"`
 }
 
 type userResponse struct {
 	Name  string
 	Email string
+}
+
+type responseJSON struct {
+	Status int             `json:"Status" example:"200"`
+	Msg    string          `json:"Msg" example:"Success"`
+	Data   []*RestaurantDB `json:"Data"`
+	User   *userResponse   `json:"User"`
 }
 
 type responseJSON struct {
@@ -139,7 +148,7 @@ type restaurantAutocomplete struct {
 	Image    string `json:"Image" example:"url.com"`
 }
 
-var allowedEndpoints = [...]string{"/restaurants", "/prague-college/restaurants", "/autocomplete", "user", "login", "register"}
+var allowedEndpoints = [...]string{"/restaurants", "/prague-college/restaurants", "/autocomplete", "/user", "/login", "/register"}
 
 func logRequest(r *http.Request, handlerName string) {
 	method := r.Method
@@ -398,7 +407,6 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 		Data: filteredRestaurants,
 	}
 	auth, id := isAuthenticated(w, r)
-	log.Println("AUTH:", auth)
 	if auth {
 		user, _ := getUserByID(id)
 		res.User = &userResponse{Name: user.Name, Email: user.Email}
@@ -445,27 +453,16 @@ func getCoordinates(params url.Values) (float64, float64, error) {
 	return lat, lon, nil
 }
 
-// restaurantsHandler godoc
-// @Summary Returns restaurants based on queries
-// @Tags restaurants
+// restaurantHandler godoc
+// @Summary Provides info about a specific restaurant
+// @Tags restaurant
+// @Param restaurant-id path int true "Restaurant ID"
 // @Accept  json
 // @Produce  json
-// @Param radius query string false "Radius (in meters) of the area around a provided or pre-selected starting point. Restaurants in this area will be returned. Radius can be ignored when specified with radius=ignore and lat and lon parameters will no longer be required. When no radius is provided, a default value of 1000 meters is used."
-// @Param address query string false "Starting point for a search in a given radius."
-// @Param lat query float64 false "Latitude in degrees. Lat is required if radius is not set to ignore."
-// @Param lon query float64 false "Longitude in degrees. Lon is required if radius is not set to ignore."
-// @Param cuisine query string false "Filters restaurants based on a list of cuisines, separated by commas -> cuisine=Czech,English. A restaurant will be returned only if it satisfies all provided cuisines.Available cuisines: American, Italian, Asian, Indian, Japanese, Vietnamese, Spanish, Mediterranean, French, Thai, Mexican, International, Czech, English, Balkan, Brazil, Russian, Chinese, Greek, Arabic, Korean."
-// @Param price-range query string false "Filters restaurants based on a list of price ranges, separated by commas -> price-range=0-300,600-. A restaurant will be returned if it satisfies at least one provided price range. Available price ranges: 0-300,300-600,600-"
-// @Param district query string false "Filters restaurants based on a list districts, separated by commas. A restaurant will be returned if it is in one of the provided districts. Example: district=Praha 1,Praha2"
-// @Param vegetarian query bool false "Filters out all non vegetarian restaurants."
-// @Param vegan query bool false "Filters out all non vegan restaurants."
-// @Param gluten-free query bool false "Filters out all non gluten free restaurants."
-// @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
-// @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
 // @Success 200 {object} responseJSON
-// @Failure 400 {object} responseErrorJSON
+// @Success 400 {object} responseErrorJSON
 // @Failure 500 {string} []byte
-// @Router /restaurants [get]
+// @Router /restaurant/{restaurant-id} [get]
 func restaurantHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "restaurantHandler")
 	res := responseJSON{}
@@ -497,6 +494,27 @@ func restaurantHandler(w http.ResponseWriter, r *http.Request) {
 	res.WriteResponse(w, http.StatusOK)
 }
 
+// restaurantsHandler godoc
+// @Summary Returns restaurants based on queries
+// @Tags restaurants
+// @Accept  json
+// @Produce  json
+// @Param radius query string false "Radius (in meters) of the area around a provided or pre-selected starting point. Restaurants in this area will be returned. Radius can be ignored when specified with radius=ignore and lat and lon parameters will no longer be required. When no radius is provided, a default value of 1000 meters is used."
+// @Param address query string false "Starting point for a search in a given radius."
+// @Param lat query float64 false "Latitude in degrees. Lat is required if radius is not set to ignore."
+// @Param lon query float64 false "Longitude in degrees. Lon is required if radius is not set to ignore."
+// @Param cuisine query string false "Filters restaurants based on a list of cuisines, separated by commas -> cuisine=Czech,English. A restaurant will be returned only if it satisfies all provided cuisines.Available cuisines: American, Italian, Asian, Indian, Japanese, Vietnamese, Spanish, Mediterranean, French, Thai, Mexican, International, Czech, English, Balkan, Brazil, Russian, Chinese, Greek, Arabic, Korean."
+// @Param price-range query string false "Filters restaurants based on a list of price ranges, separated by commas -> price-range=0-300,600-. A restaurant will be returned if it satisfies at least one provided price range. Available price ranges: 0-300,300-600,600-"
+// @Param district query string false "Filters restaurants based on a list districts, separated by commas. A restaurant will be returned if it is in one of the provided districts. Example: district=Praha 1,Praha2"
+// @Param vegetarian query bool false "Filters out all non vegetarian restaurants."
+// @Param vegan query bool false "Filters out all non vegan restaurants."
+// @Param gluten-free query bool false "Filters out all non gluten free restaurants."
+// @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
+// @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
+// @Success 200 {object} responseJSON
+// @Failure 400 {object} responseErrorJSON
+// @Failure 500 {string} []byte
+// @Router /restaurants [get]
 func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "restaurantsHandler")
 	params := r.URL.Query()
@@ -538,7 +556,6 @@ func isAuthenticated(w http.ResponseWriter, r *http.Request) (bool, int) {
 		log.Println(err)
 		return false, 0
 	}
-	log.Println("isAuthenticated", r.URL)
 	// Check if user is authenticated
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth ||
 		!(session.Values["expires"].(int64) > time.Now().Unix()) {
@@ -569,8 +586,17 @@ func init() {
 	}
 }
 
+// registerHandler godoc
+// @Summary Registers a user
+// @Tags register
+// @Accept  json
+// @Produce  json
+// @Param user body user true "Create a new user"
+// @Success 200 {object} responseJSON
+// @Success 400 {object} responseErrorJSON
+// @Failure 500 {string} []byte
+// @Router /register [post]
 func registerHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Validate input
 	logRequest(r, "registerHandler")
 	user := &user{}
 	res := responseJSON{}
@@ -580,6 +606,13 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		res.WriteResponse(w, http.StatusInternalServerError)
 		return
 	}
+	validate := validator.New()
+	if err := validate.Struct(user); err != nil {
+		log.Println(err)
+		res.Msg = "Credentials do not comply with requirements"
+		res.WriteResponse(w, http.StatusBadRequest)
+		return
+	}
 	pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Println(err)
@@ -587,15 +620,32 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user.Password = string(pass)
+	user.Name = html.EscapeString(user.Name)
 	err = saveUser(user)
 	if err != nil {
 		log.Println(err)
+		if err.Error() == "pq: duplicate key value violates unique constraint \"restaurateur_users_email_key\"" {
+			res.Msg = "Email already used"
+			res.WriteResponse(w, http.StatusBadRequest)
+			return
+		}
 		res.WriteResponse(w, http.StatusInternalServerError)
+		return
 	}
 	res.Msg = "Registration successful!"
 	res.WriteResponse(w, http.StatusOK)
 }
 
+// userHandler godoc
+// @Summary Get info about a user
+// @Description Returns a JSON with user info if the request headers contain an authenticated cookie.
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseJSON
+// @Success 400 {object} responseErrorJSON
+// @Failure 500 {string} []byte
+// @Router /user [get]
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	auth, id := isAuthenticated(w, r)
 	if auth {
@@ -611,17 +661,64 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	resErr.WriteResponse(w, http.StatusForbidden)
 }
 
+// userDeleteHandler godoc
+// @Summary Deletes a user
+// @Description Deletes a user if the request headers contain an authenticated cookie.
+// @Tags userDelete
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseJSON
+// @Success 400 {object} responseErrorJSON
+// @Failure 500 {string} []byte
+// @Router /user [delete]
+func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	auth, id := isAuthenticated(w, r)
+	if auth {
+		res := responseJSON{}
+		err := deleteUser(id)
+		if err != nil {
+			res.Msg = "Couldn't delete the record"
+			res.WriteResponse(w, http.StatusInternalServerError)
+			return
+		}
+		res.Msg = "Successfuly deleted the user!"
+		res.WriteResponse(w, http.StatusOK)
+		return
+	}
+	resErr := responseErrorJSON{}
+	resErr.Msg = "Not authenticated"
+	resErr.WriteResponse(w, http.StatusForbidden)
+}
+
+// loginHandler godoc
+// @Summary Logs in a user
+// @Description Logs in a user if the request headers contain an authenticated cookie.
+// @Tags login
+// @Accept  json
+// @Produce  json
+// @Param user body user true "Logs in a new user"
+// @Success 200 {object} responseJSON
+// @Success 400 {object} responseErrorJSON
+// @Failure 500 {string} []byte
+// @Router /login [post]
 func loginHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "loginHandler")
 	session, _ := store.Get(r, "session-id")
 	user := &user{}
+	res := responseJSON{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
 		log.Println(err)
+		res.Msg = "Invalid JSON data"
+		res.WriteResponse(w, http.StatusBadRequest)
 		return
 	}
 	dbUser, err := getUserByEmail(user.Email)
+	log.Println(err)
+	log.Println(dbUser.Name)
+	log.Println(dbUser.Email)
+	log.Println(dbUser.Password)
 	errf := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password))
-	res := responseJSON{}
 	if errf != nil {
 		resErr := responseErrorJSON{}
 		resErr.Msg = "Invalid password"
@@ -644,14 +741,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var initialize bool
-	flag.BoolVar(&initialize, "initialize", false, "Initializes the database and downloads restaurant data")
 	var portNum int
 	flag.IntVar(&portNum, "p", 8080, "Port number")
 	flag.Parse()
-	if initialize {
-		dbInit()
-	}
+	dbCheck()
 	if portNum < 1024 || portNum > 65535 {
 		log.Fatal("Invalid port number, use a number from 1024-65535")
 	}
@@ -663,6 +756,7 @@ func main() {
 	r.HandleFunc("/autocomplete", autocompleteHandler).Methods(http.MethodGet)
 	r.HandleFunc("/register", registerHandler).Methods(http.MethodPost)
 	r.HandleFunc("/user", userHandler).Methods(http.MethodGet)
+	r.HandleFunc("/user", userDeleteHandler).Methods(http.MethodDelete)
 	r.HandleFunc("/login", loginHandler).Methods(http.MethodPost)
 	r.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
