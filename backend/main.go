@@ -37,7 +37,7 @@ var (
 )
 
 type response interface {
-	WriteResponse()
+	SetStatus(status int)
 }
 
 type user struct {
@@ -51,24 +51,22 @@ type userResponse struct {
 	Email string
 }
 
-type responseJSON struct {
+type responseFullJSON struct {
 	Status int             `json:"Status" example:"200"`
 	Msg    string          `json:"Msg" example:"Success"`
-	Data   []*RestaurantDB `json:"Data"`
+	Data   []*restaurantDB `json:"Data"`
 	User   *userResponse   `json:"User"`
 }
 
-type responseJSON struct {
-	Status int             `json:"Status" example:"200"`
-	Msg    string          `json:"Msg" example:"Success"`
-	Data   []*RestaurantDB `json:"Data"`
-	User   *userResponse   `json:"User"`
+type responseSimpleJSON struct {
+	Status int    `json:"Status"`
+	Msg    string `json:"Msg"`
 }
 
-type responseErrorJSON struct {
-	Status int      `json:"Status"`
-	Msg    string   `json:"Msg" example:"Error message"`
-	Data   struct{} `json:"Data"`
+type responseUserJSON struct {
+	Status int           `json:"Status" example:"200"`
+	Msg    string        `json:"Msg" example:"Success"`
+	User   *userResponse `json:"User"`
 }
 
 type responseAutocompleteJSON struct {
@@ -77,67 +75,20 @@ type responseAutocompleteJSON struct {
 	Data   []*restaurantAutocomplete `json:"Data"`
 }
 
-func (r *responseAutocompleteJSON) WriteResponse(w http.ResponseWriter, status int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
+func (r *responseAutocompleteJSON) SetStatus(status int) {
 	r.Status = status
-	res, err := json.Marshal(r)
-	if err != nil {
-		log.Println("Error while marshalling JSON response")
-	}
-	if status == http.StatusInternalServerError || err != nil {
-		_, err = w.Write([]byte("Internal server error"))
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		_, err = w.Write(res)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
 }
 
-func (r *responseJSON) WriteResponse(w http.ResponseWriter, status int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
+func (r *responseUserJSON) SetStatus(status int) {
 	r.Status = status
-	res, err := json.Marshal(r)
-	if err != nil {
-		log.Println("Error while marshalling JSON response")
-	}
-	if status == http.StatusInternalServerError || err != nil {
-		_, err = w.Write([]byte("Internal server error"))
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		_, err = w.Write(res)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
 }
 
-func (r *responseErrorJSON) WriteResponse(w http.ResponseWriter, status int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
+func (r *responseFullJSON) SetStatus(status int) {
 	r.Status = status
-	res, err := json.Marshal(r)
-	if err != nil {
-		log.Println("Error while marshalling JSON response")
-	}
-	if status == http.StatusInternalServerError || err != nil {
-		_, err = w.Write([]byte("Internal server error"))
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		_, err = w.Write(res)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+}
+
+func (r *responseSimpleJSON) SetStatus(status int) {
+	r.Status = status
 }
 
 type restaurantAutocomplete struct {
@@ -200,8 +151,8 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 	return restaurants, nil
 }
 
-func getRestaurantArrByID(id int) ([]*RestaurantDB, error) {
-	var restaurant []*RestaurantDB
+func getRestaurantArrByID(id int) ([]*restaurantDB, error) {
+	var restaurant []*restaurantDB
 	queryString := "SELECT * FROM restaurants_bak where id=$1"
 	conn, err := dbGetConn()
 	if err != nil {
@@ -214,8 +165,8 @@ func getRestaurantArrByID(id int) ([]*RestaurantDB, error) {
 	return restaurant, nil
 }
 
-func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
-	var restaurants []*RestaurantDB
+func getDBRestaurants(params url.Values) ([]*restaurantDB, error) {
+	var restaurants []*restaurantDB
 	conn, err := dbGetConn()
 	if err != nil {
 		return restaurants, err
@@ -284,8 +235,8 @@ func getDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	return restaurants, nil
 }
 
-func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon float64) []*RestaurantDB {
-	var filteredRestaurants []*RestaurantDB
+func filterRestaurants(restaurants []*restaurantDB, params url.Values, lat, lon float64) []*restaurantDB {
+	var filteredRestaurants []*restaurantDB
 	radiusParam := params.Get("radius")
 	cuisineParam := params.Get("cuisine")
 	priceRangeParam := params.Get("price-range")
@@ -300,11 +251,12 @@ func filterRestaurants(restaurants []*RestaurantDB, params url.Values, lat, lon 
 	return filteredRestaurants
 }
 
-func writeResponse(w http.ResponseWriter, status int, response responseJSON) {
+// WriteResponse does
+func WriteResponse(w http.ResponseWriter, status int, res response) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	response.Status = status
-	res, err := json.Marshal(response)
+	res.SetStatus(status)
+	r, err := json.Marshal(res)
 	if err != nil {
 		log.Println("Error while marshalling JSON response")
 		status = http.StatusInternalServerError
@@ -315,7 +267,7 @@ func writeResponse(w http.ResponseWriter, status int, response responseJSON) {
 			panic(err)
 		}
 	} else {
-		_, err := w.Write(res)
+		_, err := w.Write(r)
 		if err != nil {
 			panic(err)
 		}
@@ -340,21 +292,21 @@ func autocompleteHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
 		log.Println(err)
-		res := responseAutocompleteJSON{}
-		res.WriteResponse(w, http.StatusInternalServerError)
+		res := &responseAutocompleteJSON{}
+		WriteResponse(w, http.StatusInternalServerError, res)
 		return
 	}
-	res := responseAutocompleteJSON{
+	res := &responseAutocompleteJSON{
 		Msg:  "Success",
 		Data: autocompletedRestaurants,
 	}
-	res.WriteResponse(w, http.StatusOK)
+	WriteResponse(w, http.StatusOK, res)
 }
 
 func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "catchAllHandler")
 	path := r.URL.Path
-	res := responseErrorJSON{}
+	res := &responseSimpleJSON{}
 	found := false
 	for _, endpoint := range allowedEndpoints {
 		if endpoint == path {
@@ -364,11 +316,11 @@ func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if found {
 		res.Msg = fmt.Sprintf("Wrong method: %v", r.Method)
-		res.WriteResponse(w, http.StatusMethodNotAllowed)
+		WriteResponse(w, http.StatusMethodNotAllowed, res)
 		return
 	}
 	res.Msg = fmt.Sprintf("Invalid endpoint: %v", path)
-	res.WriteResponse(w, http.StatusBadRequest)
+	WriteResponse(w, http.StatusBadRequest, res)
 }
 
 // pcRestaurantsHandler godoc
@@ -384,8 +336,8 @@ func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 // @Param gluten-free query bool false "Filters out all non gluten free restaurants."
 // @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
 // @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
-// @Success 200 {object} responseJSON
-// @Failure 405 {object} responseErrorJSON
+// @Success 200 {object} responseFullJSON
+// @Failure 405 {object} responseSimpleJSON
 // @Router /prague-college/restaurants [get]
 func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "pcRestaurantsHandler")
@@ -397,12 +349,12 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
 		log.Println(err)
-		res := responseErrorJSON{}
-		res.WriteResponse(w, http.StatusInternalServerError)
+		res := &responseSimpleJSON{}
+		WriteResponse(w, http.StatusInternalServerError, res)
 		return
 	}
 	filteredRestaurants := filterRestaurants(loadedRestaurants, params, pcLat, pcLon)
-	res := responseJSON{
+	res := &responseFullJSON{
 		Msg:  "Success",
 		Data: filteredRestaurants,
 	}
@@ -411,7 +363,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 		user, _ := getUserByID(id)
 		res.User = &userResponse{Name: user.Name, Email: user.Email}
 	}
-	res.WriteResponse(w, http.StatusOK)
+	WriteResponse(w, http.StatusOK, res)
 }
 
 func getCoordinates(params url.Values) (float64, float64, error) {
@@ -459,30 +411,30 @@ func getCoordinates(params url.Values) (float64, float64, error) {
 // @Param restaurant-id path int true "Restaurant ID"
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} responseJSON
-// @Success 400 {object} responseErrorJSON
+// @Success 200 {object} responseFullJSON
+// @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
 // @Router /restaurant/{restaurant-id} [get]
 func restaurantHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "restaurantHandler")
-	res := responseJSON{}
+	res := &responseFullJSON{}
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		log.Println(err)
-		res.WriteResponse(w, http.StatusInternalServerError)
+		WriteResponse(w, http.StatusInternalServerError, res)
 		return
 	}
 	restaurant, err := getRestaurantArrByID(id)
 	if err != nil {
 		log.Println(err)
-		res.WriteResponse(w, http.StatusInternalServerError)
+		WriteResponse(w, http.StatusInternalServerError, res)
 		return
 	}
 	res.Data = restaurant
 	if len(restaurant) != 1 {
-		resErr := responseErrorJSON{}
+		resErr := &responseSimpleJSON{}
 		resErr.Msg = fmt.Sprintf("ID number %d not found in database", id)
-		resErr.WriteResponse(w, http.StatusBadRequest)
+		WriteResponse(w, http.StatusBadRequest, resErr)
 		return
 	}
 	auth, id := isAuthenticated(w, r)
@@ -491,7 +443,7 @@ func restaurantHandler(w http.ResponseWriter, r *http.Request) {
 		res.User = &userResponse{Name: user.Name, Email: user.Email}
 	}
 	res.Msg = "Success"
-	res.WriteResponse(w, http.StatusOK)
+	WriteResponse(w, http.StatusOK, res)
 }
 
 // restaurantsHandler godoc
@@ -511,26 +463,26 @@ func restaurantHandler(w http.ResponseWriter, r *http.Request) {
 // @Param gluten-free query bool false "Filters out all non gluten free restaurants."
 // @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
 // @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
-// @Success 200 {object} responseJSON
-// @Failure 400 {object} responseErrorJSON
+// @Success 200 {object} responseFullJSON
+// @Failure 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
 // @Router /restaurants [get]
 func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "restaurantsHandler")
 	params := r.URL.Query()
 	lat, lon, err := getCoordinates(params)
-	res := responseJSON{}
+	res := &responseFullJSON{}
 	if err != nil {
-		resErr := responseErrorJSON{}
+		resErr := &responseSimpleJSON{}
 		resErr.Msg = fmt.Sprintf("%s", err)
-		resErr.WriteResponse(w, http.StatusBadRequest)
+		WriteResponse(w, http.StatusBadRequest, resErr)
 		return
 	}
 	loadedRestaurants, err := getDBRestaurants(params)
 	if err != nil {
 		log.Println("Couldn't load restaurants from db")
-		res := responseErrorJSON{}
-		res.WriteResponse(w, http.StatusInternalServerError)
+		res := &responseSimpleJSON{}
+		WriteResponse(w, http.StatusInternalServerError, res)
 		return
 	}
 	filteredRestaurants := filterRestaurants(loadedRestaurants, params, lat, lon)
@@ -543,11 +495,11 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		log.Println("Database not initialized")
-		res := responseErrorJSON{}
-		res.WriteResponse(w, http.StatusInternalServerError)
+		res := &responseSimpleJSON{}
+		WriteResponse(w, http.StatusInternalServerError, res)
 		return
 	}
-	res.WriteResponse(w, http.StatusOK)
+	WriteResponse(w, http.StatusOK, res)
 }
 
 func isAuthenticated(w http.ResponseWriter, r *http.Request) (bool, int) {
@@ -588,35 +540,36 @@ func init() {
 
 // registerHandler godoc
 // @Summary Registers a user
-// @Tags register
+// @Tags Register user
 // @Accept  json
 // @Produce  json
 // @Param user body user true "Create a new user"
-// @Success 200 {object} responseJSON
-// @Success 400 {object} responseErrorJSON
+// @Success 200 {object} responseUserJSON
+// @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
 // @Router /register [post]
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "registerHandler")
 	user := &user{}
-	res := responseJSON{}
+	res := &responseFullJSON{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
 		log.Println(err)
-		res.WriteResponse(w, http.StatusInternalServerError)
+		WriteResponse(w, http.StatusInternalServerError, res)
 		return
 	}
 	validate := validator.New()
 	if err := validate.Struct(user); err != nil {
 		log.Println(err)
-		res.Msg = "Credentials do not comply with requirements"
-		res.WriteResponse(w, http.StatusBadRequest)
+		resErr := &responseSimpleJSON{}
+		resErr.Msg = "Credentials do not comply with requirements"
+		WriteResponse(w, http.StatusBadRequest, resErr)
 		return
 	}
 	pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Println(err)
-		res.WriteResponse(w, http.StatusInternalServerError)
+		WriteResponse(w, http.StatusInternalServerError, res)
 		return
 	}
 	user.Password = string(pass)
@@ -625,15 +578,16 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		if err.Error() == "pq: duplicate key value violates unique constraint \"restaurateur_users_email_key\"" {
-			res.Msg = "Email already used"
-			res.WriteResponse(w, http.StatusBadRequest)
+			resErr := &responseSimpleJSON{}
+			resErr.Msg = "Email already used"
+			WriteResponse(w, http.StatusBadRequest, resErr)
 			return
 		}
-		res.WriteResponse(w, http.StatusInternalServerError)
+		WriteResponse(w, http.StatusInternalServerError, res)
 		return
 	}
 	res.Msg = "Registration successful!"
-	res.WriteResponse(w, http.StatusOK)
+	WriteResponse(w, http.StatusOK, res)
 }
 
 // userHandler godoc
@@ -642,52 +596,52 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 // @Tags user
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} responseJSON
-// @Success 400 {object} responseErrorJSON
+// @Success 200 {object} responseUserJSON
+// @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
 // @Router /user [get]
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	auth, id := isAuthenticated(w, r)
 	if auth {
-		res := responseJSON{}
+		res := &responseUserJSON{}
 		user, _ := getUserByID(id)
 		res.User = &userResponse{Name: user.Name, Email: user.Email}
 		res.Msg = "Success"
-		res.WriteResponse(w, http.StatusOK)
+		WriteResponse(w, http.StatusOK, res)
 		return
 	}
-	resErr := responseErrorJSON{}
+	resErr := &responseSimpleJSON{}
 	resErr.Msg = "Not authenticated"
-	resErr.WriteResponse(w, http.StatusForbidden)
+	WriteResponse(w, http.StatusForbidden, resErr)
 }
 
 // userDeleteHandler godoc
 // @Summary Deletes a user
 // @Description Deletes a user if the request headers contain an authenticated cookie.
-// @Tags userDelete
+// @Tags Delete user
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} responseJSON
-// @Success 400 {object} responseErrorJSON
+// @Success 200 {object} responseSimpleJSON
+// @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
 // @Router /user [delete]
 func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	auth, id := isAuthenticated(w, r)
 	if auth {
-		res := responseJSON{}
+		res := &responseSimpleJSON{}
 		err := deleteUser(id)
 		if err != nil {
 			res.Msg = "Couldn't delete the record"
-			res.WriteResponse(w, http.StatusInternalServerError)
+			WriteResponse(w, http.StatusInternalServerError, res)
 			return
 		}
 		res.Msg = "Successfuly deleted the user!"
-		res.WriteResponse(w, http.StatusOK)
+		WriteResponse(w, http.StatusOK, res)
 		return
 	}
-	resErr := responseErrorJSON{}
+	resErr := &responseSimpleJSON{}
 	resErr.Msg = "Not authenticated"
-	resErr.WriteResponse(w, http.StatusForbidden)
+	WriteResponse(w, http.StatusForbidden, resErr)
 }
 
 // loginHandler godoc
@@ -697,20 +651,21 @@ func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param user body user true "Logs in a new user"
-// @Success 200 {object} responseJSON
-// @Success 400 {object} responseErrorJSON
+// @Success 200 {object} responseUserJSON
+// @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
 // @Router /login [post]
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "loginHandler")
 	session, _ := store.Get(r, "session-id")
 	user := &user{}
-	res := responseJSON{}
+	res := &responseUserJSON{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
 		log.Println(err)
-		res.Msg = "Invalid JSON data"
-		res.WriteResponse(w, http.StatusBadRequest)
+		resErr := &responseSimpleJSON{}
+		resErr.Msg = "Invalid JSON data"
+		WriteResponse(w, http.StatusBadRequest, resErr)
 		return
 	}
 	dbUser, err := getUserByEmail(user.Email)
@@ -720,9 +675,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(dbUser.Password)
 	errf := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password))
 	if errf != nil {
-		resErr := responseErrorJSON{}
+		resErr := &responseSimpleJSON{}
 		resErr.Msg = "Invalid password"
-		resErr.WriteResponse(w, http.StatusForbidden)
+		WriteResponse(w, http.StatusForbidden, resErr)
 		return
 	}
 	session.Values["user-id"] = dbUser.ID
@@ -732,12 +687,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	err = session.Save(r, w)
 	if err != nil {
 		log.Println(err)
-		res.WriteResponse(w, http.StatusInternalServerError)
+		WriteResponse(w, http.StatusInternalServerError, res)
 		return
 	}
-	res.Msg = "Log in successful!"
+	res.Msg = "Login successful!"
 	res.User = &userResponse{Name: dbUser.Name, Email: dbUser.Email}
-	res.WriteResponse(w, http.StatusOK)
+	WriteResponse(w, http.StatusOK, res)
 }
 
 func main() {
