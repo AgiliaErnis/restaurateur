@@ -49,8 +49,7 @@ type userDB struct {
 	Password string
 }
 
-// RestaurantDB struct compatible with postgres
-type RestaurantDB struct {
+type restaurantDB struct {
 	ID              int            `db:"id" json:"ID" example:"1"`
 	Name            string         `db:"name" json:"Name" example:"Steakhouse"`
 	Address         string         `db:"address" json:"Address" example:"Polská 12"`
@@ -72,7 +71,7 @@ type RestaurantDB struct {
 	DeliveryOptions pq.StringArray `db:"delivery_options" json:"DeliveryOptions"`
 }
 
-func (restaurant *RestaurantDB) isInRadius(lat, lon float64, radiusParam string) bool {
+func (restaurant *restaurantDB) isInRadius(lat, lon float64, radiusParam string) bool {
 	if radiusParam == "ignore" {
 		return true
 	}
@@ -85,7 +84,7 @@ func (restaurant *RestaurantDB) isInRadius(lat, lon float64, radiusParam string)
 	return distance <= radius
 }
 
-func (restaurant *RestaurantDB) isInPriceRange(priceRangeString string) bool {
+func (restaurant *restaurantDB) isInPriceRange(priceRangeString string) bool {
 	if priceRangeString == "" {
 		return true
 	}
@@ -100,7 +99,7 @@ func (restaurant *RestaurantDB) isInPriceRange(priceRangeString string) bool {
 	return false
 }
 
-func (restaurant *RestaurantDB) isInDistrict(districtString string) bool {
+func (restaurant *restaurantDB) isInDistrict(districtString string) bool {
 	if districtString == "" {
 		return true
 	}
@@ -115,7 +114,7 @@ func (restaurant *RestaurantDB) isInDistrict(districtString string) bool {
 	return false
 }
 
-func (restaurant *RestaurantDB) hasCuisines(cuisinesString string) bool {
+func (restaurant *restaurantDB) hasCuisines(cuisinesString string) bool {
 	if cuisinesString == "" {
 		return true
 	}
@@ -222,8 +221,8 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 	return err
 }
 
-func loadRestaurants(conn *sqlx.DB) ([]*RestaurantDB, error) {
-	var restaurants []*RestaurantDB
+func loadRestaurants(conn *sqlx.DB) ([]*restaurantDB, error) {
+	var restaurants []*restaurantDB
 	err := conn.Select(&restaurants, `SELECT * FROM restaurants`)
 
 	return restaurants, err
