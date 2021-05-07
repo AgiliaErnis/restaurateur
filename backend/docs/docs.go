@@ -96,13 +96,13 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseJSON"
+                            "$ref": "#/definitions/main.responseUserJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseErrorJSON"
+                            "$ref": "#/definitions/main.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -180,13 +180,13 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseJSON"
+                            "$ref": "#/definitions/main.responseFullJSON"
                         }
                     },
                     "405": {
                         "description": "Method Not Allowed",
                         "schema": {
-                            "$ref": "#/definitions/main.responseErrorJSON"
+                            "$ref": "#/definitions/main.responseSimpleJSON"
                         }
                     }
                 }
@@ -201,7 +201,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "register"
+                    "Register user"
                 ],
                 "summary": "Registers a user",
                 "parameters": [
@@ -219,13 +219,13 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseJSON"
+                            "$ref": "#/definitions/main.responseUserJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseErrorJSON"
+                            "$ref": "#/definitions/main.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -262,13 +262,13 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseJSON"
+                            "$ref": "#/definitions/main.responseFullJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseErrorJSON"
+                            "$ref": "#/definitions/main.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -370,13 +370,13 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseJSON"
+                            "$ref": "#/definitions/main.responseFullJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseErrorJSON"
+                            "$ref": "#/definitions/main.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -405,13 +405,13 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseJSON"
+                            "$ref": "#/definitions/main.responseUserJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseErrorJSON"
+                            "$ref": "#/definitions/main.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -431,20 +431,20 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "userDelete"
+                    "Delete user"
                 ],
                 "summary": "Deletes a user",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseJSON"
+                            "$ref": "#/definitions/main.responseSimpleJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseErrorJSON"
+                            "$ref": "#/definitions/main.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -458,7 +458,102 @@ var doc = `{
         }
     },
     "definitions": {
-        "main.RestaurantDB": {
+        "main.responseAutocompleteJSON": {
+            "type": "object",
+            "properties": {
+                "Data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.restaurantAutocomplete"
+                    }
+                },
+                "Msg": {
+                    "type": "string",
+                    "example": "Success"
+                },
+                "Status": {
+                    "type": "integer",
+                    "example": 200
+                }
+            }
+        },
+        "main.responseFullJSON": {
+            "type": "object",
+            "properties": {
+                "Data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.restaurantDB"
+                    }
+                },
+                "Msg": {
+                    "type": "string",
+                    "example": "Success"
+                },
+                "Status": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "User": {
+                    "type": "object",
+                    "$ref": "#/definitions/main.userResponse"
+                }
+            }
+        },
+        "main.responseSimpleJSON": {
+            "type": "object",
+            "properties": {
+                "Msg": {
+                    "type": "string"
+                },
+                "Status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "main.responseUserJSON": {
+            "type": "object",
+            "properties": {
+                "Msg": {
+                    "type": "string",
+                    "example": "Success"
+                },
+                "Status": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "User": {
+                    "type": "object",
+                    "$ref": "#/definitions/main.userResponse"
+                }
+            }
+        },
+        "main.restaurantAutocomplete": {
+            "type": "object",
+            "properties": {
+                "Address": {
+                    "type": "string",
+                    "example": "Polská 13"
+                },
+                "District": {
+                    "type": "string",
+                    "example": "Praha 1"
+                },
+                "ID": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "Image": {
+                    "type": "string",
+                    "example": "url.com"
+                },
+                "Name": {
+                    "type": "string",
+                    "example": "Steakhouse"
+                }
+            }
+        },
+        "main.restaurantDB": {
             "type": "object",
             "properties": {
                 "Address": {
@@ -529,88 +624,6 @@ var doc = `{
                 },
                 "WeeklyMenu": {
                     "type": "string"
-                }
-            }
-        },
-        "main.responseAutocompleteJSON": {
-            "type": "object",
-            "properties": {
-                "Data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/main.restaurantAutocomplete"
-                    }
-                },
-                "Msg": {
-                    "type": "string",
-                    "example": "Success"
-                },
-                "Status": {
-                    "type": "integer",
-                    "example": 200
-                }
-            }
-        },
-        "main.responseErrorJSON": {
-            "type": "object",
-            "properties": {
-                "Data": {
-                    "type": "object"
-                },
-                "Msg": {
-                    "type": "string",
-                    "example": "Error message"
-                },
-                "Status": {
-                    "type": "integer"
-                }
-            }
-        },
-        "main.responseJSON": {
-            "type": "object",
-            "properties": {
-                "Data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/main.RestaurantDB"
-                    }
-                },
-                "Msg": {
-                    "type": "string",
-                    "example": "Success"
-                },
-                "Status": {
-                    "type": "integer",
-                    "example": 200
-                },
-                "User": {
-                    "type": "object",
-                    "$ref": "#/definitions/main.userResponse"
-                }
-            }
-        },
-        "main.restaurantAutocomplete": {
-            "type": "object",
-            "properties": {
-                "Address": {
-                    "type": "string",
-                    "example": "Polská 13"
-                },
-                "District": {
-                    "type": "string",
-                    "example": "Praha 1"
-                },
-                "ID": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "Image": {
-                    "type": "string",
-                    "example": "url.com"
-                },
-                "Name": {
-                    "type": "string",
-                    "example": "Steakhouse"
                 }
             }
         },

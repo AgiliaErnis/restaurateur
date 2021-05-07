@@ -1,6 +1,72 @@
 basePath: /
 definitions:
-  main.RestaurantDB:
+  main.responseAutocompleteJSON:
+    properties:
+      Data:
+        items:
+          $ref: '#/definitions/main.restaurantAutocomplete'
+        type: array
+      Msg:
+        example: Success
+        type: string
+      Status:
+        example: 200
+        type: integer
+    type: object
+  main.responseFullJSON:
+    properties:
+      Data:
+        items:
+          $ref: '#/definitions/main.restaurantDB'
+        type: array
+      Msg:
+        example: Success
+        type: string
+      Status:
+        example: 200
+        type: integer
+      User:
+        $ref: '#/definitions/main.userResponse'
+        type: object
+    type: object
+  main.responseSimpleJSON:
+    properties:
+      Msg:
+        type: string
+      Status:
+        type: integer
+    type: object
+  main.responseUserJSON:
+    properties:
+      Msg:
+        example: Success
+        type: string
+      Status:
+        example: 200
+        type: integer
+      User:
+        $ref: '#/definitions/main.userResponse'
+        type: object
+    type: object
+  main.restaurantAutocomplete:
+    properties:
+      Address:
+        example: Polská 13
+        type: string
+      District:
+        example: Praha 1
+        type: string
+      ID:
+        example: 1
+        type: integer
+      Image:
+        example: url.com
+        type: string
+      Name:
+        example: Steakhouse
+        type: string
+    type: object
+  main.restaurantDB:
     properties:
       Address:
         example: Polská 12
@@ -51,63 +117,6 @@ definitions:
       Vegetarian:
         type: boolean
       WeeklyMenu:
-        type: string
-    type: object
-  main.responseAutocompleteJSON:
-    properties:
-      Data:
-        items:
-          $ref: '#/definitions/main.restaurantAutocomplete'
-        type: array
-      Msg:
-        example: Success
-        type: string
-      Status:
-        example: 200
-        type: integer
-    type: object
-  main.responseErrorJSON:
-    properties:
-      Data:
-        type: object
-      Msg:
-        example: Error message
-        type: string
-      Status:
-        type: integer
-    type: object
-  main.responseJSON:
-    properties:
-      Data:
-        items:
-          $ref: '#/definitions/main.RestaurantDB'
-        type: array
-      Msg:
-        example: Success
-        type: string
-      Status:
-        example: 200
-        type: integer
-      User:
-        $ref: '#/definitions/main.userResponse'
-        type: object
-    type: object
-  main.restaurantAutocomplete:
-    properties:
-      Address:
-        example: Polská 13
-        type: string
-      District:
-        example: Praha 1
-        type: string
-      ID:
-        example: 1
-        type: integer
-      Image:
-        example: url.com
-        type: string
-      Name:
-        example: Steakhouse
         type: string
     type: object
   main.user:
@@ -186,11 +195,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.responseJSON'
+            $ref: '#/definitions/main.responseUserJSON'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/main.responseErrorJSON'
+            $ref: '#/definitions/main.responseSimpleJSON'
         "500":
           description: Internal Server Error
           schema:
@@ -252,11 +261,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.responseJSON'
+            $ref: '#/definitions/main.responseFullJSON'
         "405":
           description: Method Not Allowed
           schema:
-            $ref: '#/definitions/main.responseErrorJSON'
+            $ref: '#/definitions/main.responseSimpleJSON'
       summary: Returns restaurants around Prague College
       tags:
       - PC restaurants
@@ -277,18 +286,18 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.responseJSON'
+            $ref: '#/definitions/main.responseUserJSON'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/main.responseErrorJSON'
+            $ref: '#/definitions/main.responseSimpleJSON'
         "500":
           description: Internal Server Error
           schema:
             type: string
       summary: Registers a user
       tags:
-      - register
+      - Register user
   /restaurant/{restaurant-id}:
     get:
       consumes:
@@ -305,11 +314,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.responseJSON'
+            $ref: '#/definitions/main.responseFullJSON'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/main.responseErrorJSON'
+            $ref: '#/definitions/main.responseSimpleJSON'
         "500":
           description: Internal Server Error
           schema:
@@ -391,11 +400,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.responseJSON'
+            $ref: '#/definitions/main.responseFullJSON'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/main.responseErrorJSON'
+            $ref: '#/definitions/main.responseSimpleJSON'
         "500":
           description: Internal Server Error
           schema:
@@ -415,18 +424,18 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.responseJSON'
+            $ref: '#/definitions/main.responseSimpleJSON'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/main.responseErrorJSON'
+            $ref: '#/definitions/main.responseSimpleJSON'
         "500":
           description: Internal Server Error
           schema:
             type: string
       summary: Deletes a user
       tags:
-      - userDelete
+      - Delete user
     get:
       consumes:
       - application/json
@@ -438,11 +447,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.responseJSON'
+            $ref: '#/definitions/main.responseUserJSON'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/main.responseErrorJSON'
+            $ref: '#/definitions/main.responseSimpleJSON'
         "500":
           description: Internal Server Error
           schema:
