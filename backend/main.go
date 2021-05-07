@@ -669,9 +669,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	dbUser, err := getUserByEmail(user.Email)
 	log.Println(err)
-	log.Println(dbUser.Name)
-	log.Println(dbUser.Email)
-	log.Println(dbUser.Password)
 	errf := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password))
 	if errf != nil {
 		resErr := &responseSimpleJSON{}
