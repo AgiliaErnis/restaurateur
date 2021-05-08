@@ -15,9 +15,23 @@ information about each restaurant:
     * Price Range
     * Cuisines
     * Takeaway and Delivery Options
-    
+
 * Recommendations are being done on fixed filtering references.
 Preferences to take into account are:
     * Price Range
     * Vegetarian and Vegan Options
     * Gluten Free Option
+
+## [0.1.1] - 2021-05-06
+
+### Fixed
+
+* The problem of pagination not highlighting the
+correct current page was solved.
+
+* Fixed console errors.
+
+### Added
+
+* Added the scroll to top function which is triggered
+whenever the vertical filtration or pagination is clicked.
