@@ -1,4 +1,4 @@
-package main
+package coordinates
 
 import (
 	"math"
@@ -19,7 +19,7 @@ func TestToRadians(t *testing.T) {
 }
 
 func TestHaversine(t *testing.T) {
-	got := int(math.Round(haversine(50.078702, 14.439827, 50.076482, 14.439048))) //random coords next to praguecollege
+	got := int(math.Round(Haversine(50.078702, 14.439827, 50.076482, 14.439048))) //random coords next to praguecollege
 	want := 253
 	if got != want {
 		t.Errorf("got %q, wanted %q", got, want)

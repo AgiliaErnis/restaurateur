@@ -1,13 +1,15 @@
-package main
+package db
 
 import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/AgiliaErnis/restaurateur/backend/scraper"
+	"github.com/AgiliaErnis/restaurateur/backend/pkg/coordinates"
+	"github.com/AgiliaErnis/restaurateur/backend/pkg/scraper"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"log"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -43,14 +45,20 @@ const (
     );`
 )
 
-type userDB struct {
+type User struct {
+	Name     string `json:"username" validate:"required,min=2,max=32"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6,max=64"`
+}
+
+type UserDB struct {
 	ID       int
 	Name     string
 	Email    string
 	Password string
 }
 
-type restaurantDB struct {
+type RestaurantDB struct {
 	ID              int            `db:"id" json:"ID" example:"1"`
 	Name            string         `db:"name" json:"Name" example:"Steakhouse"`
 	Address         string         `db:"address" json:"Address" example:"Polská 12"`
@@ -72,7 +80,7 @@ type restaurantDB struct {
 	DeliveryOptions pq.StringArray `db:"delivery_options" json:"DeliveryOptions"`
 }
 
-func (restaurant *restaurantDB) isInRadius(lat, lon float64, radiusParam string) bool {
+func (restaurant *RestaurantDB) IsInRadius(lat, lon float64, radiusParam string) bool {
 	if radiusParam == "ignore" {
 		return true
 	}
@@ -81,11 +89,11 @@ func (restaurant *restaurantDB) isInRadius(lat, lon float64, radiusParam string)
 		// default value
 		radius = 1000
 	}
-	distance := haversine(lat, lon, restaurant.Lat, restaurant.Lon)
+	distance := coordinates.Haversine(lat, lon, restaurant.Lat, restaurant.Lon)
 	return distance <= radius
 }
 
-func (restaurant *restaurantDB) isInPriceRange(priceRangeString string) bool {
+func (restaurant *RestaurantDB) IsInPriceRange(priceRangeString string) bool {
 	if priceRangeString == "" {
 		return true
 	}
@@ -100,7 +108,7 @@ func (restaurant *restaurantDB) isInPriceRange(priceRangeString string) bool {
 	return false
 }
 
-func (restaurant *restaurantDB) isInDistrict(districtString string) bool {
+func (restaurant *RestaurantDB) IsInDistrict(districtString string) bool {
 	if districtString == "" {
 		return true
 	}
@@ -115,7 +123,7 @@ func (restaurant *restaurantDB) isInDistrict(districtString string) bool {
 	return false
 }
 
-func (restaurant *restaurantDB) hasCuisines(cuisinesString string) bool {
+func (restaurant *RestaurantDB) HasCuisines(cuisinesString string) bool {
 	if cuisinesString == "" {
 		return true
 	}
@@ -129,9 +137,9 @@ func (restaurant *restaurantDB) hasCuisines(cuisinesString string) bool {
 	return true
 }
 
-func dbCheck() {
+func CheckDB() {
 	var table string
-	conn, err := dbGetConn()
+	conn, err := GetConn()
 	if err != nil {
 		log.Println("Make sure the DB_DSN environment variable is set")
 		log.Fatal(err)
@@ -163,7 +171,7 @@ func dbCheck() {
 	log.Println("Database ready")
 }
 
-func dbGetConn() (*sqlx.DB, error) {
+func GetConn() (*sqlx.DB, error) {
 	dbDSN := os.Getenv("DB_DSN")
 	conn, err := sqlx.Connect("postgres", dbDSN)
 	if err != nil {
@@ -222,16 +230,16 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 	return err
 }
 
-func loadRestaurants(conn *sqlx.DB) ([]*restaurantDB, error) {
-	var restaurants []*restaurantDB
+func loadRestaurants(conn *sqlx.DB) ([]*RestaurantDB, error) {
+	var restaurants []*RestaurantDB
 	err := conn.Select(&restaurants, `SELECT * FROM restaurants`)
 
 	return restaurants, err
 }
 
-func getUserByID(id int) (*user, error) {
-	user := &user{}
-	conn, err := dbGetConn()
+func GetUserByID(id int) (*User, error) {
+	user := &User{}
+	conn, err := GetConn()
 	if err != nil {
 		return user, err
 	}
@@ -239,8 +247,8 @@ func getUserByID(id int) (*user, error) {
 	return user, err
 }
 
-func saveUser(user *user) error {
-	conn, err := dbGetConn()
+func SaveUser(user *User) error {
+	conn, err := GetConn()
 	if err != nil {
 		return err
 	}
@@ -252,8 +260,8 @@ func saveUser(user *user) error {
 	return err
 }
 
-func deleteUser(id int) error {
-	conn, err := dbGetConn()
+func DeleteUser(id int) error {
+	conn, err := GetConn()
 	if err != nil {
 		return err
 	}
@@ -265,9 +273,9 @@ func deleteUser(id int) error {
 	return err
 }
 
-func getUserByEmail(email string) (*userDB, error) {
-	user := &userDB{}
-	conn, err := dbGetConn()
+func GetUserByEmail(email string) (*UserDB, error) {
+	user := &UserDB{}
+	conn, err := GetConn()
 	if err != nil {
 		return user, err
 	}
@@ -275,8 +283,8 @@ func getUserByEmail(email string) (*userDB, error) {
 	return user, err
 }
 
-func updateOne(column, updateValue string, id int) error {
-	conn, err := dbGetConn()
+func UpdateOne(column, updateValue string, id int) error {
+	conn, err := GetConn()
 	if err != nil {
 		return err
 	}
@@ -286,4 +294,87 @@ func updateOne(column, updateValue string, id int) error {
 	}
 	_, err = stmt.Exec(updateValue, id)
 	return err
+}
+
+func GetRestaurantArrByID(id int) ([]*RestaurantDB, error) {
+	var restaurant []*RestaurantDB
+	queryString := "SELECT * FROM restaurants_bak where id=$1"
+	conn, err := GetConn()
+	if err != nil {
+		return restaurant, err
+	}
+	err = conn.Select(&restaurant, queryString, id)
+	if err != nil {
+		return restaurant, err
+	}
+	return restaurant, nil
+}
+
+func GetDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
+	var restaurants []*RestaurantDB
+	conn, err := GetConn()
+	if err != nil {
+		return restaurants, err
+	}
+	defer conn.Close()
+	var andParams = [...]string{"vegetarian", "vegan", "gluten-free", "takeaway"}
+	var nullParams = [...]string{"delivery-options"}
+	var queries []string
+	var orderBy = ""
+	pgQuery := "SELECT * from restaurants_bak"
+	paramCtr := 1
+	var values []interface{}
+	for _, param := range andParams {
+		_, ok := params[param]
+		if ok && params.Get(param) != "false" {
+			param = strings.Replace(param, "-", "_", -1)
+			pgParam := fmt.Sprintf("%s=$%d", param, paramCtr)
+			queries = append(queries, pgParam)
+			value := params.Get(param)
+			if value == "" {
+				values = append(values, true)
+			} else {
+				values = append(values, value)
+			}
+			paramCtr++
+		}
+	}
+	parameterArr, ok := params["search-name"]
+	pgParam := fmt.Sprintf("(unaccent(name) %% unaccent($%d))", paramCtr)
+	searchField := "name"
+	if !ok {
+		parameterArr, ok = params["search-address"]
+		searchField = "address"
+		pgParam = fmt.Sprintf("(regexp_replace(unaccent(address), '[[:digit:]/]', '', 'g') %% unaccent($%d)) ", paramCtr)
+	}
+	if ok {
+		searchString := parameterArr[0]
+		queries = append(queries, pgParam)
+		values = append(values, searchString)
+		orderBy = fmt.Sprintf(" ORDER BY SIMILARITY(unaccent(%s), unaccent($%d)) DESC", searchField, paramCtr)
+		searchStringLen := len(searchString)
+		if searchStringLen < 3 {
+			_, err = conn.Exec("SELECT set_limit(0.1)")
+		} else if searchStringLen < 5 {
+			_, err = conn.Exec("SELECT set_limit(0.2)")
+		} // else keep default of 0.3
+		paramCtr++
+	}
+	for _, param := range nullParams {
+		_, ok := params[param]
+		if ok {
+			param = strings.Replace(param, "-", "_", -1)
+			pgParam := fmt.Sprintf("%s IS NOT NULL", param)
+			queries = append(queries, pgParam)
+		}
+	}
+	if len(queries) > 0 {
+		pgQuery += " WHERE "
+	}
+	pgQuery += strings.Join(queries, " AND ") + orderBy
+	err = conn.Select(&restaurants, pgQuery, values...)
+	if err != nil {
+		return restaurants, err
+	}
+	return restaurants, nil
 }

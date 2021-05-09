@@ -41,7 +41,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseAutocompleteJSON"
+                            "$ref": "#/definitions/api.responseAutocompleteJSON"
                         }
                     },
                     "500": {
@@ -73,7 +73,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.user"
+                            "$ref": "#/definitions/db.User"
                         }
                     }
                 ],
@@ -81,13 +81,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseUserJSON"
+                            "$ref": "#/definitions/api.responseUserJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseSimpleJSON"
+                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -165,13 +165,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseFullJSON"
+                            "$ref": "#/definitions/api.responseFullJSON"
                         }
                     },
                     "405": {
                         "description": "Method Not Allowed",
                         "schema": {
-                            "$ref": "#/definitions/main.responseSimpleJSON"
+                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     }
                 }
@@ -196,7 +196,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.user"
+                            "$ref": "#/definitions/db.User"
                         }
                     }
                 ],
@@ -204,13 +204,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseUserJSON"
+                            "$ref": "#/definitions/api.responseUserJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseSimpleJSON"
+                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -247,13 +247,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseFullJSON"
+                            "$ref": "#/definitions/api.responseFullJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseSimpleJSON"
+                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -355,13 +355,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseFullJSON"
+                            "$ref": "#/definitions/api.responseFullJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseSimpleJSON"
+                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -390,13 +390,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseUserJSON"
+                            "$ref": "#/definitions/api.responseUserJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseSimpleJSON"
+                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -423,13 +423,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseSimpleJSON"
+                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseSimpleJSON"
+                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -459,7 +459,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.userUpdate"
+                            "$ref": "#/definitions/api.userUpdate"
                         }
                     }
                 ],
@@ -467,13 +467,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.responseSimpleJSON"
+                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/main.responseSimpleJSON"
+                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     },
                     "500": {
@@ -487,13 +487,13 @@
         }
     },
     "definitions": {
-        "main.responseAutocompleteJSON": {
+        "api.responseAutocompleteJSON": {
             "type": "object",
             "properties": {
                 "Data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/main.restaurantAutocomplete"
+                        "$ref": "#/definitions/api.restaurantAutocomplete"
                     }
                 },
                 "Msg": {
@@ -506,14 +506,11 @@
                 }
             }
         },
-        "main.responseFullJSON": {
+        "api.responseFullJSON": {
             "type": "object",
             "properties": {
                 "Data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/main.restaurantDB"
-                    }
+                    "type": "string"
                 },
                 "Msg": {
                     "type": "string",
@@ -525,11 +522,11 @@
                 },
                 "User": {
                     "type": "object",
-                    "$ref": "#/definitions/main.userResponse"
+                    "$ref": "#/definitions/api.userResponse"
                 }
             }
         },
-        "main.responseSimpleJSON": {
+        "api.responseSimpleJSON": {
             "type": "object",
             "properties": {
                 "Msg": {
@@ -540,7 +537,7 @@
                 }
             }
         },
-        "main.responseUserJSON": {
+        "api.responseUserJSON": {
             "type": "object",
             "properties": {
                 "Msg": {
@@ -553,11 +550,11 @@
                 },
                 "User": {
                     "type": "object",
-                    "$ref": "#/definitions/main.userResponse"
+                    "$ref": "#/definitions/api.userResponse"
                 }
             }
         },
-        "main.restaurantAutocomplete": {
+        "api.restaurantAutocomplete": {
             "type": "object",
             "properties": {
                 "Address": {
@@ -582,100 +579,7 @@
                 }
             }
         },
-        "main.restaurantDB": {
-            "type": "object",
-            "properties": {
-                "Address": {
-                    "type": "string",
-                    "example": "Polská 12"
-                },
-                "Cuisines": {
-                    "type": "string",
-                    "example": "Italian,Czech"
-                },
-                "DeliveryOptions": {
-                    "type": "string"
-                },
-                "District": {
-                    "type": "string",
-                    "example": "Praha 1"
-                },
-                "GlutenFree": {
-                    "type": "boolean"
-                },
-                "ID": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "Images": {
-                    "type": "string",
-                    "example": "image1.com, image2.com"
-                },
-                "Lat": {
-                    "type": "number",
-                    "example": 50.03493
-                },
-                "Lon": {
-                    "type": "number",
-                    "example": 14.3032
-                },
-                "Name": {
-                    "type": "string",
-                    "example": "Steakhouse"
-                },
-                "OpeningHours": {
-                    "type": "string"
-                },
-                "PhoneNumber": {
-                    "type": "string",
-                    "example": "+420123456789"
-                },
-                "PriceRange": {
-                    "type": "string",
-                    "example": "300-600 Kč"
-                },
-                "Rating": {
-                    "type": "string",
-                    "example": "4.6"
-                },
-                "Takeaway": {
-                    "type": "boolean"
-                },
-                "URL": {
-                    "type": "string",
-                    "example": "http://restaurant.com"
-                },
-                "Vegan": {
-                    "type": "boolean"
-                },
-                "Vegetarian": {
-                    "type": "boolean"
-                },
-                "WeeklyMenu": {
-                    "type": "string"
-                }
-            }
-        },
-        "main.user": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "main.userResponse": {
+        "api.userResponse": {
             "type": "object",
             "properties": {
                 "email": {
@@ -686,7 +590,7 @@
                 }
             }
         },
-        "main.userUpdate": {
+        "api.userUpdate": {
             "type": "object",
             "required": [
                 "newPassword",
@@ -701,6 +605,25 @@
                     "type": "string"
                 },
                 "oldPassword": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.User": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

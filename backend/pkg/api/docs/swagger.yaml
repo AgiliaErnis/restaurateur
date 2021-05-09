@@ -71,19 +71,6 @@ definitions:
       name:
         type: string
     type: object
-  api.userUpdate:
-    properties:
-      newPassword:
-        type: string
-      newUsername:
-        type: string
-      oldPassword:
-        type: string
-    required:
-    - newPassword
-    - newUsername
-    - oldPassword
-    type: object
   db.User:
     properties:
       email:
@@ -370,83 +357,4 @@ paths:
       summary: Returns restaurants based on queries
       tags:
       - restaurants
-  /user:
-    delete:
-      consumes:
-      - application/json
-      description: Deletes a user if the request headers contain an authenticated
-        cookie.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Deletes a user
-      tags:
-      - Delete user
-    get:
-      consumes:
-      - application/json
-      description: Returns a JSON with user info if the request headers contain an
-        authenticated cookie.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.responseUserJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Get info about a user
-      tags:
-      - user
-    patch:
-      consumes:
-      - application/json
-      description: Updates user's password or username based on the provided JSON.
-        Only 1 field can be updated at a time. For password you need to provide "oldPassword"
-        and "newPassword" fields, omitting the "newUsername" field and vice versa
-        if you'd like to update the username
-      parameters:
-      - description: Create a new user
-        in: body
-        name: updateJSON
-        required: true
-        schema:
-          $ref: '#/definitions/api.userUpdate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Updates a user's password or username
-      tags:
-      - Patch user
 swagger: "2.0"
