@@ -11,7 +11,10 @@ function App() {
   const [pragueCollegePath, setPragueCollegePath] = useState(false);
   const [clickedDistrict, setClickedDistrict] = useState(false);
   const [clickedSuggestion, setClickedSuggestion] = useState(false);
-  const [checkedDistance, setCheckedDistance] = useState("1000")
+  const [checkedDistance, setCheckedDistance] = useState("1000");
+  const [chosenRestaurant, setChosenRestaurant] = useState(false);
+  const [generalSearchPath, setGeneralSearchPath] = useState(false);
+  const [clickOnScreen, setClickOnScreen] = useState(false)
 
   return (
     <>
@@ -22,7 +25,10 @@ function App() {
             pragueCollegePath, setPragueCollegePath,
             clickedDistrict, setClickedDistrict,
             clickedSuggestion, setClickedSuggestion,
-            checkedDistance,setCheckedDistance
+            checkedDistance, setCheckedDistance,
+            chosenRestaurant, setChosenRestaurant,
+            generalSearchPath, setGeneralSearchPath,
+            clickOnScreen, setClickOnScreen,
           }}>
             <Route path='/' exact component={Home} />
             <Route path='/restaurants' component={Restaurants} />
