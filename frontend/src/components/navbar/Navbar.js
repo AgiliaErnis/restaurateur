@@ -7,6 +7,7 @@ import { Modal } from '../forms/Modal'
 import Searchbox from '../search/Searchbox';
 import NavbarLogic from './NavbarLogic';
 import { UserContext } from '../../UserContext';
+import UserNavbar from '../user/UserNavbar';
 
 function Navbar() {
   const { click, button, showButton,
@@ -83,29 +84,30 @@ function Navbar() {
               </Link>
             </li>
           </ul>
-          {button &&
-            <Button
-              buttonStyle='btn--outline'
-              buttonSize='btn--medium'
-              onClick={openLogInModal}
-              id="login">
+          {pragueCollegePath ? <UserNavbar /> : <>
+            {button &&
+              <Button
+                buttonStyle='btn--outline'
+                buttonSize='btn--medium'
+                onClick={openLogInModal}
+                id="login">
                 LOG IN
             </Button>}
-          <Modal
-            showLogInModal={showLogInModal}
-            setShowLogInModal={setShowLogInModal}
-          />
-          {button &&
-            <Button
-              id="signup"
-              buttonSize='btn--medium'
-              onClick={openSignUpModal}>
+            <Modal
+              showLogInModal={showLogInModal}
+              setShowLogInModal={setShowLogInModal}
+            />
+            {button &&
+              <Button
+                id="signup"
+                buttonSize='btn--medium'
+                onClick={openSignUpModal}>
                 SIGN UP
             </Button>}
-          <Modal
-            showSignUpModal={showSignUpModal}
-            setShowSignUpModal={setShowSignUpModal}
-          />
+            <Modal
+              showSignUpModal={showSignUpModal}
+              setShowSignUpModal={setShowSignUpModal}
+            /></>}
         </div>
       </nav>
     </>

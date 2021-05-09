@@ -15,13 +15,10 @@ import { UserContext } from '../UserContext';
 export default function Restaurants() {
   const { customThemes, customStyles } = SelectStyle();
   const { sortOptions, setSortResultHandler } = SelectLogic();
-  const pragueCollegePath = useContext(UserContext)
-  const clickedDistrict = useContext(UserContext)
-  const clickedSuggestion = useContext(UserContext)
-  const checkedDistance = useContext(UserContext)
-
   const [checkedFilters, setCheckedFilters] = useState([]);
-  const [restaurants, setRestaurants] = useState([]);
+  const { restaurants, setRestaurants,
+          clickedDistrict, clickedSuggestion,
+          checkedDistance, pragueCollegePath } = useContext(UserContext)
 
   const [currentPage, setCurrentPage] = useState(1);
   const [restaurantsPerPage] = useState(5);
@@ -92,7 +89,7 @@ export default function Restaurants() {
     fetch(`${path}`).then(response => response.json()).then(
       json => setRestaurants(json.Data))
       paginate(1);
-  }, [path])
+  }, [path,setRestaurants])
 
   if (restaurants !== null) {
     var currentRestaurants = restaurants.slice(

@@ -1,0 +1,201 @@
+.account-continer {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-profile {
+    position: relative;
+    max-width: 80rem;
+    max-height: initial;
+    margin: 0px auto;
+    box-shadow: inset 0 0 0 1000px rgb(0 0 0 / 27%)
+}
+
+.profile-cover-container {
+    height: 12rem;
+    position: relative;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: row;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    position: absolute;
+    width: 100%;
+    bottom: 2.5rem;
+    padding: 0px 1.7rem;
+    -webkit-box-align: center;
+    align-items: center;
+}
+
+.user {
+    display: flex;
+    flex-direction: row;
+    -webkit-box-align: center;
+    align-items: center;
+}
+
+.user p {
+    color: rgb(255, 255, 255);
+    font-weight: 500;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-left:1rem;
+}
+
+.user-background {
+    object-fit: cover;
+    width: 100%;
+    width: 100%;
+    height: initial;
+    position: fixed;
+    z-index: -1;
+    right: 0;
+    top: 0;
+    left: 0;
+    max-width: 100%;
+    object-fit: cover;
+}
+
+.user .far.fa-user-circle {
+    color: #fff;
+    font-size: 90px;
+}
+
+.saved-restaurants {
+    padding: 0px 1.5rem;
+    height: min-content;
+    border-right: 1px solid rgba(255, 255, 255, 0.9);
+    text-align: center;
+    color: rgb(255, 255, 255);
+    font-size: 1.4rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-left: 1px solid rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.number {
+    font-size: 2rem;
+}
+
+.user-info-box {
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.info-box-menu {
+    position: relative;
+    width: 100%;
+    -webkit-box-flex: 0;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding: 0px 20px 20px 0px;
+}
+
+.info-box-menu-item {
+    margin-bottom: 1rem;
+    border: 1px solid rgb(231, 231, 231);
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.menu-item-header {
+    line-height: 1.2;
+    font-weight: 400;
+    margin: 0px;
+    margin-block-end: 0px;
+    color: rgb(130, 130, 130);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3rem;
+    padding: 1rem 2rem;
+}
+.menu-item-header.content {
+    font-size: 1.3rem;
+    padding: 2rem 1rem 0rem 1rem;
+}
+
+.menu-item-options {
+    position: relative;
+    padding-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-item-option {
+    top: 0px;
+    width: 100%;
+    height: 4rem;
+}
+
+.menu-item-option.clicked {
+    border-left: 3px solid rgb(237, 90, 107);
+    transform: translateY(0%);
+    background: linear-gradient(
+270deg
+, rgb(247, 235, 236) 0%, rgba(251, 246, 247, 0) 92.47%);
+
+    transition: opacity 0.5s ease 0s, transform 0.5s ease 0s;
+}
+.menu-item-option:hover {
+    transform: translateY(0%);
+    background: linear-gradient(270deg,
+    rgb(247, 235, 236) 0%,
+    rgba(251, 246, 247, 0) 92.47%);
+    transition: opacity 0.5s ease 0s, transform 0.5s ease 0s;
+}
+
+.user-info-content {
+    position: relative;
+    width: 100%;
+    -webkit-box-flex: 0;
+    flex-grow: 0;
+    flex-shrink: 0;
+    max-width: 66.6667%;
+    padding: 0px 0px 20px 10px;
+    background-color: #fff;
+    margin: 0px 0px 20px 0px;
+    border: 1px solid rgb(231, 231, 231);
+    border-radius: 8px;
+    background-color: #fff;
+    height: 640px;
+    overflow: hidden;
+    overflow-y: scroll;
+
+}
+
+.user-info-box-container {
+    display: flex;
+    flex-direction: row;
+    /* background-color: #fff; */
+    box-shadow: inset 0 0 0 1000px rgb(0 0 0 / 27%);
+    position: relative;
+    max-width: 80rem;
+    max-height: initial;
+    margin: 0px auto;
+}
+.menu-item-options span {
+    line-height: 1;
+    margin: 0px;
+    color: rgb(54, 54, 54);
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: flex;
+    cursor: pointer;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: baseline;
+    align-items: baseline;
+    padding: 1rem 2rem;
+    z-index: 2;
+    text-align: center;
+    align-items: center;
+}
