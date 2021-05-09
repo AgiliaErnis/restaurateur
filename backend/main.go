@@ -46,6 +46,12 @@ type user struct {
 	Password string `json:"password" validate:"required,min=6,max=64"`
 }
 
+type userUpdate struct {
+	OldPassword string `json:"oldPassword" validate:"required,min=6,max=64"`
+	NewPassword string `json:"newPassword" validate:"required,min=6,max=64"`
+	NewUsername string `json:"newUsername" validate:"required,min=2,max=32"`
+}
+
 type userResponse struct {
 	Name  string
 	Email string
@@ -551,7 +557,9 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "registerHandler")
 	user := &user{}
 	res := &responseFullJSON{}
-	err := json.NewDecoder(r.Body).Decode(user)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(user)
 	if err != nil {
 		log.Println(err)
 		WriteResponse(w, http.StatusInternalServerError, res)
@@ -589,7 +597,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	WriteResponse(w, http.StatusOK, res)
 }
 
-// userHandler godoc
+// userGetHandler godoc
 // @Summary Get info about a user
 // @Description Returns a JSON with user info if the request headers contain an authenticated cookie.
 // @Tags user
@@ -599,7 +607,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
 // @Router /user [get]
-func userHandler(w http.ResponseWriter, r *http.Request) {
+func userGetHandler(w http.ResponseWriter, r *http.Request) {
 	auth, id := isAuthenticated(w, r)
 	if auth {
 		res := &responseUserJSON{}
@@ -631,11 +639,84 @@ func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		err := deleteUser(id)
 		if err != nil {
 			res.Msg = "Couldn't delete the record"
-			WriteResponse(w, http.StatusInternalServerError, res)
+			WriteResponse(w, http.StatusBadRequest, res)
 			return
 		}
 		res.Msg = "Successfuly deleted the user!"
 		WriteResponse(w, http.StatusOK, res)
+		return
+	}
+	resErr := &responseSimpleJSON{}
+	resErr.Msg = "Not authenticated"
+	WriteResponse(w, http.StatusForbidden, resErr)
+}
+
+// userPatchHandler godoc
+// @Summary Updates a user's password or username
+// @Description Updates user's password or username based on the provided JSON. Only 1 field can be updated at a time. For password you need to provide "oldPassword" and "newPassword" fields, omitting the "newUsername" field and vice versa if you'd like to update the username
+// @Tags Patch user
+// @Param updateJSON body userUpdate true "Create a new user"
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseSimpleJSON
+// @Success 400 {object} responseSimpleJSON
+// @Failure 500 {string} []byte
+// @Router /user [patch]
+func userPatchHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "userPatchHandler")
+	auth, id := isAuthenticated(w, r)
+	if auth {
+		userUpdate := &userUpdate{}
+		res := &responseUserJSON{}
+		decoder := json.NewDecoder(r.Body)
+		decoder.DisallowUnknownFields()
+		err := decoder.Decode(userUpdate)
+		if err != nil {
+			resErr := &responseSimpleJSON{}
+			resErr.Msg = "Wrong or missing fields in JSON"
+			WriteResponse(w, http.StatusBadRequest, resErr)
+			return
+		}
+		if userUpdate.NewUsername != "" {
+			username := html.EscapeString(userUpdate.NewUsername)
+			err = updateOne("name", username, id)
+			if err != nil {
+				resErr := &responseSimpleJSON{}
+				resErr.Msg = "Couldn't update username"
+				WriteResponse(w, http.StatusBadRequest, resErr)
+			}
+			res.Msg = "Successfuly updated the username!"
+			WriteResponse(w, http.StatusOK, res)
+			return
+		} else if userUpdate.OldPassword != "" && userUpdate.NewPassword != "" {
+			user, _ := getUserByID(id)
+			errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userUpdate.OldPassword))
+			if errf != nil {
+				log.Println(errf)
+				resErr := &responseSimpleJSON{}
+				resErr.Msg = "Invalid password"
+				WriteResponse(w, http.StatusForbidden, resErr)
+				return
+			}
+			pass, err := bcrypt.GenerateFromPassword([]byte(userUpdate.NewPassword), bcrypt.DefaultCost)
+			if err != nil {
+				log.Println(err)
+				WriteResponse(w, http.StatusInternalServerError, res)
+				return
+			}
+			password := string(pass)
+			err = updateOne("password", password, id)
+			if err != nil {
+				res.Msg = "Couldn't update password"
+				WriteResponse(w, http.StatusBadRequest, res)
+			}
+			res.Msg = "Successfuly updated the user's password!"
+			WriteResponse(w, http.StatusOK, res)
+			return
+		}
+		resErr := &responseSimpleJSON{}
+		resErr.Msg = "Wrong or missing fields in JSON"
+		WriteResponse(w, http.StatusBadRequest, resErr)
 		return
 	}
 	resErr := &responseSimpleJSON{}
@@ -659,7 +740,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session-id")
 	user := &user{}
 	res := &responseUserJSON{}
-	err := json.NewDecoder(r.Body).Decode(user)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(user)
 	if err != nil {
 		log.Println(err)
 		resErr := &responseSimpleJSON{}
@@ -706,8 +789,9 @@ func main() {
 	r.HandleFunc("/restaurant/{id:[0-9]+}", restaurantHandler).Methods(http.MethodGet)
 	r.HandleFunc("/autocomplete", autocompleteHandler).Methods(http.MethodGet)
 	r.HandleFunc("/register", registerHandler).Methods(http.MethodPost)
-	r.HandleFunc("/user", userHandler).Methods(http.MethodGet)
+	r.HandleFunc("/user", userGetHandler).Methods(http.MethodGet)
 	r.HandleFunc("/user", userDeleteHandler).Methods(http.MethodDelete)
+	r.HandleFunc("/user", userPatchHandler).Methods(http.MethodPatch)
 	r.HandleFunc("/login", loginHandler).Methods(http.MethodPost)
 	r.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
