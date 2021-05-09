@@ -53,6 +53,17 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 	return restaurants, nil
 }
 
+// autocompleteHandler godoc
+// @Summary Autocomplete backend
+// @Description Provides restaurant candidates for autocompletion based on provided input
+// @Tags autocomplete
+// @Param name query string false "name of searched restaurant"
+// @Param address query string false "address of searched restaurant"
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseAutocompleteJSON
+// @Failure 500 {string} []byte
+// @Router /autocomplete [get]
 func autocompleteHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "autocompleteHandler")
 	params := r.URL.Query()

@@ -45,12 +45,14 @@ const (
     );`
 )
 
+// User holds information about a user provided from a JSON
 type User struct {
 	Name     string `json:"username" validate:"required,min=2,max=32"`
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=6,max=64"`
 }
 
+// UserDB holds information about a user provided from the postgres DB
 type UserDB struct {
 	ID       int
 	Name     string
@@ -58,6 +60,7 @@ type UserDB struct {
 	Password string
 }
 
+// RestaurantDB holds all data about a restaurant that is stored in the db
 type RestaurantDB struct {
 	ID              int            `db:"id" json:"ID" example:"1"`
 	Name            string         `db:"name" json:"Name" example:"Steakhouse"`
@@ -80,6 +83,7 @@ type RestaurantDB struct {
 	DeliveryOptions pq.StringArray `db:"delivery_options" json:"DeliveryOptions"`
 }
 
+// IsInRadius checks if a given restaurant is inside a radius compared to a point signified by coordinates
 func (restaurant *RestaurantDB) IsInRadius(lat, lon float64, radiusParam string) bool {
 	if radiusParam == "ignore" {
 		return true
@@ -93,6 +97,7 @@ func (restaurant *RestaurantDB) IsInRadius(lat, lon float64, radiusParam string)
 	return distance <= radius
 }
 
+// IsInPriceRange checks if a given restaurant is inside a provided price range
 func (restaurant *RestaurantDB) IsInPriceRange(priceRangeString string) bool {
 	if priceRangeString == "" {
 		return true
@@ -108,6 +113,7 @@ func (restaurant *RestaurantDB) IsInPriceRange(priceRangeString string) bool {
 	return false
 }
 
+// IsInDistrict checks if a restaurant is located in a given district
 func (restaurant *RestaurantDB) IsInDistrict(districtString string) bool {
 	if districtString == "" {
 		return true
@@ -123,6 +129,7 @@ func (restaurant *RestaurantDB) IsInDistrict(districtString string) bool {
 	return false
 }
 
+// HasCuisines checks if a restaurant has food from a given cuisine
 func (restaurant *RestaurantDB) HasCuisines(cuisinesString string) bool {
 	if cuisinesString == "" {
 		return true
@@ -137,6 +144,7 @@ func (restaurant *RestaurantDB) HasCuisines(cuisinesString string) bool {
 	return true
 }
 
+// CheckDB checks if the db is set up and initializes everything that is not set up yet
 func CheckDB() {
 	var table string
 	conn, err := GetConn()
@@ -171,6 +179,7 @@ func CheckDB() {
 	log.Println("Database ready")
 }
 
+// GetConn fetches a connection to the db
 func GetConn() (*sqlx.DB, error) {
 	dbDSN := os.Getenv("DB_DSN")
 	conn, err := sqlx.Connect("postgres", dbDSN)
@@ -237,6 +246,7 @@ func loadRestaurants(conn *sqlx.DB) ([]*RestaurantDB, error) {
 	return restaurants, err
 }
 
+// GetUserByID returns a user struct based on an ID
 func GetUserByID(id int) (*User, error) {
 	user := &User{}
 	conn, err := GetConn()
@@ -247,6 +257,7 @@ func GetUserByID(id int) (*User, error) {
 	return user, err
 }
 
+// SaveUser saves a user to the db
 func SaveUser(user *User) error {
 	conn, err := GetConn()
 	if err != nil {
@@ -260,6 +271,7 @@ func SaveUser(user *User) error {
 	return err
 }
 
+// DeleteUser deletes a user from the db based on an ID
 func DeleteUser(id int) error {
 	conn, err := GetConn()
 	if err != nil {
@@ -273,6 +285,7 @@ func DeleteUser(id int) error {
 	return err
 }
 
+// GetUserByEmail returns a user struct based on an email
 func GetUserByEmail(email string) (*UserDB, error) {
 	user := &UserDB{}
 	conn, err := GetConn()
@@ -283,6 +296,7 @@ func GetUserByEmail(email string) (*UserDB, error) {
 	return user, err
 }
 
+// UpdateOne updates a field in the user table
 func UpdateOne(column, updateValue string, id int) error {
 	conn, err := GetConn()
 	if err != nil {
@@ -296,6 +310,7 @@ func UpdateOne(column, updateValue string, id int) error {
 	return err
 }
 
+// GetRestaurantArrByID returns a single restaurant but in an array
 func GetRestaurantArrByID(id int) ([]*RestaurantDB, error) {
 	var restaurant []*RestaurantDB
 	queryString := "SELECT * FROM restaurants_bak where id=$1"
@@ -310,6 +325,7 @@ func GetRestaurantArrByID(id int) ([]*RestaurantDB, error) {
 	return restaurant, nil
 }
 
+// GetDBRestaurants returns an array of restaurants that satisfy given criteria
 func GetDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	var restaurants []*RestaurantDB
 	conn, err := GetConn()

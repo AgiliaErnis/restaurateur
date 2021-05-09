@@ -165,68 +165,28 @@ paths:
       summary: Logs in a user
       tags:
       - login
-  /prague-college/restaurants:
+  /logout:
     get:
       consumes:
       - application/json
-      parameters:
-      - description: Radius (in meters) of the area around a provided or pre-selected
-          starting point. Restaurants in this area will be returned. Radius can be
-          ignored when specified with radius=ignore and lat and lon parameters will
-          no longer be required. When no radius is provided, a default value of 1000
-          meters is used.
-        in: query
-        name: radius
-        type: string
-      - description: 'Filters restaurants based on a list of cuisines, separated by
-          commas -> cuisine=Czech,English. A restaurant will be returned only if it
-          satisfies all provided cuisines.Available cuisines: American, Italian, Asian,
-          Indian, Japanese, Vietnamese, Spanish, Mediterranean, French, Thai, Mexican,
-          International, Czech, English, Balkan, Brazil, Russian, Chinese, Greek,
-          Arabic, Korean.'
-        in: query
-        name: cuisine
-        type: string
-      - description: 'Filters restaurants based on a list of price ranges, separated
-          by commas -> price-range=0-300,600-. A restaurant will be returned if it
-          satisfies at least one provided price range. Available price ranges: 0-300,300-600,600-'
-        in: query
-        name: price-range
-        type: string
-      - description: Filters out all non vegetarian restaurants.
-        in: query
-        name: vegetarian
-        type: boolean
-      - description: Filters out all non vegan restaurants.
-        in: query
-        name: vegan
-        type: boolean
-      - description: Filters out all non gluten free restaurants.
-        in: query
-        name: gluten-free
-        type: boolean
-      - description: Filters out all restaurants that don't have a takeaway option.
-        in: query
-        name: takeaway
-        type: boolean
-      - description: Filters out all restaurants that don't have a delivery option.
-        in: query
-        name: delivery-options
-        type: boolean
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.responseFullJSON'
-        "405":
-          description: Method Not Allowed
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/api.responseSimpleJSON'
-      summary: Returns restaurants around Prague College
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Logs out a user
       tags:
-      - PC restaurants
+      - logout
   /register:
     post:
       consumes:
@@ -255,7 +215,7 @@ paths:
             type: string
       summary: Registers a user
       tags:
-      - Register user
+      - register
   /restaurant/{restaurant-id}:
     get:
       consumes:

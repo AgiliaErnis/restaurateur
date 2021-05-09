@@ -15,8 +15,18 @@ type userUpdate struct {
 	NewUsername string `json:"newUsername" validate:"required,min=2,max=32"`
 }
 
+// userGetHandler godoc
+// @Summary Get info about a user
+// @Description Returns a JSON with user info if the request headers contain an authenticated cookie.
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseUserJSON
+// @Success 400 {object} responseSimpleJSON
+// @Failure 500 {string} []byte
+// @Router /user [get]
 func userGetHandler(w http.ResponseWriter, r *http.Request) {
-	auth, id := isAuthenticated(w, r)
+	auth, id := isAuthenticated(w, r, true)
 	if auth {
 		res := &responseUserJSON{}
 		user, _ := db.GetUserByID(id)
@@ -30,8 +40,19 @@ func userGetHandler(w http.ResponseWriter, r *http.Request) {
 	writeResponse(w, http.StatusForbidden, resErr)
 }
 
+// userDeleteHandler godoc
+// @Summary Deletes a user
+// @Description Deletes a user if the request headers contain an authenticated cookie.
+// @Tags Delete user
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseSimpleJSON
+// @Success 400 {object} responseSimpleJSON
+// @Failure 500 {string} []byte
+// @Router /user [delete]
+// loginHandler godoc
 func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	auth, id := isAuthenticated(w, r)
+	auth, id := isAuthenticated(w, r, true)
 	if auth {
 		res := &responseSimpleJSON{}
 		err := db.DeleteUser(id)
@@ -49,9 +70,20 @@ func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	writeResponse(w, http.StatusForbidden, resErr)
 }
 
+// userPatchHandler godoc
+// @Summary Updates a user's password or username
+// @Description Updates user's password or username based on the provided JSON. Only 1 field can be updated at a time. For password you need to provide "oldPassword" and "newPassword" fields, omitting the "newUsername" field and vice versa if you'd like to update the username
+// @Tags Patch user
+// @Param updateJSON body userUpdate true "Create a new user"
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responseSimpleJSON
+// @Success 400 {object} responseSimpleJSON
+// @Failure 500 {string} []byte
+// @Router /user [patch]
 func userPatchHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "userPatchHandler")
-	auth, id := isAuthenticated(w, r)
+	auth, id := isAuthenticated(w, r, true)
 	if auth {
 		userUpdate := &userUpdate{}
 		res := &responseUserJSON{}

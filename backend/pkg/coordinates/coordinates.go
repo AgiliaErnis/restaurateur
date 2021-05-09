@@ -13,7 +13,7 @@ func toRadians(num float64) float64 {
 	return num * (math.Pi / 180)
 }
 
-// calculates distance (in meters) between two point based on their coordinates
+// Haversine calculates distance (in meters) between two point based on their coordinates
 func Haversine(lat1, lon1, lat2, lon2 float64) float64 {
 	lat1Rad := toRadians(lat1)
 	lon1Rad := toRadians(lon1)
@@ -29,6 +29,7 @@ func Haversine(lat1, lon1, lat2, lon2 float64) float64 {
 	return c * radius
 }
 
+// GetCoordinates returns coordinates based on an address or lat and lon from query parameters
 func GetCoordinates(params url.Values) (float64, float64, error) {
 	addressParam := params.Get("address")
 	radiusParam := params.Get("radius")
