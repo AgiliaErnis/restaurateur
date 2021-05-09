@@ -86,7 +86,7 @@ export default function Restaurants() {
               path += `cuisine=${clickedSuggestion.clickedSuggestion}`
             }
         } else if (generalSearchPath !== false) {
-            path += generalSearchPath
+            path += generalSearchPath + "&"
         }
         return path + arrayOfPathValues.join("&")
       }
