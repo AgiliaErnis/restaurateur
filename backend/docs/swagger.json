@@ -439,6 +439,50 @@
                         }
                     }
                 }
+            },
+            "patch": {
+                "description": "Updates user's password or username based on the provided JSON. Only 1 field can be updated at a time. For password you need to provide \"oldPassword\" and \"newPassword\" fields, omitting the \"newUsername\" field and vice versa if you'd like to update the username",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Patch user"
+                ],
+                "summary": "Updates a user's password or username",
+                "parameters": [
+                    {
+                        "description": "Create a new user",
+                        "name": "updateJSON",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.userUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.responseSimpleJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.responseSimpleJSON"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         }
     },
@@ -638,6 +682,25 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.userUpdate": {
+            "type": "object",
+            "required": [
+                "newPassword",
+                "newUsername",
+                "oldPassword"
+            ],
+            "properties": {
+                "newPassword": {
+                    "type": "string"
+                },
+                "newUsername": {
+                    "type": "string"
+                },
+                "oldPassword": {
                     "type": "string"
                 }
             }

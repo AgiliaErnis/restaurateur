@@ -139,6 +139,19 @@ definitions:
       name:
         type: string
     type: object
+  main.userUpdate:
+    properties:
+      newPassword:
+        type: string
+      newUsername:
+        type: string
+      oldPassword:
+        type: string
+    required:
+    - newPassword
+    - newUsername
+    - oldPassword
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -459,4 +472,36 @@ paths:
       summary: Get info about a user
       tags:
       - user
+    patch:
+      consumes:
+      - application/json
+      description: Updates user's password or username based on the provided JSON.
+        Only 1 field can be updated at a time. For password you need to provide "oldPassword"
+        and "newPassword" fields, omitting the "newUsername" field and vice versa
+        if you'd like to update the username
+      parameters:
+      - description: Create a new user
+        in: body
+        name: updateJSON
+        required: true
+        schema:
+          $ref: '#/definitions/main.userUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.responseSimpleJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.responseSimpleJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Updates a user's password or username
+      tags:
+      - Patch user
 swagger: "2.0"
