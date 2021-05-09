@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"github.com/AgiliaErnis/restaurateur/backend/scraper"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -270,6 +271,19 @@ func getUserByEmail(email string) (*userDB, error) {
 	if err != nil {
 		return user, err
 	}
-	err = conn.QueryRowx("SELECT * FROM restaurateur_users where email = $1", email).StructScan(user)
+	err = conn.QueryRowx("SELECT * FROM restaurateur_users where email=$1", email).StructScan(user)
 	return user, err
+}
+
+func updateOne(column, updateValue string, id int) error {
+	conn, err := dbGetConn()
+	if err != nil {
+		return err
+	}
+	stmt, err := conn.Prepare(fmt.Sprintf("UPDATE restaurateur_users set %s=$1 WHERE id=$2", column))
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(updateValue, id)
+	return err
 }
