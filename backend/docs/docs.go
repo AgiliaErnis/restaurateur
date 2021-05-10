@@ -387,7 +387,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Delete user"
+                    "user"
                 ],
                 "summary": "Deletes a user",
                 "responses": {
@@ -420,7 +420,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Patch user"
+                    "user"
                 ],
                 "summary": "Updates a user's password or username",
                 "parameters": [

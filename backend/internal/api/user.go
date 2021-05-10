@@ -43,7 +43,7 @@ func userGetHandler(w http.ResponseWriter, r *http.Request) {
 // userDeleteHandler godoc
 // @Summary Deletes a user
 // @Description Deletes a user if the request headers contain an authenticated cookie.
-// @Tags Delete user
+// @Tags user
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} responseSimpleJSON
@@ -73,7 +73,7 @@ func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 // userPatchHandler godoc
 // @Summary Updates a user's password or username
 // @Description Updates user's password or username based on the provided JSON. Only 1 field can be updated at a time. For password you need to provide "oldPassword" and "newPassword" fields, omitting the "newUsername" field and vice versa if you'd like to update the username
-// @Tags Patch user
+// @Tags user
 // @Param updateJSON body userUpdate true "Create a new user"
 // @Accept  json
 // @Produce  json

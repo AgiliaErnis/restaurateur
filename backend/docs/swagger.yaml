@@ -353,7 +353,7 @@ paths:
             type: string
       summary: Deletes a user
       tags:
-      - Delete user
+      - user
     get:
       consumes:
       - application/json
@@ -408,5 +408,5 @@ paths:
             type: string
       summary: Updates a user's password or username
       tags:
-      - Patch user
+      - user
 swagger: "2.0"
