@@ -22,6 +22,7 @@ export default function Restaurants() {
 
   const [checkedFilters, setCheckedFilters] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
+  const [unsortedRestaurants, setUnsortedRestaurants] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [restaurantsPerPage] = useState(5);
@@ -87,10 +88,60 @@ export default function Restaurants() {
 
   const path = showFilteredResults();
 
+  function sortRestaurants(sortParameter) {
+    let restaurantsCopy
+    // Store a copy of restaurants, because if for example all restaurants without
+    // ratings would be removed, sorted by rating and then sorted by price,
+    // it could happen that a restaurant
+    // with a valid price would be removed and now it would be missing.
+    if (unsortedRestaurants.length > 0) {
+      restaurantsCopy = unsortedRestaurants
+    } else {
+      restaurantsCopy = restaurants
+      setUnsortedRestaurants(restaurants)
+    }
+    let tempRestaurants = []
+    if (sortParameter === undefined || restaurantsCopy === null) {
+      return
+    }
+    if (sortParameter === "rating") {
+      // Remove all restaurants without a rating
+      for (let restaurant of restaurantsCopy) {
+        if (restaurant["Rating"] !== "") {
+          tempRestaurants.push(restaurant)
+        }
+      }
+      tempRestaurants.sort((a, b) => (parseFloat(a["Rating"]) < parseFloat(b["Rating"]) ? 1 : -1))
+    } else {
+      // Remove all restaurants without a price range
+      for (let restaurant of restaurantsCopy) {
+        if (restaurant["PriceRange"] !== "Not available") {
+          tempRestaurants.push(restaurant)
+        }
+      }
+      if (sortParameter === "price-ascending") {
+        tempRestaurants.sort((a, b) => (a["PriceRange"] > b["PriceRange"] ? 1 : -1))
+      } else if (sortParameter === "price-descending") {
+        tempRestaurants.sort((a, b) => (a["PriceRange"] < b["PriceRange"] ? 1 : -1))
+      }
+    }
+    return tempRestaurants
+  }
+
+  function sortHandler(e) {
+    setSortResultHandler(e)
+    let sortParameter = e.value
+    let tempRestaurants = sortRestaurants(sortParameter)
+    setRestaurants(tempRestaurants)
+    paginate(1);
+  }
 
   useEffect(() => {
     fetch(`${path}`).then(response => response.json()).then(
-      json => setRestaurants(json.Data))
+      json => {
+        setUnsortedRestaurants([])
+        setRestaurants(json.Data)
+      })
       paginate(1);
   }, [path])
 
@@ -124,7 +175,7 @@ export default function Restaurants() {
               options={sortOptions}
               styles={customStyles}
               theme={customThemes}
-              onChange={setSortResultHandler}
+              onChange={sortHandler}
               className="sort"
               placeholder="Sort by"
               isSearchable
