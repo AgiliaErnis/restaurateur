@@ -142,7 +142,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	dbUser, err := db.GetUserByEmail(user.Email)
-	log.Println(err)
 	errf := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password))
 	if errf != nil {
 		resErr := &responseSimpleJSON{}
@@ -178,7 +177,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	auth, _ := isAuthenticated(w, r, false)
 	res := &responseSimpleJSON{}
 	if auth {
-		session, _ := store.Get(r, "cookie-name")
+		session, _ := store.Get(r, "session-id")
 		session.Values["authenticated"] = false
 		session.Options.MaxAge = -1
 		err := session.Save(r, w)
