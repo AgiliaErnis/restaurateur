@@ -19,7 +19,7 @@ export default function Restaurants() {
   const clickedDistrict = useContext(UserContext)
   const clickedSuggestion = useContext(UserContext)
   const checkedDistance = useContext(UserContext)
-  const { chosenRestaurant, generalSearchPath,setClickOnScreen } = useContext(UserContext);
+  const { chosenRestaurant, generalSearchPath } = useContext(UserContext);
 
   const [checkedFilters, setCheckedFilters] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
@@ -48,8 +48,6 @@ export default function Restaurants() {
       }
     }
   )
-
-  console.log(chosenRestaurant)
 
   const showFilteredResults = () => {
     if (chosenRestaurant !== false) {
@@ -93,13 +91,12 @@ export default function Restaurants() {
   }
 
   const path = showFilteredResults();
-
+  console.log(generalSearchPath)
   useEffect(() => {
     fetch(`${path}`).then(response => response.json()).then(
       json => setRestaurants(json.Data))
     paginate(1);
-    setClickOnScreen(true)
-  }, [path,setClickOnScreen])
+  }, [path])
 
   if (restaurants !== null) {
     var currentRestaurants = restaurants.slice(
@@ -111,7 +108,7 @@ export default function Restaurants() {
   return (
     <>
       <Navbar/>
-      <div className="restaurants-hero-container" onClick={() => setClickOnScreen(true)}>
+      <div className="restaurants-hero-container" >
         <VerticalFilter
           handlecheckedFilters={filters =>
             handlecheckedFilters(filters, "arrayOfcheckedFilterss")}

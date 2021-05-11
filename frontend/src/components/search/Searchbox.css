@@ -72,9 +72,14 @@
   overflow-y: scroll;
 }
 
+.suggested-restaurant.active {
+  background-color: rgb(241,241,241);
+}
+
 .suggested-restaurant:hover {
   background-color: rgb(241,241,241);
 }
+
 .restaurant-image {
   border-radius: 0.8rem;
   flex-shrink: 0;

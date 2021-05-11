@@ -14,7 +14,6 @@ function App() {
   const [checkedDistance, setCheckedDistance] = useState("1000");
   const [chosenRestaurant, setChosenRestaurant] = useState(false);
   const [generalSearchPath, setGeneralSearchPath] = useState(false);
-  const [clickOnScreen, setClickOnScreen] = useState(false)
 
   return (
     <>
@@ -28,7 +27,6 @@ function App() {
             checkedDistance, setCheckedDistance,
             chosenRestaurant, setChosenRestaurant,
             generalSearchPath, setGeneralSearchPath,
-            clickOnScreen, setClickOnScreen,
           }}>
             <Route path='/' exact component={Home} />
             <Route path='/restaurants' component={Restaurants} />
