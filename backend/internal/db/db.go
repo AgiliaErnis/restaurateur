@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -81,6 +82,33 @@ type RestaurantDB struct {
 	OpeningHours    string         `db:"opening_hours" json:"OpeningHours"`
 	Takeaway        bool           `db:"takeaway" json:"Takeaway"`
 	DeliveryOptions pq.StringArray `db:"delivery_options" json:"DeliveryOptions"`
+}
+
+type SortBy func(r1, r2 *RestaurantDB) bool
+
+func (by SortBy) Sort(restaurants []*RestaurantDB) {
+	rs := &restaurantDBSorter{
+		restaurants: restaurants,
+		by:          by,
+	}
+	sort.Sort(rs)
+}
+
+type restaurantDBSorter struct {
+	restaurants []*RestaurantDB
+	by          func(r1, r2 *RestaurantDB) bool
+}
+
+func (s *restaurantDBSorter) Len() int {
+	return len(s.restaurants)
+}
+
+func (s *restaurantDBSorter) Swap(i, j int) {
+	s.restaurants[i], s.restaurants[j] = s.restaurants[j], s.restaurants[i]
+}
+
+func (s *restaurantDBSorter) Less(i, j int) bool {
+	return s.by(s.restaurants[i], s.restaurants[j])
 }
 
 // IsInRadius checks if a given restaurant is inside a radius compared to a point signified by coordinates
