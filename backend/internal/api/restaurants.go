@@ -24,10 +24,10 @@ import (
 // @Param gluten-free query bool false "Filters out all non gluten free restaurants."
 // @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
 // @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
+// @Param sort query string false "Sorts restaurants. Available sort options: price-asc, price-desc, rating"
 // @Success 200 {object} responseFullJSON
 // @Failure 405 {object} responseSimpleJSON
 // @Router /prague-college/restaurants [get]
-
 func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "pcRestaurantsHandler")
 	params := r.URL.Query()
@@ -72,6 +72,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 // @Param gluten-free query bool false "Filters out all non gluten free restaurants."
 // @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
 // @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
+// @Param sort query string false "Sorts restaurants. Available sort options: price-asc, price-desc, rating"
 // @Success 200 {object} responseFullJSON
 // @Failure 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
@@ -165,5 +166,50 @@ func filterRestaurants(restaurants []*db.RestaurantDB, params url.Values, lat, l
 			}
 		}
 	}
+	_, shouldSort := params["sort"]
+	if shouldSort {
+		filteredRestaurants = sortRestaurants(filteredRestaurants, params.Get("sort"))
+	}
 	return filteredRestaurants
+}
+
+func sortRestaurants(restaurants []*db.RestaurantDB, sortOption string) []*db.RestaurantDB {
+	switch sortOption {
+	case "rating":
+		restaurants = removeEmptyRatings(restaurants)
+		db.SortBy(func(r1, r2 *db.RestaurantDB) bool {
+			return r1.Rating > r2.Rating
+		}).Sort(restaurants)
+	case "price-asc":
+		restaurants = removeEmptyPriceRanges(restaurants)
+		db.SortBy(func(r1, r2 *db.RestaurantDB) bool {
+			return r1.PriceRange < r2.PriceRange
+		}).Sort(restaurants)
+	case "price-desc":
+		restaurants = removeEmptyPriceRanges(restaurants)
+		db.SortBy(func(r1, r2 *db.RestaurantDB) bool {
+			return r1.PriceRange > r2.PriceRange
+		}).Sort(restaurants)
+	}
+	return restaurants
+}
+
+func removeEmptyRatings(restaurants []*db.RestaurantDB) []*db.RestaurantDB {
+	var cleanedRestaurants []*db.RestaurantDB
+	for _, restaurant := range restaurants {
+		if restaurant.Rating != "" {
+			cleanedRestaurants = append(cleanedRestaurants, restaurant)
+		}
+	}
+	return cleanedRestaurants
+}
+
+func removeEmptyPriceRanges(restaurants []*db.RestaurantDB) []*db.RestaurantDB {
+	var cleanedRestaurants []*db.RestaurantDB
+	for _, restaurant := range restaurants {
+		if restaurant.PriceRange != "Not available" {
+			cleanedRestaurants = append(cleanedRestaurants, restaurant)
+		}
+	}
+	return cleanedRestaurants
 }
