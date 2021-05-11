@@ -148,6 +148,90 @@ var doc = `{
                 }
             }
         },
+        "/prague-college/restaurants": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PC restaurants"
+                ],
+                "summary": "Returns restaurants around Prague College",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Radius (in meters) of the area around a provided or pre-selected starting point. Restaurants in this area will be returned. Radius can be ignored when specified with radius=ignore and lat and lon parameters will no longer be required. When no radius is provided, a default value of 1000 meters is used.",
+                        "name": "radius",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filters restaurants based on a list of cuisines, separated by commas -\u003e cuisine=Czech,English. A restaurant will be returned only if it satisfies all provided cuisines.Available cuisines: American, Italian, Asian, Indian, Japanese, Vietnamese, Spanish, Mediterranean, French, Thai, Mexican, International, Czech, English, Balkan, Brazil, Russian, Chinese, Greek, Arabic, Korean.",
+                        "name": "cuisine",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filters restaurants based on a list of price ranges, separated by commas -\u003e price-range=0-300,600-. A restaurant will be returned if it satisfies at least one provided price range. Available price ranges: 0-300,300-600,600-",
+                        "name": "price-range",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filters out all non vegetarian restaurants.",
+                        "name": "vegetarian",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filters out all non vegan restaurants.",
+                        "name": "vegan",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filters out all non gluten free restaurants.",
+                        "name": "gluten-free",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filters out all restaurants that don't have a takeaway option.",
+                        "name": "takeaway",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filters out all restaurants that don't have a delivery option.",
+                        "name": "delivery-options",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sorts restaurants. Available sort options: price-asc, price-desc, rating",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseFullJSON"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "consumes": [
@@ -319,6 +403,12 @@ var doc = `{
                         "type": "boolean",
                         "description": "Filters out all restaurants that don't have a delivery option.",
                         "name": "delivery-options",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sorts restaurants. Available sort options: price-asc, price-desc, rating",
+                        "name": "sort",
                         "in": "query"
                     }
                 ],
