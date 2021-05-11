@@ -84,8 +84,10 @@ type RestaurantDB struct {
 	DeliveryOptions pq.StringArray `db:"delivery_options" json:"DeliveryOptions"`
 }
 
+// SortBy is a type for sorting the RestaurantDB struct
 type SortBy func(r1, r2 *RestaurantDB) bool
 
+// Sort sorts the RestaurantDB struct based on a provided sorting method
 func (by SortBy) Sort(restaurants []*RestaurantDB) {
 	rs := &restaurantDBSorter{
 		restaurants: restaurants,
