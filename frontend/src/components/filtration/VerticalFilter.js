@@ -207,7 +207,7 @@ export const VerticalFilter = (props) => {
                         <p>Price Range</p>
                         <div className="filter-options">
                             {priceRanges.map((priceRange) => (
-                                <label onChange={() => handleTogglePriceRange(priceRange.filterValue)}>
+                                <label onChange={() => handleTogglePriceRange(priceRange.filterValue)} key={priceRange.filterValue}>
                                     <input className='option-input checkbox'
                                         type='checkbox' />
                                     <span className="option-name">
@@ -311,7 +311,7 @@ export const VerticalFilter = (props) => {
                         <p>Featured</p>
                         <div className="filter-options">
                             {featuredOptions.map((featuredOption) => (
-                                <label onChange={() => handleToggleFeatured(featuredOption.filterValue)}>
+                                <label onChange={() => handleToggleFeatured(featuredOption.filterValue)} key={featuredOption.filterValue}>
                                     <input className='option-input checkbox'
                                         type='checkbox' />
                                     <span className="option-name">

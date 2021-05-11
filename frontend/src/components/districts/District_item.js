@@ -10,7 +10,7 @@ function DistrictItem(props) {
             <h4>
               {props.district} ({props.num_of_restaurants} places)
             </h4>
-            <i class="fas fa-angle-right" />
+            <i className="fas fa-angle-right" />
           </Link>
         </li>
     </>

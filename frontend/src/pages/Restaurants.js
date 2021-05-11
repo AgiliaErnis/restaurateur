@@ -100,12 +100,12 @@ export default function Restaurants() {
           </div>
           {restaurants ?
             currentRestaurants.map(filteredRestaurant => {
-              return <RestaurantItem
+              return <RestaurantItem key={filteredRestaurant.ID}
                 photos={filteredRestaurant.Images.length !== 0 ?
                   filteredRestaurant.Images : ImagePlaceHolder}
                 name={filteredRestaurant.Name}
                 rating={filteredRestaurant.Rating === "" ?
-                  "Rating is not available" : filteredRestaurant.Rating}
+                  0 : parseFloat(filteredRestaurant.Rating)}
                 tags={filteredRestaurant.Cuisines !== null ?
                   filteredRestaurant.Cuisines.map((cuisine) => {
                     if (filteredRestaurant.Cuisines.indexOf(cuisine) ===
@@ -130,7 +130,9 @@ export default function Restaurants() {
         <RestaurantPagination
           restaurantsPerPage={restaurantsPerPage}
           totalRestaurants={restaurants.length}
-          paginate={paginate} />}
+          paginate={paginate}
+          page={currentPage}
+        />}
     </>
   );
 }

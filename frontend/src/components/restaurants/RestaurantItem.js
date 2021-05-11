@@ -31,7 +31,9 @@ function RestaurantItem(props) {
                   <Rating name="read-only" value={props.rating}
                           precision={0.1} readOnly
                   />
-                  <span className="rating-num">({props.rating})</span>
+                  <span className="rating-num">({props.rating === 0 ?
+                        "Rating is not available" : props.rating})
+                  </span>
                   </div>
                   <span className="tags">{props.tags}</span>
                   <span className="address">{props.address}, {props.district}</span>
