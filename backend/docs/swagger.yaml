@@ -16,7 +16,9 @@ definitions:
   api.responseFullJSON:
     properties:
       Data:
-        type: string
+        items:
+          $ref: '#/definitions/db.RestaurantDB'
+        type: array
       Msg:
         example: Success
         type: string
@@ -93,6 +95,59 @@ definitions:
     - newPassword
     - newUsername
     - oldPassword
+    type: object
+  db.RestaurantDB:
+    properties:
+      Address:
+        example: Polská 12
+        type: string
+      Cuisines:
+        example: Italian,Czech
+        type: string
+      DeliveryOptions:
+        type: string
+      District:
+        example: Praha 1
+        type: string
+      GlutenFree:
+        type: boolean
+      ID:
+        example: 1
+        type: integer
+      Images:
+        example: image1.com, image2.com
+        type: string
+      Lat:
+        example: 50.03493
+        type: number
+      Lon:
+        example: 14.3032
+        type: number
+      Name:
+        example: Steakhouse
+        type: string
+      OpeningHours:
+        type: string
+      PhoneNumber:
+        example: "+420123456789"
+        type: string
+      PriceRange:
+        example: 300-600 Kč
+        type: string
+      Rating:
+        example: "4.6"
+        type: string
+      Takeaway:
+        type: boolean
+      URL:
+        example: http://restaurant.com
+        type: string
+      Vegan:
+        type: boolean
+      Vegetarian:
+        type: boolean
+      WeeklyMenu:
+        type: string
     type: object
   db.User:
     properties:
@@ -281,7 +336,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.responseUserJSON'
+            $ref: '#/definitions/api.responseSimpleJSON'
         "400":
           description: Bad Request
           schema:

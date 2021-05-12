@@ -259,7 +259,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.responseUserJSON"
+                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     },
                     "400": {
@@ -571,7 +571,10 @@ var doc = `{
             "type": "object",
             "properties": {
                 "Data": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.RestaurantDB"
+                    }
                 },
                 "Msg": {
                     "type": "string",
@@ -681,6 +684,80 @@ var doc = `{
                     "type": "string"
                 },
                 "oldPassword": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.RestaurantDB": {
+            "type": "object",
+            "properties": {
+                "Address": {
+                    "type": "string",
+                    "example": "Polská 12"
+                },
+                "Cuisines": {
+                    "type": "string",
+                    "example": "Italian,Czech"
+                },
+                "DeliveryOptions": {
+                    "type": "string"
+                },
+                "District": {
+                    "type": "string",
+                    "example": "Praha 1"
+                },
+                "GlutenFree": {
+                    "type": "boolean"
+                },
+                "ID": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "Images": {
+                    "type": "string",
+                    "example": "image1.com, image2.com"
+                },
+                "Lat": {
+                    "type": "number",
+                    "example": 50.03493
+                },
+                "Lon": {
+                    "type": "number",
+                    "example": 14.3032
+                },
+                "Name": {
+                    "type": "string",
+                    "example": "Steakhouse"
+                },
+                "OpeningHours": {
+                    "type": "string"
+                },
+                "PhoneNumber": {
+                    "type": "string",
+                    "example": "+420123456789"
+                },
+                "PriceRange": {
+                    "type": "string",
+                    "example": "300-600 Kč"
+                },
+                "Rating": {
+                    "type": "string",
+                    "example": "4.6"
+                },
+                "Takeaway": {
+                    "type": "boolean"
+                },
+                "URL": {
+                    "type": "string",
+                    "example": "http://restaurant.com"
+                },
+                "Vegan": {
+                    "type": "boolean"
+                },
+                "Vegetarian": {
+                    "type": "boolean"
+                },
+                "WeeklyMenu": {
                     "type": "string"
                 }
             }

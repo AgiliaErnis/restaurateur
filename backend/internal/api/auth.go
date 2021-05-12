@@ -72,14 +72,14 @@ func isAuthenticated(w http.ResponseWriter, r *http.Request, addTime bool) (bool
 // @Accept  json
 // @Produce  json
 // @Param user body db.User true "Create a new user"
-// @Success 200 {object} responseUserJSON
+// @Success 200 {object} responseSimpleJSON
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
 // @Router /register [post]
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "registerHandler")
 	user := &db.User{}
-	res := &responseFullJSON{}
+	res := &responseSimpleJSON{}
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	err := decoder.Decode(user)
