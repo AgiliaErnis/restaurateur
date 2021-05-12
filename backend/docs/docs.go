@@ -88,7 +88,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.User"
+                            "$ref": "#/definitions/api.userLogin"
                         }
                     }
                 ],
@@ -637,6 +637,21 @@ var doc = `{
                 "Name": {
                     "type": "string",
                     "example": "Steakhouse"
+                }
+            }
+        },
+        "api.userLogin": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         },

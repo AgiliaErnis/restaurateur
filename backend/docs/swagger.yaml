@@ -64,6 +64,16 @@ definitions:
         example: Steakhouse
         type: string
     type: object
+  api.userLogin:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
   api.userResponse:
     properties:
       email:
@@ -146,7 +156,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/db.User'
+          $ref: '#/definitions/api.userLogin'
       produces:
       - application/json
       responses:
