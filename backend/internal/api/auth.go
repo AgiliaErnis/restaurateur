@@ -15,6 +15,11 @@ import (
 	"time"
 )
 
+type userLogin struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6,max=64"`
+}
+
 var (
 	// ORIGIN_ALLOWED is `scheme://dns[:port]`, or `*` (insecure)
 	originsOk = handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
@@ -121,7 +126,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 // @Tags login
 // @Accept  json
 // @Produce  json
-// @Param user body db.User true "Logs in a new user"
+// @Param user body userLogin true "Logs in a new user"
 // @Success 200 {object} responseUserJSON
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
@@ -129,7 +134,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "loginHandler")
 	session, _ := store.Get(r, "session-id")
-	user := &db.User{}
+	user := &userLogin{}
 	res := &responseUserJSON{}
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
