@@ -24,7 +24,7 @@ var (
 	// ORIGIN_ALLOWED is `scheme://dns[:port]`, or `*` (insecure)
 	originsOk     = handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
 	headersOk     = handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
-	methodsOk     = handlers.AllowedMethods([]string{"GET", "POST", "PATCH", "HEAD", "OPTIONS"})
+	methodsOk     = handlers.AllowedMethods([]string{"GET", "POST", "PATCH", "HEAD", "OPTIONS", "DELETE"})
 	credentialsOk = handlers.AllowCredentials()
 	store         *sessions.CookieStore
 )
