@@ -343,7 +343,7 @@ func UpdateOne(column, updateValue string, id int) error {
 // GetRestaurantArrByID returns a single restaurant but in an array
 func GetRestaurantArrByID(id int) ([]*RestaurantDB, error) {
 	var restaurant []*RestaurantDB
-	queryString := "SELECT * FROM restaurants_bak where id=$1"
+	queryString := "SELECT * FROM restaurants where id=$1"
 	conn, err := GetConn()
 	if err != nil {
 		return restaurant, err
@@ -367,7 +367,7 @@ func GetDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 	var nullParams = [...]string{"delivery-options"}
 	var queries []string
 	var orderBy = ""
-	pgQuery := "SELECT * from restaurants_bak"
+	pgQuery := "SELECT * from restaurants"
 	paramCtr := 1
 	var values []interface{}
 	for _, param := range andParams {

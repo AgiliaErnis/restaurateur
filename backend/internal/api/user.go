@@ -54,6 +54,7 @@ func userGetHandler(w http.ResponseWriter, r *http.Request) {
 func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	auth, id := isAuthenticated(w, r, true)
 	if auth {
+		// TODO: add password verification
 		res := &responseSimpleJSON{}
 		err := db.DeleteUser(id)
 		if err != nil {

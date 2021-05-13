@@ -21,12 +21,12 @@ func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, er
 	_, name := params["name"]
 	_, address := params["address"]
 	if name {
-		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') as image FROM restaurants_bak WHERE " +
+		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') as image FROM restaurants WHERE " +
 			"(unaccent(name) % unaccent($1))" +
 			" ORDER BY SIMILARITY(unaccent(name), unaccent($1)) DESC"
 		input = params.Get("name")
 	} else if address {
-		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') as image FROM restaurants_bak WHERE " +
+		pgQuery = "SELECT id, name, address, district, coalesce(substring(images, '(?<=\")\\S+?(?=\")'), '') as image FROM restaurants WHERE " +
 			"(regexp_replace(unaccent(address), '[[:digit:]/]', '', 'g') % unaccent($1)) " +
 			"ORDER BY SIMILARITY(unaccent(address), unaccent($1)) DESC"
 		input = params.Get("address")
