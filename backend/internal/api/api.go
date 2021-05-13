@@ -44,5 +44,5 @@ func Run() {
 	r.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
 	r.PathPrefix("/").HandlerFunc(catchAllHandler)
 	log.Println("Starting server on", port)
-	log.Fatal(http.ListenAndServe(port, handlers.CORS(originsOk, headersOk, methodsOk)(r)))
+	log.Fatal(http.ListenAndServe(port, handlers.CORS(originsOk, headersOk, methodsOk, credentialsOk)(r)))
 }

@@ -58,7 +58,6 @@ func (r *responseSimpleJSON) SetStatus(status int) {
 
 func writeResponse(w http.ResponseWriter, status int, res response) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.WriteHeader(status)
 	res.SetStatus(status)
 	r, err := json.Marshal(res)

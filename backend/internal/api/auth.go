@@ -22,10 +22,11 @@ type userLogin struct {
 
 var (
 	// ORIGIN_ALLOWED is `scheme://dns[:port]`, or `*` (insecure)
-	originsOk = handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
-	headersOk = handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
-	methodsOk = handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"})
-	store     *sessions.CookieStore
+	originsOk     = handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
+	headersOk     = handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	methodsOk     = handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"})
+	credentialsOk = handlers.AllowCredentials()
+	store         *sessions.CookieStore
 )
 
 func init() {
