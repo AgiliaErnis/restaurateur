@@ -1,9 +1,12 @@
 package main
 
 import (
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/lib/pq"
 )
 
 func strArrToStr(arr []string) string {
@@ -59,6 +62,18 @@ func TestIsInRadiusTrue(t *testing.T) {
 	}
 }
 
+func TestIsInRadiusDatatype(t *testing.T) {
+	latGot := sampleRestaurant.Lat
+	lonGot := sampleRestaurant.Lon
+	var want float64
+	if reflect.TypeOf(latGot) != reflect.TypeOf(want) {
+		t.Errorf("got %q, wanted %q", reflect.TypeOf(latGot), reflect.TypeOf(want))
+	}
+	if reflect.TypeOf(lonGot) != reflect.TypeOf(want) {
+		t.Errorf("got %q, wanted %q", reflect.TypeOf(lonGot), reflect.TypeOf(want))
+	}
+}
+
 func TestIsInPriceRangeFalse(t *testing.T) {
 	got := sampleRestaurant.isInPriceRange("600-")
 	want := false
@@ -72,6 +87,14 @@ func TestIsInPriceRangeTrue(t *testing.T) {
 	want := true
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
+	}
+}
+
+func TestIsInPriceRangeDatatype(t *testing.T) {
+	got := sampleRestaurant.PriceRange
+	var want string
+	if reflect.TypeOf(got) != reflect.TypeOf(want) {
+		t.Errorf("got %q, wanted %q", reflect.TypeOf(got), reflect.TypeOf(want))
 	}
 }
 
@@ -91,6 +114,14 @@ func TestIsInDistrictTrue(t *testing.T) {
 	}
 }
 
+func TestIsInDistrictDatatype(t *testing.T) {
+	got := sampleRestaurant.District
+	var want string
+	if reflect.TypeOf(got) != reflect.TypeOf(want) {
+		t.Errorf("got %q, wanted %q", reflect.TypeOf(got), reflect.TypeOf(want))
+	}
+}
+
 func TestHasCuisineFalse(t *testing.T) {
 	got := sampleRestaurant.hasCuisines("Czech, International, American")
 	want := false
@@ -104,5 +135,13 @@ func TestHasCuisineTrue(t *testing.T) {
 	want := true
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
+	}
+}
+
+func TestHasCuisineDatatype(t *testing.T) {
+	got := sampleRestaurant.Cuisines
+	var want pq.StringArray
+	if reflect.TypeOf(got) != reflect.TypeOf(want) {
+		t.Errorf("got %q, wanted %q", reflect.TypeOf(got), reflect.TypeOf(want))
 	}
 }
