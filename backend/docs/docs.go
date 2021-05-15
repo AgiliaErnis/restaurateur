@@ -469,7 +469,7 @@ var doc = `{
                 }
             },
             "delete": {
-                "description": "Deletes a user if the request headers contain an authenticated cookie.",
+                "description": "Deletes a user if the request headers contain an authenticated cookie and the body contains a JSON with a valid password.",
                 "consumes": [
                     "application/json"
                 ],
@@ -480,6 +480,17 @@ var doc = `{
                     "user"
                 ],
                 "summary": "Deletes a user",
+                "parameters": [
+                    {
+                        "description": "Password of the current user",
+                        "name": "password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.userPassword"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -653,6 +664,14 @@ var doc = `{
                 "email": {
                     "type": "string"
                 },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.userPassword": {
+            "type": "object",
+            "properties": {
                 "password": {
                     "type": "string"
                 }

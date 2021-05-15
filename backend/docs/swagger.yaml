@@ -76,6 +76,11 @@ definitions:
     - email
     - password
     type: object
+  api.userPassword:
+    properties:
+      password:
+        type: string
+    type: object
   api.userResponse:
     properties:
       email:
@@ -472,7 +477,14 @@ paths:
       consumes:
       - application/json
       description: Deletes a user if the request headers contain an authenticated
-        cookie.
+        cookie and the body contains a JSON with a valid password.
+      parameters:
+      - description: Password of the current user
+        in: body
+        name: password
+        required: true
+        schema:
+          $ref: '#/definitions/api.userPassword'
       produces:
       - application/json
       responses:
