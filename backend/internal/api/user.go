@@ -9,6 +9,10 @@ import (
 	"net/http"
 )
 
+type userPassword struct {
+	Password string `json:"password"`
+}
+
 type userUpdate struct {
 	OldPassword string `json:"oldPassword" validate:"required,min=6,max=64"`
 	NewPassword string `json:"newPassword" validate:"required,min=6,max=64"`
@@ -42,21 +46,46 @@ func userGetHandler(w http.ResponseWriter, r *http.Request) {
 
 // userDeleteHandler godoc
 // @Summary Deletes a user
-// @Description Deletes a user if the request headers contain an authenticated cookie.
+// @Description Deletes a user if the request headers contain an authenticated cookie and the body contains a JSON with a valid password.
 // @Tags user
 // @Accept  json
 // @Produce  json
+// @Param password body userPassword true "Password of the current user"
 // @Success 200 {object} responseSimpleJSON
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
 // @Router /user [delete]
 // loginHandler godoc
 func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "userDeleteHandler")
 	auth, id := isAuthenticated(w, r, true)
 	if auth {
-		// TODO: add password verification
 		res := &responseSimpleJSON{}
-		err := db.DeleteUser(id)
+		user, err := db.GetUserByID(id)
+		if err != nil {
+			log.Println(err)
+			res.Msg = "User doesn't exist in the db"
+			writeResponse(w, http.StatusBadRequest, res)
+			return
+		}
+		password := &userPassword{}
+		decoder := json.NewDecoder(r.Body)
+		decoder.DisallowUnknownFields()
+		err = decoder.Decode(password)
+		if err != nil {
+			log.Println(err)
+			res.Msg = "Missing a password"
+			writeResponse(w, http.StatusBadRequest, res)
+			return
+		}
+		errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password.Password))
+		if errf != nil {
+			log.Println(errf)
+			res.Msg = "Invalid password"
+			writeResponse(w, http.StatusForbidden, res)
+			return
+		}
+		err = db.DeleteUser(id)
 		if err != nil {
 			res.Msg = "Couldn't delete the record"
 			writeResponse(w, http.StatusBadRequest, res)
