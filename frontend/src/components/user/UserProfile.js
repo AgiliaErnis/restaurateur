@@ -1,19 +1,19 @@
 import React, { useContext, useState } from 'react'
 import "./UserProfile.css"
 import { UserContext } from '../../UserContext';
-import RestaurantItem from '../restaurants/RestaurantItem';
-import { ImagePlaceHolder } from
-    '../../components/restaurants/PhotoSlider/ImagePlaceHolder';
 import { UserMenuItemsData }   from './UserMenuItemsData'
 import ChangePassword from './ChangePassword'
+import DeleteAccount from './DeleteAccount';
+import SavedRestaurants from './SavedRestaurants';
 
 
 function UserProfile() {
     const { clickedUserMenuItem, setClickedUserMenuItem } = useContext(UserContext)
 
     const [isSubmitted, setIsSubmitted] = useState(false);
+
     function submitForm() {
-    setIsSubmitted(!isSubmitted);
+        setIsSubmitted(!isSubmitted);
     }
 
     return (
@@ -57,52 +57,16 @@ function UserProfile() {
                     </div>
                 </div>
                 <div className={`user-info-content ${clickedUserMenuItem === "saved" && "scroll"}`}>
-                    <h4 className="menu-item-header content"> {clickedUserMenuItem === "password" ? "Change your password" : "Saved Restaurants"}</h4>
+                    <h4 className="menu-item-header content"> {clickedUserMenuItem === "password" ? "Change your password" : clickedUserMenuItem === "delete" ? "Delete Account" :
+                        "Saved Restaurants"}</h4>
                     {clickedUserMenuItem === "password" ?
                         <ChangePassword submitForm={submitForm}/>
                         :
-                        <div className="saved-restaurants-container">
-                            <RestaurantItem
-                                photos={ImagePlaceHolder}
-                                name="Terasa U Zlate studne"
-                                rating="3.7"
-                                tags="Czech, International"
-                                address="U Zlaté studně 166/4, Praha 1"
-                                price="Price Range: Over 600 CZK"
-                                takeaway="true"
-                                delivery="false"
-                            />
-                            <RestaurantItem
-                                photos={ImagePlaceHolder}
-                                name="Gallery 44 Restaurant"
-                                rating="2.7"
-                                tags="International"
-                                address="Italska 166/4, Praha 1"
-                                price="Price Range: 300 - 600 CZK"
-                                takeaway="false"
-                                delivery="true"
-                            />
-                            <RestaurantItem
-                                photos={ImagePlaceHolder}
-                                name="Terasa U Zlate studne"
-                                rating="3.7"
-                                tags="Czech, International"
-                                address="U Zlaté studně 166/4, Praha 1"
-                                price="Price Range: Over 600 CZK"
-                                takeaway="true"
-                                delivery="false"
-                            />
-                            <RestaurantItem
-                                photos={ImagePlaceHolder}
-                                name="Terasa U Zlate studne"
-                                rating="2.7"
-                                tags="International"
-                                address="Italska 166/4, Praha 1"
-                                price="Price Range: 300 - 600 CZK"
-                                takeaway="false"
-                                delivery="true"
-                            />
-                        </div>}
+                        clickedUserMenuItem === "delete" ?
+                            <DeleteAccount />
+                            :
+                            <SavedRestaurants />
+                    }
                 </div>
             </div>
         </div>
