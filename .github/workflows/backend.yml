@@ -31,7 +31,7 @@ jobs:
           go get github.com/PuerkitoBio/goquery@v1.6.1
 
       - name: Build
-        run: cd cmd/backend && go build
+        run: go build .
 
       - name: Lint check
         run: golint ./...
