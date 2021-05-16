@@ -14,15 +14,15 @@ import { UserContext } from '../UserContext';
 
 export default function Restaurants() {
   const { customThemes, customStyles } = SelectStyle();
-  const { sortOptions, setSortResultHandler } = SelectLogic();
+  const { sortOptions, setSortResultHandler,sortResult } = SelectLogic();
   const pragueCollegePath = useContext(UserContext)
   const clickedDistrict = useContext(UserContext)
   const clickedSuggestion = useContext(UserContext)
   const checkedDistance = useContext(UserContext)
+  const { chosenRestaurant, generalSearchPath } = useContext(UserContext);
 
   const [checkedFilters, setCheckedFilters] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
-  const [unsortedRestaurants, setUnsortedRestaurants] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [restaurantsPerPage] = useState(5);
@@ -49,100 +49,57 @@ export default function Restaurants() {
     }
   )
 
+  console.log(sortResult)
+
   const showFilteredResults = () => {
-    if (pragueCollegePath.pragueCollegePath === true) {
-      var pragueCollegeRestaurants =
-        `/prague-college/restaurants?radius=${checkedDistance.checkedDistance}&`
+    if (chosenRestaurant !== false) {
+      var chosenRestaurantPath = `/restaurant/${chosenRestaurant}`
+      return chosenRestaurantPath
+    } else if (pragueCollegePath.pragueCollegePath === true) {
+        var pragueCollegeRestaurants =
+          `/prague-college/restaurants?radius=${checkedDistance.checkedDistance}&`
 
-      if (clickedDistrict.clickedDistrict !== false) {
-        pragueCollegeRestaurants += `district=${clickedDistrict.clickedDistrict}`
-      }
-
-      if (clickedSuggestion.clickedSuggestion !== false) {
-        if (clickedSuggestion.clickedSuggestion === "vegetarian" ||
-          clickedSuggestion.clickedSuggestion === "gluten-free") {
-          pragueCollegeRestaurants += `${clickedSuggestion.clickedSuggestion}`
-        } else {
-          pragueCollegeRestaurants +=
-            `cuisine=${clickedSuggestion.clickedSuggestion}`
+        if (clickedDistrict.clickedDistrict !== false) {
+          pragueCollegeRestaurants += `district=${clickedDistrict.clickedDistrict}`
         }
-      }
-      return pragueCollegeRestaurants + arrayOfPathValues.join("&")
+
+        if (clickedSuggestion.clickedSuggestion !== false) {
+          if (clickedSuggestion.clickedSuggestion === "vegetarian" ||
+            clickedSuggestion.clickedSuggestion === "gluten-free") {
+            pragueCollegeRestaurants += `${clickedSuggestion.clickedSuggestion}`
+          } else {
+            pragueCollegeRestaurants +=
+              `cuisine=${clickedSuggestion.clickedSuggestion}`
+          }
+        }
+      return pragueCollegeRestaurants + arrayOfPathValues.join("&") + "&" +
+      ((sortResult !== "disable" || sortResult !== null) && `sort=${sortResult}`)
     } else {
         var path = "/restaurants?radius=ignore&"
         if (clickedDistrict.clickedDistrict !== false) {
           path += `district=${clickedDistrict.clickedDistrict}`
-      }
-      if (clickedSuggestion.clickedSuggestion !== false) {
-        if (clickedSuggestion.clickedSuggestion === "vegetarian"
-          ||
-          clickedSuggestion.clickedSuggestion === "gluten-free") {
-            path += clickedSuggestion.clickedSuggestion
-          } else {
+        } else if (clickedSuggestion.clickedSuggestion !== false) {
+            if (clickedSuggestion.clickedSuggestion === "vegetarian"
+              ||
+              clickedSuggestion.clickedSuggestion === "gluten-free") {
+              path += clickedSuggestion.clickedSuggestion
+            } else {
               path += `cuisine=${clickedSuggestion.clickedSuggestion}`
+            }
+        } else if (generalSearchPath !== false) {
+            path += generalSearchPath + "&"
         }
+      return path + arrayOfPathValues.join("&") + "&" +
+        ((sortResult !== "disable" || sortResult !== null) && `sort=${sortResult}`)
       }
-      return path + arrayOfPathValues.join("&")
-    }
   }
 
   const path = showFilteredResults();
 
-  function sortRestaurants(sortParameter) {
-    let restaurantsCopy
-    // Store a copy of restaurants, because if for example all restaurants without
-    // ratings would be removed, sorted by rating and then sorted by price,
-    // it could happen that a restaurant
-    // with a valid price would be removed and now it would be missing.
-    if (unsortedRestaurants.length > 0) {
-      restaurantsCopy = unsortedRestaurants
-    } else {
-      restaurantsCopy = restaurants
-      setUnsortedRestaurants(restaurants)
-    }
-    let tempRestaurants = []
-    if (sortParameter === undefined || restaurantsCopy === null) {
-      return
-    }
-    if (sortParameter === "rating") {
-      // Remove all restaurants without a rating
-      for (let restaurant of restaurantsCopy) {
-        if (restaurant["Rating"] !== "") {
-          tempRestaurants.push(restaurant)
-        }
-      }
-      tempRestaurants.sort((a, b) => (parseFloat(a["Rating"]) < parseFloat(b["Rating"]) ? 1 : -1))
-    } else {
-      // Remove all restaurants without a price range
-      for (let restaurant of restaurantsCopy) {
-        if (restaurant["PriceRange"] !== "Not available") {
-          tempRestaurants.push(restaurant)
-        }
-      }
-      if (sortParameter === "price-ascending") {
-        tempRestaurants.sort((a, b) => (a["PriceRange"] > b["PriceRange"] ? 1 : -1))
-      } else if (sortParameter === "price-descending") {
-        tempRestaurants.sort((a, b) => (a["PriceRange"] < b["PriceRange"] ? 1 : -1))
-      }
-    }
-    return tempRestaurants
-  }
-
-  function sortHandler(e) {
-    setSortResultHandler(e)
-    let sortParameter = e.value
-    let tempRestaurants = sortRestaurants(sortParameter)
-    setRestaurants(tempRestaurants)
-    paginate(1);
-  }
-
   useEffect(() => {
     fetch(`${path}`).then(response => response.json()).then(
-      json => {
-        setUnsortedRestaurants([])
-        setRestaurants(json.Data)
-      })
-      paginate(1);
+      json => setRestaurants(json.Data))
+    paginate(1);
   }, [path])
 
   if (restaurants !== null) {
@@ -155,7 +112,7 @@ export default function Restaurants() {
   return (
     <>
       <Navbar/>
-      <div className="restaurants-hero-container">
+      <div className="restaurants-hero-container" >
         <VerticalFilter
           handlecheckedFilters={filters =>
             handlecheckedFilters(filters, "arrayOfcheckedFilterss")}
@@ -175,13 +132,12 @@ export default function Restaurants() {
               options={sortOptions}
               styles={customStyles}
               theme={customThemes}
-              onChange={sortHandler}
+              onChange={setSortResultHandler}
               className="sort"
               placeholder="Sort by"
-              isSearchable
             />
           </div>
-          {restaurants.length !== 0 ?
+          {restaurants !== null ?
             currentRestaurants.map(filteredRestaurant => {
               return <RestaurantItem
                 photos={filteredRestaurant.Images.length !== 0 ?
@@ -209,7 +165,7 @@ export default function Restaurants() {
             })
             :
             <h1 className="error">
-              There are no results for these filters
+              No Restaurants Found
             </h1>
           }
         </div>

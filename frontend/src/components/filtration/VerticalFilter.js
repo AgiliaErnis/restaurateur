@@ -6,7 +6,8 @@ import './VerticalFilter.css'
 export const VerticalFilter = (props) => {
     const { clickedDistrict, setClickedDistrict,
             clickedSuggestion, setClickedSuggestion,
-            checkedDistance, setCheckedDistance } = useContext(UserContext)
+            checkedDistance, setCheckedDistance,
+            chosenRestaurant} = useContext(UserContext)
 
     const [seeMoreCuisines, setSeeMoreCuisines] = useState(false);
     const [seeMoreLocalities, setSeeMoreLocalities] = useState(false);
@@ -102,7 +103,8 @@ export const VerticalFilter = (props) => {
                                                                     clickedSuggestion === option.filterValue ?
                                                                         true
                                                                         :
-                                                                        null}
+                                                                        chosenRestaurant
+                                                                         !== false ? false : null}
                                                             onClick={clickedDistrict === option.filterValue ?
                                                                 () => setClickedDistrict(false)
                                                                 :
@@ -127,7 +129,7 @@ export const VerticalFilter = (props) => {
                                                             clickedSuggestion === option.filterValue ?
                                                                 true
                                                                 :
-                                                                null}
+                                                                chosenRestaurant !== false ? false : null}
                                                         onClick={clickedDistrict === option.filterValue ?
                                                             () => setClickedDistrict(false)
                                                             :
@@ -172,7 +174,8 @@ export const VerticalFilter = (props) => {
                                     <label onChange={() => setCheckedDistance(option.filterValue)}>
                                         <input className='radio' type='radio'
                                             name='distance-option'
-                                            checked={checkedDistance === option.filterValue ? true : null}
+                                            checked={chosenRestaurant !== false ? false :
+                                                checkedDistance === option.filterValue ? true : null}
                                             />
                                         <div className="checkmark"></div>
                                         <span className="option-name">
