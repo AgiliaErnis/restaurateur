@@ -125,15 +125,16 @@ export default function Restaurants() {
                 "Restaurants in Prague"
               }
             </h1>
-            <Select
-              defaultValue="Sort by"
-              options={sortOptions}
-              styles={customStyles}
-              theme={customThemes}
-              onChange={setSortResultHandler}
-              className="sort"
-              placeholder="Sort by"
-            />
+            {chosenRestaurant === false &&
+              <Select
+                defaultValue="Sort by"
+                options={sortOptions}
+                styles={customStyles}
+                theme={customThemes}
+                onChange={setSortResultHandler}
+                className="sort"
+                placeholder="Sort by"
+              />}
           </div>
           {restaurants !== null ?
             currentRestaurants.map(filteredRestaurant => {
