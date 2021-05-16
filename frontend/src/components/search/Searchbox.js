@@ -18,7 +18,7 @@ function Searchbox() {
   const { searchResult, searchOptions,
           setSearchResultHandler } = SelectLogic();
   const { button, showSearch } = MobileNavbar();
-  const { setChosenRestaurant, setGeneralSearchPath } = useContext(UserContext);
+  const { setChosenRestaurant, setGeneralSearchPath, setPragueCollegePath } = useContext(UserContext);
 
   const [suggestedRestaurants, setSuggestedRestaurants] = useState([])
   const [input, setInput] = useState("")
@@ -57,6 +57,8 @@ function Searchbox() {
   const handleSearch = () => {
     setGeneralSearchPath(generalSearch);
     setChosenRestaurant(false)
+    setVisibility(false)
+    setPragueCollegePath(false)
   }
 
   const handleClickOutside = (event) => {
@@ -120,6 +122,7 @@ function Searchbox() {
       }
     hideSuggestions();
     setEnterPressed(true)
+    setPragueCollegePath(false)
     }
 
     if (e.key === "Escape") {
@@ -163,7 +166,9 @@ function Searchbox() {
                     address={restaurant.Address}
                     district={restaurant.District}
                     onSelectItem={() => {
-                      hideSuggestions(); setChosenRestaurant(restaurant.ID)
+                      hideSuggestions();
+                      setChosenRestaurant(restaurant.ID);
+                      setPragueCollegePath(false)
                     }}
                     isHighlighted={cursor === suggestedRestaurants.indexOf(restaurant) ?
                       true

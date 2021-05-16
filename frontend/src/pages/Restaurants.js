@@ -49,8 +49,6 @@ export default function Restaurants() {
     }
   )
 
-  console.log(sortResult)
-
   const showFilteredResults = () => {
     if (chosenRestaurant !== false) {
       var chosenRestaurantPath = `/restaurant/${chosenRestaurant}`
@@ -140,7 +138,7 @@ export default function Restaurants() {
           {restaurants !== null ?
             currentRestaurants.map(filteredRestaurant => {
               return <RestaurantItem
-                photos={filteredRestaurant.Images.length !== 0 ?
+                photos={filteredRestaurant.Images !== "" ?
                   filteredRestaurant.Images : ImagePlaceHolder}
                 name={filteredRestaurant.Name}
                 rating={filteredRestaurant.Rating === "" ?
