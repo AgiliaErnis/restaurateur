@@ -46,36 +46,36 @@ export default function Restaurants() {
   )
 
   const showFilteredResults = () => {
-    if (pragueCollegePath.pragueCollegePath === true) {
+    if (pragueCollegePath === true) {
       var pragueCollegeRestaurants =
-        `/prague-college/restaurants?radius=${checkedDistance.checkedDistance}&`
+        `/prague-college/restaurants?radius=${checkedDistance}&`
 
-      if (clickedDistrict.clickedDistrict !== false) {
-        pragueCollegeRestaurants += `district=${clickedDistrict.clickedDistrict}`
+      if (clickedDistrict !== false) {
+        pragueCollegeRestaurants += `district=${clickedDistrict}`
       }
 
-      if (clickedSuggestion.clickedSuggestion !== false) {
-        if (clickedSuggestion.clickedSuggestion === "vegetarian" ||
-          clickedSuggestion.clickedSuggestion === "gluten-free") {
-          pragueCollegeRestaurants += `${clickedSuggestion.clickedSuggestion}`
+      if (clickedSuggestion !== false) {
+        if (clickedSuggestion === "vegetarian" ||
+          clickedSuggestion === "gluten-free") {
+          pragueCollegeRestaurants += `${clickedSuggestion}`
         } else {
           pragueCollegeRestaurants +=
-            `cuisine=${clickedSuggestion.clickedSuggestion}`
+            `cuisine=${clickedSuggestion}`
         }
       }
       return pragueCollegeRestaurants + arrayOfPathValues.join("&")
     } else {
         var path = "/restaurants?radius=ignore&"
-        if (clickedDistrict.clickedDistrict !== false) {
-          path += `district=${clickedDistrict.clickedDistrict}`
+        if (clickedDistrict !== false) {
+          path += `district=${clickedDistrict}`
       }
-      if (clickedSuggestion.clickedSuggestion !== false) {
-        if (clickedSuggestion.clickedSuggestion === "vegetarian"
+      if (clickedSuggestion !== false) {
+        if (clickedSuggestion === "vegetarian"
           ||
-          clickedSuggestion.clickedSuggestion === "gluten-free") {
-            path += clickedSuggestion.clickedSuggestion
+          clickedSuggestion === "gluten-free") {
+            path += clickedSuggestion
           } else {
-              path += `cuisine=${clickedSuggestion.clickedSuggestion}`
+              path += `cuisine=${clickedSuggestion}`
         }
       }
       return path + arrayOfPathValues.join("&")
@@ -109,7 +109,7 @@ export default function Restaurants() {
         <div className="restaurant-cards-container">
           <div className="restaurant-cards-header">
             <h1>
-              {pragueCollegePath.pragueCollegePath === true
+              {pragueCollegePath === true
                 ?
                 "Restaurants around Prague College"
                 :

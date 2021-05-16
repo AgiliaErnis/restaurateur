@@ -17,7 +17,8 @@ function Navbar() {
           showSignUpModal, openLogInModal, openSignUpModal,
           setShowLogInModal, setShowSignUpModal }
     = NavbarLogic();
-  const { pragueCollegePath, setPragueCollegePath } = useContext(UserContext)
+  const { pragueCollegePath, setPragueCollegePath, userLoggedIn }
+    = useContext(UserContext)
 
    function setRestaurantsNavLink () {
     switch(window.location.pathname){
@@ -84,7 +85,10 @@ function Navbar() {
               </Link>
             </li>
           </ul>
-          {pragueCollegePath ? <UserNavbar /> : <>
+          {userLoggedIn ?
+            <UserNavbar />
+            :
+            <>
             {button &&
               <Button
                 buttonStyle='btn--outline'
@@ -107,7 +111,8 @@ function Navbar() {
             <Modal
               showSignUpModal={showSignUpModal}
               setShowSignUpModal={setShowSignUpModal}
-            /></>}
+            />
+          </>}
         </div>
       </nav>
     </>

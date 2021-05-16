@@ -14,7 +14,10 @@ function App() {
   const [clickedSuggestion, setClickedSuggestion] = useState(false);
   const [checkedDistance, setCheckedDistance] = useState("1000")
   const [restaurants, setRestaurants] = useState([]);
-  const [clickedUserMenuItem, setClickedUserMenuItem] = useState(false)
+  const [clickedUserMenuItem, setClickedUserMenuItem]
+    = useState("saved")
+  const [goodPassword, setGoodPassword] = useState(false)
+  const [userLoggedIn, setUserLoggedIn] = useState(false)
 
   return (
     <>
@@ -27,7 +30,9 @@ function App() {
             clickedSuggestion, setClickedSuggestion,
             checkedDistance, setCheckedDistance,
             restaurants, setRestaurants,
-            clickedUserMenuItem,setClickedUserMenuItem
+            clickedUserMenuItem, setClickedUserMenuItem,
+            goodPassword, setGoodPassword,
+            userLoggedIn,setUserLoggedIn
           }}>
             <Route path='/' exact component={Home} />
             <Route path='/restaurants' component={Restaurants} />
