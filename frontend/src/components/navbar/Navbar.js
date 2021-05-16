@@ -10,13 +10,13 @@ import { UserContext } from '../../UserContext';
 
 function Navbar() {
   const { click, button, showButton,
-          handleClick, closeMenuDiscardChanges }
+          handleClick, closeMenuDiscardChanges, closeMenuOpenPCRestaurants }
     = MobileNavbar();
   const { navMenuClassName, searchbox, showLogInModal,
           showSignUpModal, openLogInModal, openSignUpModal,
           setShowLogInModal, setShowSignUpModal }
     = NavbarLogic();
-  const { pragueCollegePath, setPragueCollegePath } = useContext(UserContext)
+  const { pragueCollegePath } = useContext(UserContext)
 
    function setRestaurantsNavLink () {
     switch(window.location.pathname){
@@ -60,9 +60,9 @@ function Navbar() {
                 to='/restaurants'
                 className='nav-links'
                 onClick={setRestaurantsNavLink() === "All Restaurants" ?
-                  () => setPragueCollegePath(false)
+                  closeMenuDiscardChanges
                   :
-                  () => setPragueCollegePath(true)}
+                  closeMenuOpenPCRestaurants}
               >
                 {setRestaurantsNavLink()}
               </Link>

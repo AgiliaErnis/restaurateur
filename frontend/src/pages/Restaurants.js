@@ -19,6 +19,7 @@ export default function Restaurants() {
   const clickedDistrict = useContext(UserContext)
   const clickedSuggestion = useContext(UserContext)
   const checkedDistance = useContext(UserContext)
+  const { chosenRestaurant, generalSearchPath } = useContext(UserContext);
 
   const [checkedFilters, setCheckedFilters] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
@@ -49,49 +50,52 @@ export default function Restaurants() {
   )
 
   const showFilteredResults = () => {
-    if (pragueCollegePath.pragueCollegePath === true) {
-      var pragueCollegeRestaurants =
-        `/prague-college/restaurants?radius=${checkedDistance.checkedDistance}&`
+    if (chosenRestaurant !== false) {
+      var chosenRestaurantPath = `/restaurant/${chosenRestaurant}`
+      return chosenRestaurantPath
+    } else if (pragueCollegePath.pragueCollegePath === true) {
+        var pragueCollegeRestaurants =
+          `/prague-college/restaurants?radius=${checkedDistance.checkedDistance}&`
 
-      if (clickedDistrict.clickedDistrict !== false) {
-        pragueCollegeRestaurants += `district=${clickedDistrict.clickedDistrict}`
-      }
-
-      if (clickedSuggestion.clickedSuggestion !== false) {
-        if (clickedSuggestion.clickedSuggestion === "vegetarian" ||
-          clickedSuggestion.clickedSuggestion === "gluten-free") {
-          pragueCollegeRestaurants += `${clickedSuggestion.clickedSuggestion}`
-        } else {
-          pragueCollegeRestaurants +=
-            `cuisine=${clickedSuggestion.clickedSuggestion}`
+        if (clickedDistrict.clickedDistrict !== false) {
+          pragueCollegeRestaurants += `district=${clickedDistrict.clickedDistrict}`
         }
-      }
-      return pragueCollegeRestaurants + arrayOfPathValues.join("&")
+
+        if (clickedSuggestion.clickedSuggestion !== false) {
+          if (clickedSuggestion.clickedSuggestion === "vegetarian" ||
+            clickedSuggestion.clickedSuggestion === "gluten-free") {
+            pragueCollegeRestaurants += `${clickedSuggestion.clickedSuggestion}`
+          } else {
+            pragueCollegeRestaurants +=
+              `cuisine=${clickedSuggestion.clickedSuggestion}`
+          }
+        }
+        return pragueCollegeRestaurants + arrayOfPathValues.join("&")
     } else {
         var path = "/restaurants?radius=ignore&"
         if (clickedDistrict.clickedDistrict !== false) {
           path += `district=${clickedDistrict.clickedDistrict}`
-      }
-      if (clickedSuggestion.clickedSuggestion !== false) {
-        if (clickedSuggestion.clickedSuggestion === "vegetarian"
-          ||
-          clickedSuggestion.clickedSuggestion === "gluten-free") {
-            path += clickedSuggestion.clickedSuggestion
-          } else {
+        } else if (clickedSuggestion.clickedSuggestion !== false) {
+            if (clickedSuggestion.clickedSuggestion === "vegetarian"
+              ||
+              clickedSuggestion.clickedSuggestion === "gluten-free") {
+              path += clickedSuggestion.clickedSuggestion
+            } else {
               path += `cuisine=${clickedSuggestion.clickedSuggestion}`
+            }
+        } else if (generalSearchPath !== false) {
+            path += generalSearchPath + "&"
         }
+        return path + arrayOfPathValues.join("&")
       }
-      return path + arrayOfPathValues.join("&")
-    }
   }
 
   const path = showFilteredResults();
-
-
+  console.log(generalSearchPath)
   useEffect(() => {
     fetch(`${path}`).then(response => response.json()).then(
       json => setRestaurants(json.Data))
-      paginate(1);
+    paginate(1);
   }, [path])
 
   if (restaurants !== null) {
@@ -104,7 +108,7 @@ export default function Restaurants() {
   return (
     <>
       <Navbar/>
-      <div className="restaurants-hero-container">
+      <div className="restaurants-hero-container" >
         <VerticalFilter
           handlecheckedFilters={filters =>
             handlecheckedFilters(filters, "arrayOfcheckedFilterss")}
@@ -158,7 +162,7 @@ export default function Restaurants() {
             })
             :
             <h1 className="error">
-              There are no results for these filters
+              No Restaurants Found
             </h1>
           }
         </div>
