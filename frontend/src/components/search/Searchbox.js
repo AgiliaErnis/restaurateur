@@ -146,13 +146,14 @@ function Searchbox() {
         {input.length !== 0 &&
           <div className={
             isVisible === false ? "suggested-restaurants-hidden" :
+            (suggestedRestaurants !== null &&
               suggestedRestaurants.length < 3 ?
               "suggested-restaurants-container"
               :
-              "suggested-restaurants-container scroll"}
+              "suggested-restaurants-container scroll")}
             >
           <ul ref={searchResultRef}>
-            {suggestedRestaurants.length !== 0 ?
+            {suggestedRestaurants !== null ?
               suggestedRestaurants.map(restaurant => {
                 return <Link to='/restaurants' style={{ textDecoration: "none" }}>
                   <SuggestedRestaurantItem
