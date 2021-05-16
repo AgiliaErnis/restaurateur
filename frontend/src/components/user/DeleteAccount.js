@@ -27,7 +27,6 @@ function DeleteAccount() {
                 permanently deleted.</p>
         </div>
         <div className="delete-account">
-
             <label className="old-password">
                 Password
             </label>

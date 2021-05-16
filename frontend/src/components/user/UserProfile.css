@@ -206,7 +206,7 @@
     align-items: center;
 }
 
-.change-password, .delete-account {
+.change-password, .delete-account, .update-username {
     max-width: 450px;
     margin:1rem 2rem;
 }

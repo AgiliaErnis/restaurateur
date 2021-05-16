@@ -5,6 +5,7 @@ import { UserMenuItemsData }   from './UserMenuItemsData'
 import ChangePassword from './ChangePassword'
 import DeleteAccount from './DeleteAccount';
 import SavedRestaurants from './SavedRestaurants';
+import UpdateUsername from './UpdateUsername';
 
 
 function UserProfile() {
@@ -57,15 +58,24 @@ function UserProfile() {
                     </div>
                 </div>
                 <div className={`user-info-content ${clickedUserMenuItem === "saved" && "scroll"}`}>
-                    <h4 className="menu-item-header content"> {clickedUserMenuItem === "password" ? "Change your password" : clickedUserMenuItem === "delete" ? "Delete Account" :
-                        "Saved Restaurants"}</h4>
+                    <h4 className="menu-item-header content">
+                        {clickedUserMenuItem === "password" ? "Change Password" : clickedUserMenuItem === "delete" ? "Delete Account" :
+                            clickedUserMenuItem === "username"
+                                ?
+                                "Change Username"
+                                :
+                                "Saved Restaurants"}
+                    </h4>
                     {clickedUserMenuItem === "password" ?
                         <ChangePassword submitForm={submitForm}/>
                         :
                         clickedUserMenuItem === "delete" ?
                             <DeleteAccount />
                             :
-                            <SavedRestaurants />
+                            clickedUserMenuItem === "username" ?
+                                <UpdateUsername />
+                                :
+                                <SavedRestaurants />
                     }
                 </div>
             </div>
