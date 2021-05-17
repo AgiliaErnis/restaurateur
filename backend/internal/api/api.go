@@ -23,11 +23,19 @@ var allowedEndpoints = [...]string{"/restaurants", "/prague-college/restaurants"
 // Run starts the server on the specified port
 func Run() {
 	var portNum int
+	var download bool
 	flag.IntVar(&portNum, "p", 8080, "Port number")
+	flag.BoolVar(&download, "download", false, "Force download of restaurants to db")
 	flag.Parse()
 	db.CheckDB()
 	if portNum < 1024 || portNum > 65535 {
 		log.Fatal("Invalid port number, use a number from 1024-65535")
+	}
+	if download {
+		err := db.DownloadRestaurants()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 	port := fmt.Sprintf(":%d", portNum)
 	r := mux.NewRouter()

@@ -11,9 +11,11 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const restuBaseURL = "https://www.restu.cz"
+const layoutISO = "2006-01-02"
 
 // NominatimJSON is the returned JSON from nominatim.openstreetmap.org
 type NominatimJSON []struct {
@@ -47,7 +49,7 @@ type Restaurant struct {
 	Vegan           bool
 	Vegetarian      bool
 	GlutenFree      bool
-	WeeklyMenu      map[string]string
+	Menu            *RestaurantMenu
 	OpeningHours    map[string]string
 	Takeaway        bool
 	DeliveryOptions []string
@@ -57,6 +59,7 @@ type Restaurant struct {
 type RestaurantMenu struct {
 	RestaurantName string
 	WeeklyMenu     map[string]string
+	ValidUntil     time.Time
 }
 
 // RequestError is returned when code other than 200 is received
@@ -82,16 +85,43 @@ func getRestaurantMenu(link, restaurantName string) (RestaurantMenu, error) {
 	if err != nil {
 		return menu, err
 	}
+	var lastDate string
 	doc.Find(".menu-section").Each(func(i int, s *goquery.Selection) {
-		foundDate := s.Find("h4").Text()
+		foundDate := strings.Replace(s.Find("h4").Text(), " ", "", -1)
 		s.Find(".c-menu-item").Each(func(i int, s *goquery.Selection) {
+			lastDate = foundDate
 			food := s.Find(".menu-section__item-desc").Text()
 			price := s.Find(".menu-section__item-price").Text()
 			item := food + " " + price
 			menu.WeeklyMenu[foundDate] = item
 		})
 	})
+	ts, err := getValidUntilTimestamp(lastDate)
+	if err != nil {
+		return menu, err
+	}
+	menu.ValidUntil = ts
 	return menu, nil
+}
+
+func getValidUntilTimestamp(stringDate string) (time.Time, error) {
+	var ts time.Time
+	year := time.Now().Year()
+	dateSlice := strings.Split(stringDate, ".")
+	if len(dateSlice) != 3 {
+		return ts, errors.New(fmt.Sprintf("Couldn't extract the date: %s", stringDate))
+	}
+	month, err1 := strconv.Atoi(dateSlice[1])
+	day, err2 := strconv.Atoi(dateSlice[0])
+	if err1 != nil || err2 != nil {
+		return ts, errors.New("Couldn't convert date to integers")
+	}
+	dateString := fmt.Sprintf("%d-%02d-%02d", year, month, day)
+	ts, err := time.Parse(layoutISO, dateString)
+	if err != nil {
+		return ts, err
+	}
+	return ts.AddDate(0, 0, 1), nil
 }
 
 // GetNominatimJSON queries nominatim and returns the resulting JSON
@@ -267,10 +297,10 @@ func (restaurant *Restaurant) setGlutenFree(glutenFreeRestaurants []string) {
 	restaurant.GlutenFree = found
 }
 
-func (restaurant *Restaurant) setWeeklyMenu(menus []*RestaurantMenu) {
+func (restaurant *Restaurant) setMenu(menus []*RestaurantMenu) {
 	for _, menu := range menus {
 		if menu.RestaurantName == restaurant.Name {
-			restaurant.WeeklyMenu = menu.WeeklyMenu
+			restaurant.Menu = menu
 			return
 		}
 	}
@@ -331,7 +361,7 @@ func GetRestaurants(searchTerm string) ([]*Restaurant, error) {
 			restaurant.setVegan(veganRestaurants)
 			restaurant.setVegetarian(vegetarianRestaurants)
 			restaurant.setGlutenFree(glutenFreeRestaurants)
-			restaurant.setWeeklyMenu(restaurantMenus)
+			restaurant.setMenu(restaurantMenus)
 			err = restaurant.setCoordinates()
 			if err != nil {
 				continue
@@ -382,9 +412,11 @@ func GetRestaurantMenus() ([]*RestaurantMenu, error) {
 			name := names[i]
 			menu, err := getRestaurantMenu(link, name)
 			if err != nil {
-				return restaurantMenus, err
+				log.Println(err)
+				log.Println("Restaurant:", name)
+			} else {
+				restaurantMenus = append(restaurantMenus, &menu)
 			}
-			restaurantMenus = append(restaurantMenus, &menu)
 		}
 		if len(links) == 0 {
 			return restaurantMenus, nil

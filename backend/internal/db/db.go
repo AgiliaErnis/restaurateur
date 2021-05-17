@@ -14,6 +14,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -34,6 +35,7 @@ const (
 	 	 vegetarian BOOLEAN,
 		 gluten_free BOOLEAN,
 		 weekly_menu JSON,
+         menu_valid_until TIMESTAMP,
 		 opening_hours JSON,
 		 takeaway BOOLEAN,
 		 delivery_options TEXT
@@ -209,6 +211,23 @@ func CheckDB() {
 	log.Println("Database ready")
 }
 
+func DownloadRestaurants() error {
+	conn, err := GetConn()
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = conn.Exec("DROP table restaurants")
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = conn.Exec(restaurantsSchema)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Database cleaned, starting download...")
+	return storeRestaurants(conn)
+}
+
 // GetConn fetches a connection to the db
 func GetConn() (*sqlx.DB, error) {
 	dbDSN := os.Getenv("DB_DSN")
@@ -238,14 +257,21 @@ func storeRestaurants(conn *sqlx.DB) error {
 func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 	stmt, err := db.Prepare(`INSERT INTO restaurants (name, address, district, images,
 								cuisines, price_range, rating, url, phone_number, lat, lon,
-								vegan, vegetarian, gluten_free, weekly_menu, opening_hours, takeaway, delivery_options)
+								vegan, vegetarian, gluten_free, weekly_menu, menu_valid_until, opening_hours, takeaway, delivery_options)
 								VALUES
-								($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`)
+								($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`)
 	if err != nil {
 		return err
 	}
 
-	WeeklyMenu, _ := json.Marshal(r.WeeklyMenu)
+	var WeeklyMenu []byte
+	var ValidUntil time.Time
+	if r.Menu != nil {
+		WeeklyMenu, _ = json.Marshal(r.Menu.WeeklyMenu)
+		ValidUntil = r.Menu.ValidUntil
+	} else {
+		WeeklyMenu, _ = json.Marshal(r.Menu)
+	}
 	OpeningHours, _ := json.Marshal(r.OpeningHours)
 
 	_, err = stmt.Exec(r.Name,
@@ -262,6 +288,7 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 		r.Vegetarian,
 		r.GlutenFree,
 		WeeklyMenu,
+		ValidUntil,
 		OpeningHours,
 		r.Takeaway,
 		pq.Array(r.DeliveryOptions))
