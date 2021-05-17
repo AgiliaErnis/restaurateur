@@ -70,25 +70,25 @@ export default function Restaurants() {
               `cuisine=${clickedSuggestion.clickedSuggestion}`
           }
         }
-      return pragueCollegeRestaurants + arrayOfPathValues.join("&") + "&" +
-      ((sortResult !== "disable" || sortResult !== null) && `sort=${sortResult}`)
+      return pragueCollegeRestaurants + arrayOfPathValues.join("&") +
+        (arrayOfPathValues.length !== 0 ? "&" : "") + `sort=${sortResult}`
     } else {
         var path = "/restaurants?radius=ignore&"
         if (clickedDistrict.clickedDistrict !== false) {
-          path += `district=${clickedDistrict.clickedDistrict}`
+          path += `district=${clickedDistrict.clickedDistrict}&`
         } else if (clickedSuggestion.clickedSuggestion !== false) {
             if (clickedSuggestion.clickedSuggestion === "vegetarian"
               ||
               clickedSuggestion.clickedSuggestion === "gluten-free") {
-              path += clickedSuggestion.clickedSuggestion
+              path += clickedSuggestion.clickedSuggestion + "&"
             } else {
-              path += `cuisine=${clickedSuggestion.clickedSuggestion}`
+              path += `cuisine=${clickedSuggestion.clickedSuggestion}&`
             }
         } else if (generalSearchPath !== false) {
             path += generalSearchPath + "&"
         }
-      return path + arrayOfPathValues.join("&") + "&" +
-        ((sortResult !== "disable" || sortResult !== null) && `sort=${sortResult}`)
+      return path + arrayOfPathValues.join("&") +
+        (arrayOfPathValues.length !== 0 ? "&" : "") + `sort=${sortResult}`
       }
   }
 

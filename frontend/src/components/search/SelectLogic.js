@@ -14,13 +14,13 @@ const SelectLogic = () => {
             { value: 'rating', label: 'Rating - descending' },
             { value: 'price-asc', label: 'Price - ascending' },
             { value: 'price-desc', label: 'Price - descending' },
-            { value: 'disable', label: 'Without Sorting' }
+            { value:  false, label: 'Without Sorting' }
         ]
         :
         [
             { value: 'rating', label: 'Rating - descending' },
-            { value: 'price-ascending', label: 'Price - ascending' },
-            { value: 'price-descending', label: 'Price - descending' }
+            { value: 'price-asc', label: 'Price - ascending' },
+            { value: 'price-desc', label: 'Price - descending' }
         ]);
 
 
