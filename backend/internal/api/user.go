@@ -34,7 +34,14 @@ func userGetHandler(w http.ResponseWriter, r *http.Request) {
 	if auth {
 		res := &responseUserJSON{}
 		user, _ := db.GetUserByID(id)
-		res.User = &userResponse{Name: user.Name, Email: user.Email}
+		res.User = &userResponseFull{Name: user.Name, Email: user.Email}
+		savedRestaurants, err := db.GetSavedRestaurantsArr(id)
+		if err != nil {
+			log.Println("Couldn't get saved restaurants for user id:", id)
+			log.Println(err)
+		} else {
+			res.User.SavedRestaurants = savedRestaurants
+		}
 		res.Msg = "Success"
 		writeResponse(w, http.StatusOK, res)
 		return
@@ -55,7 +62,7 @@ func userGetHandler(w http.ResponseWriter, r *http.Request) {
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
 // @Router /user [delete]
-// loginHandler godoc
+// userDeleteHandler godoc
 func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "userDeleteHandler")
 	auth, id := isAuthenticated(w, r, true)
@@ -171,4 +178,64 @@ func userPatchHandler(w http.ResponseWriter, r *http.Request) {
 	resErr := &responseSimpleJSON{}
 	resErr.Msg = "Not authenticated"
 	writeResponse(w, http.StatusForbidden, resErr)
+}
+
+func savedPostHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "savedPostHandler")
+	res := &responseSimpleJSON{}
+	auth, id := isAuthenticated(w, r, true)
+	if auth {
+		restaurantIDJSON := &restaurantIDJSON{}
+		decoder := json.NewDecoder(r.Body)
+		decoder.DisallowUnknownFields()
+		err := decoder.Decode(restaurantIDJSON)
+		if err != nil {
+			log.Println(err)
+			res.Msg = "Missing a field"
+			writeResponse(w, http.StatusBadRequest, res)
+			return
+		}
+		err = db.AddSavedRestaurant(restaurantIDJSON.RestaurantID, id)
+		if err != nil {
+			log.Println(err)
+			res.Msg = "Couldn't add the restaurant"
+			writeResponse(w, http.StatusBadRequest, res)
+			return
+		}
+		res.Msg = "Successfuly added the restaurant!"
+		writeResponse(w, http.StatusOK, res)
+		return
+	}
+	res.Msg = "Not authenticated"
+	writeResponse(w, http.StatusForbidden, res)
+}
+
+func savedDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "savedDeleteHandler")
+	res := &responseSimpleJSON{}
+	auth, id := isAuthenticated(w, r, true)
+	if auth {
+		restaurantIDJSON := &restaurantIDJSON{}
+		decoder := json.NewDecoder(r.Body)
+		decoder.DisallowUnknownFields()
+		err := decoder.Decode(restaurantIDJSON)
+		if err != nil {
+			log.Println(err)
+			res.Msg = "Missing a field"
+			writeResponse(w, http.StatusBadRequest, res)
+			return
+		}
+		err = db.DeleteSavedRestaurant(restaurantIDJSON.RestaurantID, id)
+		if err != nil {
+			log.Println(err)
+			res.Msg = "Couldn't delete the restaurant"
+			writeResponse(w, http.StatusBadRequest, res)
+			return
+		}
+		res.Msg = "Successfuly deleted the restaurant!"
+		writeResponse(w, http.StatusOK, res)
+		return
+	}
+	res.Msg = "Not authenticated"
+	writeResponse(w, http.StatusForbidden, res)
 }

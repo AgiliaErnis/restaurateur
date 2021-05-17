@@ -51,7 +51,9 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	auth, id := isAuthenticated(w, r, true)
 	if auth {
 		user, _ := db.GetUserByID(id)
-		res.User = &userResponse{Name: user.Name, Email: user.Email}
+		res.User = &userResponseSimple{Name: user.Name, Email: user.Email}
+		savedRestaurants, _ := db.GetSavedRestaurantsID(id)
+		res.User.SavedRestaurantsIDs = savedRestaurants
 	}
 	writeResponse(w, http.StatusOK, res)
 }
@@ -103,7 +105,9 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	auth, id := isAuthenticated(w, r, true)
 	if auth {
 		user, _ := db.GetUserByID(id)
-		res.User = &userResponse{Name: user.Name, Email: user.Email}
+		res.User = &userResponseSimple{Name: user.Name, Email: user.Email}
+		savedRestaurants, _ := db.GetSavedRestaurantsID(id)
+		res.User.SavedRestaurantsIDs = savedRestaurants
 	}
 	if err != nil {
 		log.Println("Database not initialized")
@@ -149,7 +153,9 @@ func restaurantHandler(w http.ResponseWriter, r *http.Request) {
 	auth, id := isAuthenticated(w, r, true)
 	if auth {
 		user, _ := db.GetUserByID(id)
-		res.User = &userResponse{Name: user.Name, Email: user.Email}
+		res.User = &userResponseSimple{Name: user.Name, Email: user.Email}
+		savedRestaurants, _ := db.GetSavedRestaurantsID(id)
+		res.User.SavedRestaurantsIDs = savedRestaurants
 	}
 	res.Msg = "Success"
 	writeResponse(w, http.StatusOK, res)

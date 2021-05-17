@@ -46,6 +46,17 @@ const (
         email TEXT UNIQUE,
         password TEXT
     );`
+	restaurantsUsersSchema = `CREATE TABLE restaurants_users (
+        restaurant_id int NOT NULL,
+        user_id int NOT NULL,
+        CONSTRAINT PK_restaurants_users PRIMARY KEY
+        (
+            restaurant_id,
+            user_id
+        ),
+        FOREIGN KEY (restaurant_id) REFERENCES restaurants (id),
+        FOREIGN KEY (user_id) REFERENCES restaurateur_users (id)
+    );`
 )
 
 // User holds information about a user provided from a JSON
@@ -207,6 +218,14 @@ func CheckDB() bool {
 	if err == sql.ErrNoRows {
 		log.Println("No restaurateur_users table found, creating")
 		_, err = conn.Exec(restaurateurUsersSchema)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	err = conn.Get(&table, "SELECT table_name FROM information_schema.tables WHERE table_name=$1", "restaurants_users")
+	if err == sql.ErrNoRows {
+		log.Println("No restaurants_users table found, creating")
+		_, err = conn.Exec(restaurantsUsersSchema)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -481,4 +500,57 @@ func UpdateWeeklyMenus(menus []*scraper.RestaurantMenu) {
 			log.Println(err)
 		}
 	}
+}
+
+// AddSavedRestaurant saves a restaurant mapped to a user to the db
+func AddSavedRestaurant(restaurantID, userID int) error {
+	conn, err := GetConn()
+	if err != nil {
+		return err
+	}
+	preparedStmt, err := conn.Prepare("INSERT INTO restaurants_users SELECT restaurants.id, restaurateur_users.id FROM restaurants JOIN restaurateur_users on restaurants.id=$1 AND restaurateur_users.id = $2")
+	if err != nil {
+		return err
+	}
+	_, err = preparedStmt.Exec(restaurantID, userID)
+	return err
+}
+
+// DeleteSavedRestaurant deletes a saved restaurant from the db
+func DeleteSavedRestaurant(restaurantID, userID int) error {
+	conn, err := GetConn()
+	if err != nil {
+		return err
+	}
+	preparedStmt, err := conn.Prepare("DELETE FROM restaurants_users WHERE restaurant_id = $1 AND user_id = $2")
+	if err != nil {
+		return err
+	}
+	_, err = preparedStmt.Exec(restaurantID, userID)
+	return err
+}
+
+// GetSavedRestaurantsID returns an array of saved restaurant ids
+func GetSavedRestaurantsID(userID int) ([]int, error) {
+	var savedIDs []int
+	conn, err := GetConn()
+	if err != nil {
+		return savedIDs, err
+	}
+	err = conn.Select(&savedIDs, `SELECT restaurant_id FROM restaurants_users where user_id = $1`, userID)
+	return savedIDs, err
+}
+
+// GetSavedRestaurantsArr returns an array of saved restaurants
+func GetSavedRestaurantsArr(userID int) ([]*RestaurantDB, error) {
+	var restaurants []*RestaurantDB
+	conn, err := GetConn()
+	if err != nil {
+		return restaurants, err
+	}
+	columns := "id, name, address, district, images, cuisines, price_range, rating, url, phone_number, lat, lon, vegan, vegetarian, gluten_free, weekly_menu, menu_valid_until, opening_hours, takeaway, delivery_options"
+	err = conn.Select(&restaurants, fmt.Sprintf(
+		"SELECT %s FROM restaurants AS r LEFT JOIN restaurants_users AS ru ON ru.restaurant_id = r.id WHERE ru.user_id= $1",
+		columns), userID)
+	return restaurants, err
 }

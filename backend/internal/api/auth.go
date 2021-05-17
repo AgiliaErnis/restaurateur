@@ -166,7 +166,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	res.Msg = "Login successful!"
-	res.User = &userResponse{Name: dbUser.Name, Email: dbUser.Email}
+	res.User = &userResponseFull{Name: dbUser.Name, Email: dbUser.Email}
+	savedRestaurants, _ := db.GetSavedRestaurantsArr(dbUser.ID)
+	res.User.SavedRestaurants = savedRestaurants
 	writeResponse(w, http.StatusOK, res)
 }
 
