@@ -24,6 +24,7 @@ import (
 // @Param gluten-free query bool false "Filters out all non gluten free restaurants."
 // @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
 // @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
+// @Param has-menu query bool false "Filters out all restaurants that don't have a weekly menu."
 // @Param sort query string false "Sorts restaurants. Available sort options: price-asc, price-desc, rating"
 // @Success 200 {object} responseFullJSON
 // @Failure 405 {object} responseSimpleJSON
@@ -72,6 +73,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 // @Param gluten-free query bool false "Filters out all non gluten free restaurants."
 // @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
 // @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
+// @Param has-menu query bool false "Filters out all restaurants that don't have a weekly menu."
 // @Param sort query string false "Sorts restaurants. Available sort options: price-asc, price-desc, rating"
 // @Success 200 {object} responseFullJSON
 // @Failure 400 {object} responseSimpleJSON

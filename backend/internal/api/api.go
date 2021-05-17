@@ -27,16 +27,17 @@ func Run() {
 	flag.IntVar(&portNum, "p", 8080, "Port number")
 	flag.BoolVar(&download, "download", false, "Force download of restaurants to db")
 	flag.Parse()
-	db.CheckDB()
-	if portNum < 1024 || portNum > 65535 {
-		log.Fatal("Invalid port number, use a number from 1024-65535")
-	}
-	if download {
+	updated := db.CheckDB()
+	if download && !updated {
 		err := db.DownloadRestaurants()
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
+	if portNum < 1024 || portNum > 65535 {
+		log.Fatal("Invalid port number, use a number from 1024-65535")
+	}
+	go menuUpdater()
 	port := fmt.Sprintf(":%d", portNum)
 	r := mux.NewRouter()
 	r.HandleFunc("/prague-college/restaurants", pcRestaurantsHandler).Methods(http.MethodGet)

@@ -109,7 +109,7 @@ func getValidUntilTimestamp(stringDate string) (time.Time, error) {
 	year := time.Now().Year()
 	dateSlice := strings.Split(stringDate, ".")
 	if len(dateSlice) != 3 {
-		return ts, errors.New(fmt.Sprintf("Couldn't extract the date: %s", stringDate))
+		return ts, fmt.Errorf("Couldn't extract the date: %q", stringDate)
 	}
 	month, err1 := strconv.Atoi(dateSlice[1])
 	day, err2 := strconv.Atoi(dateSlice[0])
@@ -412,8 +412,7 @@ func GetRestaurantMenus() ([]*RestaurantMenu, error) {
 			name := names[i]
 			menu, err := getRestaurantMenu(link, name)
 			if err != nil {
-				log.Println(err)
-				log.Println("Restaurant:", name)
+				log.Printf("%s, restaurant: %q", err, name)
 			} else {
 				restaurantMenus = append(restaurantMenus, &menu)
 			}

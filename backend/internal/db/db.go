@@ -81,6 +81,7 @@ type RestaurantDB struct {
 	Vegetarian      bool           `db:"vegetarian" json:"Vegetarian"`
 	GlutenFree      bool           `db:"gluten_free" json:"GlutenFree"`
 	WeeklyMenu      string         `db:"weekly_menu" json:"WeeklyMenu"`
+	MenuValidUntil  time.Time      `db:"menu_valid_until" json:"MenuValidUntil"`
 	OpeningHours    string         `db:"opening_hours" json:"OpeningHours"`
 	Takeaway        bool           `db:"takeaway" json:"Takeaway"`
 	DeliveryOptions pq.StringArray `db:"delivery_options" json:"DeliveryOptions"`
@@ -177,8 +178,9 @@ func (restaurant *RestaurantDB) HasCuisines(cuisinesString string) bool {
 }
 
 // CheckDB checks if the db is set up and initializes everything that is not set up yet
-func CheckDB() {
+func CheckDB() bool {
 	var table string
+	updated := false
 	conn, err := GetConn()
 	if err != nil {
 		log.Println("Make sure the DB_DSN environment variable is set")
@@ -199,6 +201,7 @@ func CheckDB() {
 			log.Println("Couldn't store restaurants")
 			log.Fatal(err)
 		}
+		updated = true
 	}
 	err = conn.Get(&table, "SELECT table_name FROM information_schema.tables WHERE table_name=$1", "restaurateur_users")
 	if err == sql.ErrNoRows {
@@ -209,8 +212,10 @@ func CheckDB() {
 		}
 	}
 	log.Println("Database ready")
+	return updated
 }
 
+// DownloadRestaurants recreates the restaurants schema and downloads restaurants
 func DownloadRestaurants() error {
 	conn, err := GetConn()
 	if err != nil {
@@ -270,7 +275,7 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 		WeeklyMenu, _ = json.Marshal(r.Menu.WeeklyMenu)
 		ValidUntil = r.Menu.ValidUntil
 	} else {
-		WeeklyMenu, _ = json.Marshal(r.Menu)
+		WeeklyMenu, _ = json.Marshal(nil)
 	}
 	OpeningHours, _ := json.Marshal(r.OpeningHours)
 
@@ -412,6 +417,10 @@ func GetDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 			paramCtr++
 		}
 	}
+	_, needsMenu := params["has-menu"]
+	if needsMenu {
+		queries = append(queries, "NOW() < menu_valid_until")
+	}
 	parameterArr, ok := params["search-name"]
 	pgParam := fmt.Sprintf("(unaccent(name) %% unaccent($%d))", paramCtr)
 	searchField := "name"
@@ -450,4 +459,26 @@ func GetDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 		return restaurants, err
 	}
 	return restaurants, nil
+}
+
+// UpdateWeeklyMenus updates weekly menus for restaurants with expired menu_valid_until timestamp
+func UpdateWeeklyMenus(menus []*scraper.RestaurantMenu) {
+	conn, err := GetConn()
+	if err != nil {
+		log.Println("Couldn't get a connection")
+		return
+	}
+	queryString := fmt.Sprintf("UPDATE restaurants SET weekly_menu=$1, menu_valid_until=$2 WHERE name=$3 AND NOW() > menu_valid_until")
+	preparedStmt, err := conn.Prepare(queryString)
+	if err != nil {
+		log.Println("Couldn't prepare the statement")
+		return
+	}
+	for _, menu := range menus {
+		WeeklyMenu, _ := json.Marshal(menu.WeeklyMenu)
+		_, err = preparedStmt.Exec(WeeklyMenu, menu.ValidUntil, menu.RestaurantName)
+		if err != nil {
+			log.Println(err)
+		}
+	}
 }
