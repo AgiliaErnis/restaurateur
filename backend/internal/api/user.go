@@ -180,6 +180,17 @@ func userPatchHandler(w http.ResponseWriter, r *http.Request) {
 	writeResponse(w, http.StatusForbidden, resErr)
 }
 
+// savedPostHandler godoc
+// @Summary Saves a restaurant mapped to a user to db
+// @Tags Saved restaurants
+// @Accept  json
+// @Produce  json
+// @Param restaurantID body restaurantIDJSON true "ID of restaurant to save"
+// @Success 200 {object} responseSimpleJSON
+// @Success 400 {object} responseSimpleJSON
+// @Failure 500 {string} []byte
+// @Router /user/saved-restaurants [post]
+// savedPostHandler godoc
 func savedPostHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "savedPostHandler")
 	res := &responseSimpleJSON{}
@@ -210,6 +221,18 @@ func savedPostHandler(w http.ResponseWriter, r *http.Request) {
 	writeResponse(w, http.StatusForbidden, res)
 }
 
+// savedDeleteHandler godoc
+// @Summary Deletes a saved restaurant
+// @Description Deletes a saved restaurant if the request headers contain an authenticated cookie
+// @Tags Saved restaurants
+// @Accept  json
+// @Produce  json
+// @Param restaurantID body restaurantIDJSON true "ID of restaurant to delete"
+// @Success 200 {object} responseSimpleJSON
+// @Success 400 {object} responseSimpleJSON
+// @Failure 500 {string} []byte
+// @Router /user/saved-restaurants [delete]
+// savedDeleteHandler godoc
 func savedDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "savedDeleteHandler")
 	res := &responseSimpleJSON{}

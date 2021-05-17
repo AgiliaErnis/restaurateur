@@ -13,7 +13,6 @@ type response interface {
 
 type restaurantIDJSON struct {
 	RestaurantID int `json:"restaurantID"`
-	UserID       int `json:"userID"`
 }
 
 type userResponseFull struct {

@@ -26,7 +26,7 @@ definitions:
         example: 200
         type: integer
       User:
-        $ref: '#/definitions/api.userResponse'
+        $ref: '#/definitions/api.userResponseSimple'
         type: object
     type: object
   api.responseSimpleJSON:
@@ -45,7 +45,7 @@ definitions:
         example: 200
         type: integer
       User:
-        $ref: '#/definitions/api.userResponse'
+        $ref: '#/definitions/api.userResponseFull'
         type: object
     type: object
   api.restaurantAutocomplete:
@@ -66,6 +66,11 @@ definitions:
         example: Steakhouse
         type: string
     type: object
+  api.restaurantIDJSON:
+    properties:
+      restaurantID:
+        type: integer
+    type: object
   api.userLogin:
     properties:
       email:
@@ -81,12 +86,27 @@ definitions:
       password:
         type: string
     type: object
-  api.userResponse:
+  api.userResponseFull:
     properties:
       email:
         type: string
       name:
         type: string
+      savedRestaurants:
+        items:
+          $ref: '#/definitions/db.RestaurantDB'
+        type: array
+    type: object
+  api.userResponseSimple:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      savedRestaurantsIDs:
+        items:
+          type: integer
+        type: array
     type: object
   api.userUpdate:
     properties:
@@ -128,6 +148,8 @@ definitions:
       Lon:
         example: 14.3032
         type: number
+      MenuValidUntil:
+        type: string
       Name:
         example: Steakhouse
         type: string
@@ -305,6 +327,10 @@ paths:
         in: query
         name: delivery-options
         type: boolean
+      - description: Filters out all restaurants that don't have a weekly menu.
+        in: query
+        name: has-menu
+        type: boolean
       - description: 'Sorts restaurants. Available sort options: price-asc, price-desc,
           rating'
         in: query
@@ -449,6 +475,10 @@ paths:
         in: query
         name: delivery-options
         type: boolean
+      - description: Filters out all restaurants that don't have a weekly menu.
+        in: query
+        name: has-menu
+        type: boolean
       - description: 'Sorts restaurants. Available sort options: price-asc, price-desc,
           rating'
         in: query
@@ -558,4 +588,63 @@ paths:
       summary: Updates a user's password or username
       tags:
       - user
+  /user/saved-restaurants:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a saved restaurant if the request headers contain an authenticated
+        cookie
+      parameters:
+      - description: ID of restaurant to delete
+        in: body
+        name: restaurantID
+        required: true
+        schema:
+          $ref: '#/definitions/api.restaurantIDJSON'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Deletes a saved restaurant
+      tags:
+      - Saved restaurants
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of restaurant to save
+        in: body
+        name: restaurantID
+        required: true
+        schema:
+          $ref: '#/definitions/api.restaurantIDJSON'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Saves a restaurant mapped to a user to db
+      tags:
+      - Saved restaurants
 swagger: "2.0"
