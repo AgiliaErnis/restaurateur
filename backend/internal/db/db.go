@@ -96,6 +96,7 @@ type RestaurantDB struct {
 	OpeningHours    string         `db:"opening_hours" json:"OpeningHours"`
 	Takeaway        bool           `db:"takeaway" json:"Takeaway"`
 	DeliveryOptions pq.StringArray `db:"delivery_options" json:"DeliveryOptions"`
+	Distance        float64        `json:"Distance"`
 }
 
 // SortBy is a type for sorting the RestaurantDB struct
@@ -138,6 +139,9 @@ func (restaurant *RestaurantDB) IsInRadius(lat, lon float64, radiusParam string)
 		radius = 1000
 	}
 	distance := coordinates.Haversine(lat, lon, restaurant.Lat, restaurant.Lon)
+	if distance <= radius {
+		restaurant.Distance = distance
+	}
 	return distance <= radius
 }
 
