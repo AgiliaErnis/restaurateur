@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: frontend
 
 # Controls when the action will run.
@@ -7,10 +5,10 @@ on:
   # Triggers the workflow on push or pull request events
   push:
     paths: frontend/**
-    branches: [ main ]
+    branches: [ main, release-0.2**, release-0.3** ]
   pull_request:
     paths: frontend/**
-    branches: [ main ]
+    branches: [ main, release-0.2**, release-0.3**]
 
 # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
