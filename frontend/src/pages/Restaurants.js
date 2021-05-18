@@ -14,7 +14,7 @@ import { UserContext } from '../UserContext';
 
 export default function Restaurants() {
   const { customThemes, customStyles } = SelectStyle();
-  const { sortOptions, setSortResultHandler } = SelectLogic();
+  const { sortOptions, setSortResultHandler,sortResult } = SelectLogic();
   const pragueCollegePath = useContext(UserContext)
   const clickedDistrict = useContext(UserContext)
   const clickedSuggestion = useContext(UserContext)
@@ -70,28 +70,30 @@ export default function Restaurants() {
               `cuisine=${clickedSuggestion.clickedSuggestion}`
           }
         }
-        return pragueCollegeRestaurants + arrayOfPathValues.join("&")
+      return pragueCollegeRestaurants + arrayOfPathValues.join("&") +
+        (arrayOfPathValues.length !== 0 ? "&" : "") + `sort=${sortResult}`
     } else {
         var path = "/restaurants?radius=ignore&"
         if (clickedDistrict.clickedDistrict !== false) {
-          path += `district=${clickedDistrict.clickedDistrict}`
+          path += `district=${clickedDistrict.clickedDistrict}&`
         } else if (clickedSuggestion.clickedSuggestion !== false) {
             if (clickedSuggestion.clickedSuggestion === "vegetarian"
               ||
               clickedSuggestion.clickedSuggestion === "gluten-free") {
-              path += clickedSuggestion.clickedSuggestion
+              path += clickedSuggestion.clickedSuggestion + "&"
             } else {
-              path += `cuisine=${clickedSuggestion.clickedSuggestion}`
+              path += `cuisine=${clickedSuggestion.clickedSuggestion}&`
             }
         } else if (generalSearchPath !== false) {
             path += generalSearchPath + "&"
         }
-        return path + arrayOfPathValues.join("&")
+      return path + arrayOfPathValues.join("&") +
+        (arrayOfPathValues.length !== 0 ? "&" : "") + `sort=${sortResult}`
       }
   }
 
   const path = showFilteredResults();
-  console.log(generalSearchPath)
+
   useEffect(() => {
     fetch(`${path}`).then(response => response.json()).then(
       json => setRestaurants(json.Data))
@@ -123,21 +125,21 @@ export default function Restaurants() {
                 "Restaurants in Prague"
               }
             </h1>
-            <Select
-              defaultValue="Sort by"
-              options={sortOptions}
-              styles={customStyles}
-              theme={customThemes}
-              onChange={setSortResultHandler}
-              className="sort"
-              placeholder="Sort by"
-              isSearchable
-            />
+            {chosenRestaurant === false &&
+              <Select
+                defaultValue="Sort by"
+                options={sortOptions}
+                styles={customStyles}
+                theme={customThemes}
+                onChange={setSortResultHandler}
+                className="sort"
+                placeholder="Sort by"
+              />}
           </div>
-          {restaurants.length !== 0 ?
+          {restaurants !== null ?
             currentRestaurants.map(filteredRestaurant => {
               return <RestaurantItem
-                photos={filteredRestaurant.Images.length !== 0 ?
+                photos={filteredRestaurant.Images !== "" ?
                   filteredRestaurant.Images : ImagePlaceHolder}
                 name={filteredRestaurant.Name}
                 rating={filteredRestaurant.Rating === "" ?
