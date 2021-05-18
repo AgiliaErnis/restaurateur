@@ -1,8 +1,8 @@
 import React from 'react';
 import validate from './validateInfo';
 import useForm from './useForm';
-import '../Form.css';
 import { Button } from '../../button/Button'
+import '../Form.css';
 
 const SignUpForm = ({ submitForm }) => {
   const { handleChange, handleSubmit, values, errors } = useForm(
@@ -60,7 +60,12 @@ const SignUpForm = ({ submitForm }) => {
           />
           {errors.password2 && <p>{errors.password2}</p>}
         </div>
-        <Button buttonStyle="btn--form" buttonSize="btn--large" type='submit'onClick={handleSubmit}>
+        <Button
+          buttonStyle="btn--form"
+          buttonSize="btn--large"
+          type='submit'
+          onClick={handleSubmit}
+        >
           Sign up
         </Button>
       </form>
