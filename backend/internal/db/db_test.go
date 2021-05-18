@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"strconv"
@@ -72,7 +72,7 @@ var sampleRestaurantGarbage = RestaurantDB{
 }
 
 func TestIsInRadiusFalse(t *testing.T) {
-	got := sampleRestaurant.isInRadius(50.078702, 14.439827, 100) //random coords next to praguecollege
+	got := sampleRestaurant.IsInRadius(50.078702, 14.439827, "100") //random coords next to praguecollege
 	want := false
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
@@ -80,7 +80,7 @@ func TestIsInRadiusFalse(t *testing.T) {
 }
 
 func TestIsInRadiusTrue(t *testing.T) {
-	got := sampleRestaurant.isInRadius(50.078702, 14.439827, 5000) //random coords next to praguecollege
+	got := sampleRestaurant.IsInRadius(50.078702, 14.439827, "5000") //random coords next to praguecollege
 	want := true
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
@@ -88,7 +88,7 @@ func TestIsInRadiusTrue(t *testing.T) {
 }
 
 func TestIsInRadiusGarbage(t *testing.T) {
-	got := sampleRestaurantGarbage.isInRadius(50.078702, 14.439827, 5000) //random coords next to praguecollege
+	got := sampleRestaurantGarbage.IsInRadius(50.078702, 14.439827, "5000") //random coords next to praguecollege
 	want := false
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
@@ -96,7 +96,7 @@ func TestIsInRadiusGarbage(t *testing.T) {
 }
 
 func TestIsInPriceRangeFalse(t *testing.T) {
-	got := sampleRestaurant.isInPriceRange("600-")
+	got := sampleRestaurant.IsInPriceRange("600-")
 	want := false
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
@@ -104,7 +104,7 @@ func TestIsInPriceRangeFalse(t *testing.T) {
 }
 
 func TestIsInPriceRangeTrue(t *testing.T) {
-	got := sampleRestaurant.isInPriceRange("300-600")
+	got := sampleRestaurant.IsInPriceRange("300-600")
 	want := true
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
@@ -112,7 +112,7 @@ func TestIsInPriceRangeTrue(t *testing.T) {
 }
 
 func TestIsInPiceRangeGarbage(t *testing.T) {
-	got := sampleRestaurantGarbage.isInPriceRange("300-600")
+	got := sampleRestaurantGarbage.IsInPriceRange("300-600")
 	want := false
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
@@ -120,7 +120,7 @@ func TestIsInPiceRangeGarbage(t *testing.T) {
 }
 
 func TestIsInDistrictFalse(t *testing.T) {
-	got := sampleRestaurant.isInDistrict("Praha 2")
+	got := sampleRestaurant.IsInDistrict("Praha 2")
 	want := false
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
@@ -128,7 +128,7 @@ func TestIsInDistrictFalse(t *testing.T) {
 }
 
 func TestIsInDistrictTrue(t *testing.T) {
-	got := sampleRestaurant.isInDistrict("Praha 1")
+	got := sampleRestaurant.IsInDistrict("Praha 1")
 	want := true
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
@@ -136,7 +136,7 @@ func TestIsInDistrictTrue(t *testing.T) {
 }
 
 func TestIsInDistrictGarbage(t *testing.T) {
-	got := sampleRestaurantGarbage.isInDistrict("Praha 1")
+	got := sampleRestaurantGarbage.IsInDistrict("Praha 1")
 	want := false
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
@@ -144,7 +144,7 @@ func TestIsInDistrictGarbage(t *testing.T) {
 }
 
 func TestHasCuisineFalse(t *testing.T) {
-	got := sampleRestaurant.hasCuisines("Czech, International, American")
+	got := sampleRestaurant.HasCuisines("Czech, International, American")
 	want := false
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
@@ -152,7 +152,7 @@ func TestHasCuisineFalse(t *testing.T) {
 }
 
 func TestHasCuisineTrue(t *testing.T) {
-	got := sampleRestaurant.hasCuisines("International, Czech")
+	got := sampleRestaurant.HasCuisines("International, Czech")
 	want := true
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
@@ -160,7 +160,7 @@ func TestHasCuisineTrue(t *testing.T) {
 }
 
 func TestHasCuisineGarbage(t *testing.T) {
-	got := sampleRestaurantGarbage.hasCuisines("International")
+	got := sampleRestaurantGarbage.HasCuisines("International")
 	want := false
 	if got != want {
 		t.Errorf("got %q, wanted %q", boolToStr(got), boolToStr(want))
