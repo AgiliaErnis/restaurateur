@@ -86,9 +86,9 @@ export const VerticalFilter = (props) => {
                                     return (
                                         filter.options.indexOf(option) >= 3 ?
                                                 <div
-                                                    onChange={() =>
+                                                    onChange={chosenRestaurant === false ? () =>
                                                         handleCheckboxToggle(option.filterValue,
-                                                                                filter.category)}
+                                                                                filter.category) : null}
                                                     className={FiltersData.indexOf(filter) >= 3 ?
                                                         (seeMoreLocalities ? "shown" : "hidden")
                                                         :
@@ -117,8 +117,9 @@ export const VerticalFilter = (props) => {
                                                 </div>
                                                 :
                                                 <label
-                                                    onChange={() => handleCheckboxToggle(option.filterValue,
-                                                                                         filter.category)}
+                                                     onChange={chosenRestaurant === false ? () =>
+                                                        handleCheckboxToggle(option.filterValue,
+                                                                                filter.category) : null}
                                                 >
                                                     <input
                                                         className='option-input checkbox'

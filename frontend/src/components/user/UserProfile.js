@@ -6,15 +6,26 @@ import ChangePassword from './ChangePassword'
 import DeleteAccount from './DeleteAccount';
 import SavedRestaurants from './SavedRestaurants';
 import UpdateUsername from './UpdateUsername';
+import { Redirect } from 'react-router';
 
 
 function UserProfile() {
-    const { clickedUserMenuItem, setClickedUserMenuItem } = useContext(UserContext)
+    const { clickedUserMenuItem, setClickedUserMenuItem,username } = useContext(UserContext)
 
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [newUsername, setNewUsername] = useState(false)
+    const [deleteAccount, setDeleteAccount ] = useState(false)
 
     function submitForm() {
         setIsSubmitted(!isSubmitted);
+    }
+
+    function submitNewUsername() {
+        setNewUsername(!newUsername)
+    }
+
+    function submitDeleteAcount() {
+        setDeleteAccount(!deleteAccount)
     }
 
     return (
@@ -25,7 +36,7 @@ function UserProfile() {
                 <div className="user-info">
                     <div className="user">
                         <i class="far fa-user-circle"></i>
-                        <p>Username</p>
+                            <p>{username}</p>
                     </div>
                     <div className="saved-restaurants">
                         <span className="number">4</span>
@@ -59,7 +70,13 @@ function UserProfile() {
                 </div>
                 <div className={`user-info-content ${clickedUserMenuItem === "saved" && "scroll"}`}>
                     <h4 className="menu-item-header content">
-                        {clickedUserMenuItem === "password" ? "Change Password" : clickedUserMenuItem === "delete" ? "Delete Account" :
+                        {clickedUserMenuItem === "password" ?
+                            "Change Password"
+                            :
+                            clickedUserMenuItem === "delete"
+                                ?
+                                "Delete Account"
+                                :
                             clickedUserMenuItem === "username"
                                 ?
                                 "Change Username"
@@ -67,13 +84,35 @@ function UserProfile() {
                                 "Saved Restaurants"}
                     </h4>
                     {clickedUserMenuItem === "password" ?
-                        <ChangePassword submitForm={submitForm}/>
+                        (!isSubmitted ? <ChangePassword submitForm={submitForm} /> :
+                        <>
+                            <div style={{width: "100%", textAlign: "center", marginTop:"2rem"}}>
+                                <h2 style={{ margin: "2rem", marginTop: "10rem", textAlign: "center" }}>Password was successfully changed!</h2>
+                            </div></>
+                        )
                         :
                         clickedUserMenuItem === "delete" ?
-                            <DeleteAccount />
+                            (!deleteAccount ?
+                                <DeleteAccount submitForm={submitDeleteAcount} />
+                                :
+                                <>
+                                    <DeleteAccount submitForm={submitDeleteAcount} />
+                                    <Redirect to='/' />
+                                </>)
                             :
                             clickedUserMenuItem === "username" ?
-                                <UpdateUsername />
+                                (!newUsername ?
+                                    <UpdateUsername submitForm={submitNewUsername} /> :
+                            <>
+                            <div style={{width: "100%", textAlign: "center", marginTop:"2rem"}}>
+                                            <h2 style={{
+                                                margin: "2rem", marginTop: "10rem",
+                                                textAlign: "center"
+                                            }}>
+                                                Username was successfully updated!
+                                            </h2>
+                            </div>
+                            </>)
                                 :
                                 <SavedRestaurants />
                     }

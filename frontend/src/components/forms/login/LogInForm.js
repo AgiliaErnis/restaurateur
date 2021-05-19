@@ -6,36 +6,41 @@ import validateLoginInfo from './validateLoginInfo'
 
 
 const LogInForm = ({ submitForm }) => {
-  const { handleChange, handleSubmit, values, errors } = useLoginForm(
+  const { handleChange, handleSubmit, values,
+    errors, incorrectPassword } = useLoginForm(
     submitForm,
     validateLoginInfo
   );
+
   return (
     <>
       <form className='login-form' onSubmit={handleSubmit} noValidate>
-        <div className='form-inputs'>
-          <label className='form-label'>Username</label>
+       <div className='form-inputs'>
+          <label className='form-label'>Email</label>
           <input
-            className='form-input blue'
-            type='text'
-            name='username'
-            placeholder='Enter your username'
-            value={values.username}
+          className='form-input blue'
+            type='email'
+            name='email'
+            placeholder='Enter your email'
+            value={values.email}
             onChange={handleChange}
           />
-          {errors.username && <p>{errors.username}</p>}
-        </div>
+          {errors.email && <p>{errors.email}</p>}
+      </div>
         <div className='form-inputs'>
           <label className='form-label'>Password</label>
           <input
-            className='form-input'
+            className='form-input blue'
             type='password'
             name='password'
             placeholder='Enter your password'
             value={values.password}
             onChange={handleChange}
           />
-          {errors.password && <p>{errors.password}</p>}
+          {incorrectPassword === true && !errors.password ?
+            <p>Incorrect Password</p>
+            :
+            errors.password && <p>{errors.password}</p>}
         </div>
         <div class='form-inputs'>
           <input className='checkbox-input' type='checkbox'/>

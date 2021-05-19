@@ -6,6 +6,8 @@ import Navbar from '../components/navbar/Navbar';
 import CollegeSection from '../components/college/CollegeSection';
 
 
+
+
 function Home() {
   return (
     <>

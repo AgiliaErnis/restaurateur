@@ -1,18 +1,47 @@
-import React, {useContext, useState } from 'react'
-import { Link } from 'react-router-dom';
+import React, {useContext, useState, useEffect } from 'react'
+import { Link, Redirect } from 'react-router-dom';
 import { UserContext } from '../../UserContext';
 import "./UserNavbar.css"
 
 function UserNavbar() {
     const [click, setClick] = useState(false)
-    const { setClickedUserMenuItem } = useContext(UserContext)
+    const { setClickedUserMenuItem, username, logout,
+        setLogout, setSuccessfullLogin } = useContext(UserContext)
+    const logOut = () => {
+        const logoutRequest = {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+        }
+        fetch('http://localhost:8080/logout',logoutRequest)
+            .then(response => response.json())
+            .then(res => {
+                if (res.Status === 200) {
+                    setLogout(true)
+                    setSuccessfullLogin(false)
+                }
+                else {
+                    setLogout(false)
+                }
+
+            }
+        )
+    }
+
+    useEffect(() => {
+    if(logout && !localStorage.getItem('user-logged-in'))
+         <Redirect to="/" />
+    }, [logout])
+
     return (
         <>
             <div className="user-menu-container"
                  onClick={() => setClick(!click)}>
                 <div className="user-container">
                     <i class="fas fa-user"></i>
-                    <span className="username">Username</span>
+                    <span className="username">{username}</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 {click &&
@@ -29,10 +58,11 @@ function UserNavbar() {
                                 <p>Account Settings</p>
                             </div>
                         </Link>
-                            <div className="menu-item logout">
+                            <div className="menu-item logout" onClick={logOut}>
                                 <i class="fas fa-sign-out-alt"></i>
                                 <p>Log Out</p>
                             </div>
+
                     </div>
                 }
             </div>

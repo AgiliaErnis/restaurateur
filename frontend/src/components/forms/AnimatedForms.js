@@ -5,13 +5,15 @@ import LoginForm from './login/LogInForm'
 import FormSuccess from "./signup/FormSuccess";
 import './AnimatedForms.css'
 import { UserContext } from '../../UserContext'
+import { Redirect } from "react-router";
 
 export const AnimatedForms = ({signup,login}) => {
   const [signupFormStatus, setSignupFormStatus] = useState(signup);
   const [loginFormStatus, setLoginFormStatus] = useState(login);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { userLoggedIn, setUserLoggedIn } = useContext(UserContext)
+  const {successfullLogin,setSuccessfullLogin } = useContext(UserContext)
   const [loginSubmitted, setLoginSubmitted] = useState(false)
+
 
   const loginProps = useSpring({
     left: signupFormStatus ? -500 : 0, // Login form sliding positions
@@ -46,10 +48,14 @@ export const AnimatedForms = ({signup,login}) => {
     setIsSubmitted(true);
   }
 
+
   function submitLoginForm() {
     setLoginSubmitted(true);
-    setUserLoggedIn(!userLoggedIn)
     setLoginFormStatus(false)
+    setSuccessfullLogin(!successfullLogin)
+    setLoginFormStatus(false)
+    setSignupFormStatus(false);
+
   }
 
   return (
@@ -73,8 +79,10 @@ export const AnimatedForms = ({signup,login}) => {
         </div>
         <div className="form-group">
           <animated.form id="loginform" style={loginProps}>
-            {!loginSubmitted &&
+            {!loginSubmitted ?
               <LoginForm submitForm={submitLoginForm} />
+              :
+              <Redirect to="/"/>
             }
           </animated.form>
           <animated.form id="signupform" style={signupProps}>
