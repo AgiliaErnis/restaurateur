@@ -11,14 +11,15 @@ import UserNavbar from '../user/UserNavbar';
 
 function Navbar() {
   const { click, button, showButton,
-          handleClick, closeMenuDiscardChanges }
+          handleClick, closeMenuDiscardChanges, closeMenuOpenPCRestaurants }
     = MobileNavbar();
   const { navMenuClassName, searchbox, showLogInModal,
           showSignUpModal, openLogInModal, openSignUpModal,
           setShowLogInModal, setShowSignUpModal }
     = NavbarLogic();
-  const { pragueCollegePath, setPragueCollegePath, userLoggedIn }
-    = useContext(UserContext)
+  const { pragueCollegePath,
+    successfullLogin, setSuccessfullLogin, logout }
+    = useContext(UserContext);
 
    function setRestaurantsNavLink () {
     switch(window.location.pathname){
@@ -36,7 +37,24 @@ function Navbar() {
    showButton();
   }, [showButton]);
 
+  useEffect(() => {
+    if (logout) {
+      setShowLogInModal(false);
+      setSuccessfullLogin(false)
+    }
+  }, [logout,setSuccessfullLogin,setShowLogInModal])
+
+  useContext(() => {
+    if (localStorage.getItem("user-logged-in") === "true") {
+      setShowSignUpModal(false); setShowLogInModal(false)
+    }
+  },[localStorage.getItem("user-logged-in")])
+
   window.addEventListener('resize', showButton);
+
+  useEffect(() => {
+    setSuccessfullLogin(successfullLogin)
+  },[successfullLogin,setSuccessfullLogin])
 
   return (
     <>
@@ -62,9 +80,9 @@ function Navbar() {
                 to='/restaurants'
                 className='nav-links'
                 onClick={setRestaurantsNavLink() === "All Restaurants" ?
-                  () => setPragueCollegePath(false)
+                  closeMenuDiscardChanges
                   :
-                  () => setPragueCollegePath(true)}
+                  closeMenuOpenPCRestaurants}
               >
                 {setRestaurantsNavLink()}
               </Link>
@@ -85,7 +103,7 @@ function Navbar() {
               </Link>
             </li>
           </ul>
-          {userLoggedIn ?
+          {successfullLogin  === true  ?
             <UserNavbar />
             :
             <>

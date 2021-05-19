@@ -14,7 +14,9 @@ import { UserContext } from '../UserContext';
 
 export default function Restaurants() {
   const { customThemes, customStyles } = SelectStyle();
-  const { sortOptions, setSortResultHandler } = SelectLogic();
+  const { sortOptions, setSortResultHandler,sortResult } = SelectLogic();
+  const { chosenRestaurant, generalSearchPath } = useContext(UserContext);
+
   const [checkedFilters, setCheckedFilters] = useState([]);
   const { restaurants, setRestaurants,
           clickedDistrict, clickedSuggestion,
@@ -46,49 +48,54 @@ export default function Restaurants() {
   )
 
   const showFilteredResults = () => {
-    if (pragueCollegePath === true) {
-      var pragueCollegeRestaurants =
-        `/prague-college/restaurants?radius=${checkedDistance}&`
+    if (chosenRestaurant !== false) {
+      var chosenRestaurantPath = `/restaurant/${chosenRestaurant}`
+      return chosenRestaurantPath
+    } else if (pragueCollegePath === true) {
+        var pragueCollegeRestaurants =
+          `/prague-college/restaurants?radius=${checkedDistance}&`
 
-      if (clickedDistrict !== false) {
-        pragueCollegeRestaurants += `district=${clickedDistrict}`
-      }
-
-      if (clickedSuggestion !== false) {
-        if (clickedSuggestion === "vegetarian" ||
-          clickedSuggestion === "gluten-free") {
-          pragueCollegeRestaurants += `${clickedSuggestion}`
-        } else {
-          pragueCollegeRestaurants +=
-            `cuisine=${clickedSuggestion}`
+        if (clickedDistrict !== false) {
+          pragueCollegeRestaurants += `district=${clickedDistrict}`
         }
-      }
-      return pragueCollegeRestaurants + arrayOfPathValues.join("&")
+
+        if (clickedSuggestion !== false) {
+          if (clickedSuggestion === "vegetarian" ||
+            clickedSuggestion === "gluten-free") {
+            pragueCollegeRestaurants += `${clickedSuggestion}`
+          } else {
+            pragueCollegeRestaurants +=
+              `cuisine=${clickedSuggestion}`
+          }
+        }
+      return pragueCollegeRestaurants + arrayOfPathValues.join("&") +
+        (arrayOfPathValues.length !== 0 ? "&" : "") + `sort=${sortResult}`
     } else {
         var path = "/restaurants?radius=ignore&"
         if (clickedDistrict !== false) {
-          path += `district=${clickedDistrict}`
-      }
-      if (clickedSuggestion !== false) {
-        if (clickedSuggestion === "vegetarian"
-          ||
-          clickedSuggestion === "gluten-free") {
-            path += clickedSuggestion
-          } else {
-              path += `cuisine=${clickedSuggestion}`
+          path += `district=${clickedDistrict}&`
+        } else if (clickedSuggestion !== false) {
+            if (clickedSuggestion === "vegetarian"
+              ||
+              clickedSuggestion === "gluten-free") {
+              path += clickedSuggestion + "&"
+            } else {
+              path += `cuisine=${clickedSuggestion}&`
+            }
+        } else if (generalSearchPath !== false) {
+            path += generalSearchPath + "&"
         }
+      return path + arrayOfPathValues.join("&") +
+        (arrayOfPathValues.length !== 0 ? "&" : "") + `sort=${sortResult}`
       }
-      return path + arrayOfPathValues.join("&")
-    }
   }
 
   const path = showFilteredResults();
 
-
   useEffect(() => {
     fetch(`${path}`).then(response => response.json()).then(
       json => setRestaurants(json.Data))
-      paginate(1);
+    paginate(1);
   }, [path,setRestaurants])
 
   if (restaurants !== null) {
@@ -101,7 +108,7 @@ export default function Restaurants() {
   return (
     <>
       <Navbar/>
-      <div className="restaurants-hero-container">
+      <div className="restaurants-hero-container" >
         <VerticalFilter
           handlecheckedFilters={filters =>
             handlecheckedFilters(filters, "arrayOfcheckedFilterss")}
@@ -116,21 +123,21 @@ export default function Restaurants() {
                 "Restaurants in Prague"
               }
             </h1>
-            <Select
-              defaultValue="Sort by"
-              options={sortOptions}
-              styles={customStyles}
-              theme={customThemes}
-              onChange={setSortResultHandler}
-              className="sort"
-              placeholder="Sort by"
-              isSearchable
-            />
+            {chosenRestaurant === false &&
+              <Select
+                defaultValue="Sort by"
+                options={sortOptions}
+                styles={customStyles}
+                theme={customThemes}
+                onChange={setSortResultHandler}
+                className="sort"
+                placeholder="Sort by"
+              />}
           </div>
-          {restaurants.length !== 0 ?
+          {restaurants !== null ?
             currentRestaurants.map(filteredRestaurant => {
               return <RestaurantItem
-                photos={filteredRestaurant.Images.length !== 0 ?
+                photos={filteredRestaurant.Images !== "" ?
                   filteredRestaurant.Images : ImagePlaceHolder}
                 name={filteredRestaurant.Name}
                 rating={filteredRestaurant.Rating === "" ?
@@ -155,7 +162,7 @@ export default function Restaurants() {
             })
             :
             <h1 className="error">
-              There are no results for these filters
+              No Restaurants Found
             </h1>
           }
         </div>

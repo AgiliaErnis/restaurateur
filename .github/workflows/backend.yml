@@ -7,6 +7,9 @@ on:
     paths: backend/**
     branches: [ main ]
 
+# Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,9 +28,10 @@ jobs:
         run: |
           go version
           go get -u golang.org/x/lint/golint
+          go get github.com/PuerkitoBio/goquery@v1.6.1
 
       - name: Build
-        run: go build .
+        run: cd cmd/backend && go build
 
       - name: Lint check
         run: golint ./...
