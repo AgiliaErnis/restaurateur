@@ -488,13 +488,13 @@ func GetDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 func UpdateWeeklyMenus(menus []*scraper.RestaurantMenu) {
 	conn, err := GetConn()
 	if err != nil {
-		log.Println("Couldn't get a connection")
+		log.Println(err)
 		return
 	}
 	queryString := fmt.Sprintf("UPDATE restaurants SET weekly_menu=$1, menu_valid_until=$2 WHERE name=$3 AND NOW() > menu_valid_until")
 	preparedStmt, err := conn.Prepare(queryString)
 	if err != nil {
-		log.Println("Couldn't prepare the statement")
+		log.Println(err)
 		return
 	}
 	for _, menu := range menus {
