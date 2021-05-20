@@ -244,7 +244,7 @@ func DownloadRestaurants() error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = conn.Exec("DROP table restaurants")
+	_, err = conn.Exec("DROP table if exists restaurants cascade")
 	if err != nil {
 		log.Fatal(err)
 	}
