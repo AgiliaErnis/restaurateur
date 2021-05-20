@@ -10,6 +10,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      PATH: /home/${{ secrets.SSH_USER }}/restaurateur/
     steps:
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
@@ -18,8 +20,8 @@ jobs:
           known_hosts: ${{ secrets.KNOWN_HOST }}
       - name: Deploy
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} sudo docker-compose down
-          rsync -avz . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/restaurateur/
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} sudo docker-compose up --build -d
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.PATH }}; sudo docker-compose down"
+          rsync -avz . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.PATH }}
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.PATH }}; sudo docker-compose up --build -d"
         
  
