@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 import renderer from 'react-test-renderer';
 import { BrowserRouter as Router } from 'react-router-dom'
 import Cards from "../components/cards/Cards";
+import { UserContext } from "../UserContext";
 
 // test('renders h1', () => {
 //     const root = document.createElement("div");
@@ -13,8 +14,8 @@ import Cards from "../components/cards/Cards";
 describe('testing Cards', () => {
 
     it('should render', () => {
-        const CardItemComponent = renderer.create(<Router><Cards /></Router>).toJSON();
+        const CardItemComponent = renderer.create(<UserContext.Provider value={false}><Router><Cards /></Router></UserContext.Provider>).toJSON();
         expect(CardItemComponent).toMatchSnapshot();
     })
-    
+
 })
