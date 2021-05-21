@@ -13,16 +13,15 @@ jobs:
     env:
       PATH: /home/${{ secrets.SSH_USER }}/restaurateur/
     steps:
+      - uses: actions/checkout@v2
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.KNOWN_HOST }}
       - name: Deploy
+        shell: bash
         run: |
-          apt-get install ssh
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.PATH }}; sudo docker-compose down"
           rsync -avz . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.PATH }}
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.PATH }}; sudo docker-compose up --build -d"
-        
- 
