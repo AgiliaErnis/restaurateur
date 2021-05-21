@@ -2,8 +2,8 @@ FROM golang:1.16
 ADD . /app
 WORKDIR /app
 RUN go mod download
-RUN go build
+RUN cd cmd/backend && go build
 
-CMD ./backend
+CMD ./cmd/backend
 
 EXPOSE 8080
