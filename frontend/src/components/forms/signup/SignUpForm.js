@@ -7,7 +7,7 @@ import PasswordStrengthMeter from './PasswordStrengthMeter';
 import { UserContext } from "../../../UserContext"
 
 const SignUpForm = ({ submitForm }) => {
-  const goodPassword = useContext(UserContext)
+  const { goodPassword, emailAlreadyUsed } = useContext(UserContext)
   const { handleChange, handleSubmit, values, errors } = useForm(
     submitForm,
     validate
@@ -45,7 +45,8 @@ const SignUpForm = ({ submitForm }) => {
             value={values.email}
             onChange={handleChange}
           />
-          {errors.email && <p>{errors.email}</p>}
+        {errors.email && <p>{errors.email}</p>}
+        {emailAlreadyUsed && <p>Email is already used</p>}
       </div>
         <div className="form-inputs">
           <label className='form-label'>Password</label>

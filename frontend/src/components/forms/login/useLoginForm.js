@@ -44,7 +44,8 @@ const useLoginForm = (callback, validate) => {
           .then(res => {
             if (res.Status === 403) {
               setIncorrectPassword(true);
-              setSuccessfullLogin(false)
+              setSuccessfullLogin(false);
+              setIsSubmitting(false)
             } else {
               callback()
               setIncorrectPassword(false);

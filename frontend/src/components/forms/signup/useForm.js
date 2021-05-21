@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { UserContext } from '../../../UserContext';
 
 const useForm = (callback, validate) => {
+  const { emailAlreadyUsed, setEmailAlreadyUsed} = useContext(UserContext)
   const [values, setValues] = useState({
     username: '',
     email: '',
@@ -52,11 +54,14 @@ const useForm = (callback, validate) => {
           .then(res => {
             if (res.Status === 200) {
               callback();
+            } else if (res.Status === 400) {
+              setIsSubmitting(false)
+              setEmailAlreadyUsed(!emailAlreadyUsed)
             }
           })
       }
     },
-    [errors,isSubmitting,callback,values]
+    [errors,isSubmitting,callback,values,emailAlreadyUsed,setEmailAlreadyUsed]
   );
 
   return { handleChange, handleSubmit, values, errors, useEffect};
