@@ -20,6 +20,7 @@ jobs:
           known_hosts: ${{ secrets.KNOWN_HOST }}
       - name: Deploy
         run: |
+          apt-get install ssh
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.PATH }}; sudo docker-compose down"
           rsync -avz . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.PATH }}
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.PATH }}; sudo docker-compose up --build -d"
