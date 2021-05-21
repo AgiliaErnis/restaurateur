@@ -4,8 +4,8 @@ services:
     container_name: postgres
     image: postgres
     environment:
-      - POSTGRES_USER=${{ secrets.DB_USER }}
-      - POSTGRES_PASSWORD=${{ secrets.DB_PASS }}
+      - POSTGRES_USER=$DB_USER
+      - POSTGRES_PASSWORD=$DB_PASS
       - POSTGRES_DB=restaurateur
     ports:
       - '5432:5432'
@@ -23,7 +23,7 @@ services:
     build:
       context: ./backend
     environment:
-      - DB_DSN=postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASS }}@postgres/restaurateur?sslmode=disable
+      - DB_DSN=postgresql://$DB_USER:$DB_PASS@postgres/restaurateur?sslmode=disable
     ports:
       - '8080:8080'
 
