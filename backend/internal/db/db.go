@@ -14,6 +14,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -34,6 +35,7 @@ const (
 	 	 vegetarian BOOLEAN,
 		 gluten_free BOOLEAN,
 		 weekly_menu JSON,
+         menu_valid_until TIMESTAMP,
 		 opening_hours JSON,
 		 takeaway BOOLEAN,
 		 delivery_options TEXT
@@ -43,6 +45,17 @@ const (
         name TEXT,
         email TEXT UNIQUE,
         password TEXT
+    );`
+	restaurantsUsersSchema = `CREATE TABLE restaurants_users (
+        restaurant_id int NOT NULL,
+        user_id int NOT NULL,
+        CONSTRAINT PK_restaurants_users PRIMARY KEY
+        (
+            restaurant_id,
+            user_id
+        ),
+        FOREIGN KEY (restaurant_id) REFERENCES restaurants (id),
+        FOREIGN KEY (user_id) REFERENCES restaurateur_users (id)
     );`
 )
 
@@ -79,9 +92,11 @@ type RestaurantDB struct {
 	Vegetarian      bool           `db:"vegetarian" json:"Vegetarian"`
 	GlutenFree      bool           `db:"gluten_free" json:"GlutenFree"`
 	WeeklyMenu      string         `db:"weekly_menu" json:"WeeklyMenu"`
+	MenuValidUntil  time.Time      `db:"menu_valid_until" json:"MenuValidUntil"`
 	OpeningHours    string         `db:"opening_hours" json:"OpeningHours"`
 	Takeaway        bool           `db:"takeaway" json:"Takeaway"`
 	DeliveryOptions pq.StringArray `db:"delivery_options" json:"DeliveryOptions"`
+	Distance        float64        `json:"Distance"`
 }
 
 // SortBy is a type for sorting the RestaurantDB struct
@@ -124,6 +139,9 @@ func (restaurant *RestaurantDB) IsInRadius(lat, lon float64, radiusParam string)
 		radius = 1000
 	}
 	distance := coordinates.Haversine(lat, lon, restaurant.Lat, restaurant.Lon)
+	if distance <= radius {
+		restaurant.Distance = distance
+	}
 	return distance <= radius
 }
 
@@ -175,8 +193,9 @@ func (restaurant *RestaurantDB) HasCuisines(cuisinesString string) bool {
 }
 
 // CheckDB checks if the db is set up and initializes everything that is not set up yet
-func CheckDB() {
+func CheckDB() bool {
 	var table string
+	updated := false
 	conn, err := GetConn()
 	if err != nil {
 		log.Println("Make sure the DB_DSN environment variable is set")
@@ -197,6 +216,7 @@ func CheckDB() {
 			log.Println("Couldn't store restaurants")
 			log.Fatal(err)
 		}
+		updated = true
 	}
 	err = conn.Get(&table, "SELECT table_name FROM information_schema.tables WHERE table_name=$1", "restaurateur_users")
 	if err == sql.ErrNoRows {
@@ -206,7 +226,34 @@ func CheckDB() {
 			log.Fatal(err)
 		}
 	}
+	err = conn.Get(&table, "SELECT table_name FROM information_schema.tables WHERE table_name=$1", "restaurants_users")
+	if err == sql.ErrNoRows {
+		log.Println("No restaurants_users table found, creating")
+		_, err = conn.Exec(restaurantsUsersSchema)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	log.Println("Database ready")
+	return updated
+}
+
+// DownloadRestaurants recreates the restaurants schema and downloads restaurants
+func DownloadRestaurants() error {
+	conn, err := GetConn()
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = conn.Exec("DROP table if exists restaurants cascade")
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = conn.Exec(restaurantsSchema)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Database cleaned, starting download...")
+	return storeRestaurants(conn)
 }
 
 // GetConn fetches a connection to the db
@@ -238,14 +285,21 @@ func storeRestaurants(conn *sqlx.DB) error {
 func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 	stmt, err := db.Prepare(`INSERT INTO restaurants (name, address, district, images,
 								cuisines, price_range, rating, url, phone_number, lat, lon,
-								vegan, vegetarian, gluten_free, weekly_menu, opening_hours, takeaway, delivery_options)
+								vegan, vegetarian, gluten_free, weekly_menu, menu_valid_until, opening_hours, takeaway, delivery_options)
 								VALUES
-								($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`)
+								($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`)
 	if err != nil {
 		return err
 	}
 
-	WeeklyMenu, _ := json.Marshal(r.WeeklyMenu)
+	var WeeklyMenu []byte
+	var ValidUntil time.Time
+	if r.Menu != nil {
+		WeeklyMenu, _ = json.Marshal(r.Menu.WeeklyMenu)
+		ValidUntil = r.Menu.ValidUntil
+	} else {
+		WeeklyMenu, _ = json.Marshal(nil)
+	}
 	OpeningHours, _ := json.Marshal(r.OpeningHours)
 
 	_, err = stmt.Exec(r.Name,
@@ -262,6 +316,7 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 		r.Vegetarian,
 		r.GlutenFree,
 		WeeklyMenu,
+		ValidUntil,
 		OpeningHours,
 		r.Takeaway,
 		pq.Array(r.DeliveryOptions))
@@ -385,6 +440,10 @@ func GetDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 			paramCtr++
 		}
 	}
+	_, needsMenu := params["has-menu"]
+	if needsMenu {
+		queries = append(queries, "NOW() < menu_valid_until")
+	}
 	parameterArr, ok := params["search-name"]
 	pgParam := fmt.Sprintf("(unaccent(name) %% unaccent($%d))", paramCtr)
 	searchField := "name"
@@ -423,4 +482,79 @@ func GetDBRestaurants(params url.Values) ([]*RestaurantDB, error) {
 		return restaurants, err
 	}
 	return restaurants, nil
+}
+
+// UpdateWeeklyMenus updates weekly menus for restaurants with expired menu_valid_until timestamp
+func UpdateWeeklyMenus(menus []*scraper.RestaurantMenu) {
+	conn, err := GetConn()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	queryString := fmt.Sprintf("UPDATE restaurants SET weekly_menu=$1, menu_valid_until=$2 WHERE name=$3 AND NOW() > menu_valid_until")
+	preparedStmt, err := conn.Prepare(queryString)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	for _, menu := range menus {
+		WeeklyMenu, _ := json.Marshal(menu.WeeklyMenu)
+		_, err = preparedStmt.Exec(WeeklyMenu, menu.ValidUntil, menu.RestaurantName)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+}
+
+// AddSavedRestaurant saves a restaurant mapped to a user to the db
+func AddSavedRestaurant(restaurantID, userID int) error {
+	conn, err := GetConn()
+	if err != nil {
+		return err
+	}
+	preparedStmt, err := conn.Prepare("INSERT INTO restaurants_users SELECT restaurants.id, restaurateur_users.id FROM restaurants JOIN restaurateur_users on restaurants.id=$1 AND restaurateur_users.id = $2")
+	if err != nil {
+		return err
+	}
+	_, err = preparedStmt.Exec(restaurantID, userID)
+	return err
+}
+
+// DeleteSavedRestaurant deletes a saved restaurant from the db
+func DeleteSavedRestaurant(restaurantID, userID int) error {
+	conn, err := GetConn()
+	if err != nil {
+		return err
+	}
+	preparedStmt, err := conn.Prepare("DELETE FROM restaurants_users WHERE restaurant_id = $1 AND user_id = $2")
+	if err != nil {
+		return err
+	}
+	_, err = preparedStmt.Exec(restaurantID, userID)
+	return err
+}
+
+// GetSavedRestaurantsID returns an array of saved restaurant ids
+func GetSavedRestaurantsID(userID int) ([]int, error) {
+	var savedIDs []int
+	conn, err := GetConn()
+	if err != nil {
+		return savedIDs, err
+	}
+	err = conn.Select(&savedIDs, `SELECT restaurant_id FROM restaurants_users where user_id = $1`, userID)
+	return savedIDs, err
+}
+
+// GetSavedRestaurantsArr returns an array of saved restaurants
+func GetSavedRestaurantsArr(userID int) ([]*RestaurantDB, error) {
+	var restaurants []*RestaurantDB
+	conn, err := GetConn()
+	if err != nil {
+		return restaurants, err
+	}
+	columns := "id, name, address, district, images, cuisines, price_range, rating, url, phone_number, lat, lon, vegan, vegetarian, gluten_free, weekly_menu, menu_valid_until, opening_hours, takeaway, delivery_options"
+	err = conn.Select(&restaurants, fmt.Sprintf(
+		"SELECT %s FROM restaurants AS r LEFT JOIN restaurants_users AS ru ON ru.restaurant_id = r.id WHERE ru.user_id= $1",
+		columns), userID)
+	return restaurants, err
 }

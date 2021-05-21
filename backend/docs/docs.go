@@ -210,6 +210,12 @@ var doc = `{
                         "in": "query"
                     },
                     {
+                        "type": "boolean",
+                        "description": "Filters out all restaurants that don't have a weekly menu.",
+                        "name": "has-menu",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "Sorts restaurants. Available sort options: price-asc, price-desc, rating",
                         "name": "sort",
@@ -406,6 +412,12 @@ var doc = `{
                         "in": "query"
                     },
                     {
+                        "type": "boolean",
+                        "description": "Filters out all restaurants that don't have a weekly menu.",
+                        "name": "has-menu",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "Sorts restaurants. Available sort options: price-asc, price-desc, rating",
                         "name": "sort",
@@ -556,6 +568,95 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/user/saved-restaurants": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Saved restaurants"
+                ],
+                "summary": "Saves a restaurant mapped to a user to db",
+                "parameters": [
+                    {
+                        "description": "ID of restaurant to save",
+                        "name": "restaurantID",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.restaurantIDJSON"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a saved restaurant if the request headers contain an authenticated cookie",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Saved restaurants"
+                ],
+                "summary": "Deletes a saved restaurant",
+                "parameters": [
+                    {
+                        "description": "ID of restaurant to delete",
+                        "name": "restaurantID",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.restaurantIDJSON"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -597,7 +698,7 @@ var doc = `{
                 },
                 "User": {
                     "type": "object",
-                    "$ref": "#/definitions/api.userResponse"
+                    "$ref": "#/definitions/api.userResponseSimple"
                 }
             }
         },
@@ -625,7 +726,7 @@ var doc = `{
                 },
                 "User": {
                     "type": "object",
-                    "$ref": "#/definitions/api.userResponse"
+                    "$ref": "#/definitions/api.userResponseFull"
                 }
             }
         },
@@ -654,6 +755,14 @@ var doc = `{
                 }
             }
         },
+        "api.restaurantIDJSON": {
+            "type": "object",
+            "properties": {
+                "restaurantID": {
+                    "type": "integer"
+                }
+            }
+        },
         "api.userLogin": {
             "type": "object",
             "required": [
@@ -677,7 +786,7 @@ var doc = `{
                 }
             }
         },
-        "api.userResponse": {
+        "api.userResponseFull": {
             "type": "object",
             "properties": {
                 "email": {
@@ -685,6 +794,29 @@ var doc = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "savedRestaurants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.RestaurantDB"
+                    }
+                }
+            }
+        },
+        "api.userResponseSimple": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "savedRestaurantsIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },
@@ -743,6 +875,9 @@ var doc = `{
                 "Lon": {
                     "type": "number",
                     "example": 14.3032
+                },
+                "MenuValidUntil": {
+                    "type": "string"
                 },
                 "Name": {
                     "type": "string",

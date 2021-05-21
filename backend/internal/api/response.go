@@ -11,16 +11,27 @@ type response interface {
 	SetStatus(status int)
 }
 
-type userResponse struct {
-	Name  string
-	Email string
+type restaurantIDJSON struct {
+	RestaurantID int `json:"restaurantID"`
+}
+
+type userResponseFull struct {
+	Name             string
+	Email            string
+	SavedRestaurants []*db.RestaurantDB
+}
+
+type userResponseSimple struct {
+	Name                string
+	Email               string
+	SavedRestaurantsIDs []int
 }
 
 type responseFullJSON struct {
-	Status int                `json:"Status" example:"200"`
-	Msg    string             `json:"Msg" example:"Success"`
-	Data   []*db.RestaurantDB `json:"Data"`
-	User   *userResponse      `json:"User"`
+	Status int                 `json:"Status" example:"200"`
+	Msg    string              `json:"Msg" example:"Success"`
+	Data   []*db.RestaurantDB  `json:"Data"`
+	User   *userResponseSimple `json:"User"`
 }
 
 type responseSimpleJSON struct {
@@ -29,9 +40,9 @@ type responseSimpleJSON struct {
 }
 
 type responseUserJSON struct {
-	Status int           `json:"Status" example:"200"`
-	Msg    string        `json:"Msg" example:"Success"`
-	User   *userResponse `json:"User"`
+	Status int               `json:"Status" example:"200"`
+	Msg    string            `json:"Msg" example:"Success"`
+	User   *userResponseFull `json:"User"`
 }
 
 type responseAutocompleteJSON struct {
