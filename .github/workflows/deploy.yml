@@ -11,7 +11,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      PATH: /home/${{ secrets.SSH_USER }}/restaurateur/
+      DEP_PATH: /home/${{ secrets.SSH_USER }}/restaurateur/
     steps:
       - uses: actions/checkout@v2
       - name: Install SSH Key
@@ -22,6 +22,6 @@ jobs:
       - name: Deploy
         shell: bash
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.PATH }}; sudo docker-compose down"
-          rsync -avz . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.PATH }}
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.PATH }}; sudo docker-compose up --build -d"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEP_PATH }}; sudo docker-compose down"
+          rsync -avz . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEP_PATH }}
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEP_PATH }}; sudo docker-compose up --build -d"
