@@ -244,6 +244,7 @@ func DownloadRestaurants() error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer conn.Close()
 	_, err = conn.Exec("DROP table if exists restaurants cascade")
 	if err != nil {
 		log.Fatal(err)
@@ -338,6 +339,7 @@ func GetUserByID(id int) (*User, error) {
 	if err != nil {
 		return user, err
 	}
+	defer conn.Close()
 	err = conn.QueryRowx(`SELECT name, email, password FROM restaurateur_users where id=$1`, id).StructScan(user)
 	return user, err
 }
@@ -348,6 +350,7 @@ func SaveUser(user *User) error {
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 	stmt, err := conn.Prepare("INSERT INTO restaurateur_users (name, email, password) VALUES ($1, $2, $3)")
 	if err != nil {
 		return err
@@ -362,6 +365,7 @@ func DeleteUser(id int) error {
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 	stmt, err := conn.Prepare("DELETE from restaurateur_users WHERE id=$1")
 	if err != nil {
 		return err
@@ -377,6 +381,7 @@ func GetUserByEmail(email string) (*UserDB, error) {
 	if err != nil {
 		return user, err
 	}
+	defer conn.Close()
 	err = conn.QueryRowx("SELECT * FROM restaurateur_users where email=$1", email).StructScan(user)
 	return user, err
 }
@@ -387,6 +392,7 @@ func UpdateOne(column, updateValue string, id int) error {
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 	stmt, err := conn.Prepare(fmt.Sprintf("UPDATE restaurateur_users set %s=$1 WHERE id=$2", column))
 	if err != nil {
 		return err
@@ -403,6 +409,7 @@ func GetRestaurantArrByID(id int) ([]*RestaurantDB, error) {
 	if err != nil {
 		return restaurant, err
 	}
+	defer conn.Close()
 	err = conn.Select(&restaurant, queryString, id)
 	if err != nil {
 		return restaurant, err
@@ -491,6 +498,7 @@ func UpdateWeeklyMenus(menus []*scraper.RestaurantMenu) {
 		log.Println(err)
 		return
 	}
+	defer conn.Close()
 	queryString := fmt.Sprintf("UPDATE restaurants SET weekly_menu=$1, menu_valid_until=$2 WHERE name=$3 AND NOW() > menu_valid_until")
 	preparedStmt, err := conn.Prepare(queryString)
 	if err != nil {
@@ -512,6 +520,7 @@ func AddSavedRestaurant(restaurantID, userID int) error {
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 	preparedStmt, err := conn.Prepare("INSERT INTO restaurants_users SELECT restaurants.id, restaurateur_users.id FROM restaurants JOIN restaurateur_users on restaurants.id=$1 AND restaurateur_users.id = $2")
 	if err != nil {
 		return err
@@ -533,6 +542,7 @@ func DeleteSavedRestaurant(restaurantID, userID int) error {
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 	preparedStmt, err := conn.Prepare("DELETE FROM restaurants_users WHERE restaurant_id = $1 AND user_id = $2")
 	if err != nil {
 		return err
@@ -548,6 +558,7 @@ func GetSavedRestaurantsID(userID int) ([]int, error) {
 	if err != nil {
 		return savedIDs, err
 	}
+	defer conn.Close()
 	err = conn.Select(&savedIDs, `SELECT restaurant_id FROM restaurants_users where user_id = $1`, userID)
 	return savedIDs, err
 }
@@ -559,6 +570,7 @@ func GetSavedRestaurantsArr(userID int) ([]*RestaurantDB, error) {
 	if err != nil {
 		return restaurants, err
 	}
+	defer conn.Close()
 	columns := "id, name, address, district, images, cuisines, price_range, rating, url, phone_number, lat, lon, vegan, vegetarian, gluten_free, weekly_menu, menu_valid_until, opening_hours, takeaway, delivery_options"
 	err = conn.Select(&restaurants, fmt.Sprintf(
 		"SELECT %s FROM restaurants AS r LEFT JOIN restaurants_users AS ru ON ru.restaurant_id = r.id WHERE ru.user_id= $1",
