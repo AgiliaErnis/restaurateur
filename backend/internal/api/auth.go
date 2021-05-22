@@ -40,6 +40,9 @@ func init() {
 	store.Options = &sessions.Options{
 		MaxAge:   60 * 15, // 15 min
 		HttpOnly: true,
+		Path:     "/",
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 	}
 }
 
