@@ -516,8 +516,15 @@ func AddSavedRestaurant(restaurantID, userID int) error {
 	if err != nil {
 		return err
 	}
-	_, err = preparedStmt.Exec(restaurantID, userID)
-	return err
+	res, err := preparedStmt.Exec(restaurantID, userID)
+	if err != nil {
+		return err
+	}
+	affected, err := res.RowsAffected()
+	if affected == 0 || err != nil {
+		return fmt.Errorf("Restaurant with ID %d doesn't exist in the db", restaurantID)
+	}
+	return nil
 }
 
 // DeleteSavedRestaurant deletes a saved restaurant from the db
