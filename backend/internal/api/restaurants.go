@@ -48,8 +48,9 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 		Msg:  "Success",
 		Data: filteredRestaurants,
 	}
-	auth, id := isAuthenticated(w, r, true)
+	auth := isAuthenticated(w, r)
 	if auth {
+		id := getUserIDFromCookie(r)
 		user, _ := db.GetUserByID(id)
 		res.User = &userResponseSimple{Name: user.Name, Email: user.Email}
 		savedRestaurants, _ := db.GetSavedRestaurantsID(id)
@@ -102,8 +103,9 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	filteredRestaurants := filterRestaurants(loadedRestaurants, params, lat, lon)
 	res.Msg = "Success"
 	res.Data = filteredRestaurants
-	auth, id := isAuthenticated(w, r, true)
+	auth := isAuthenticated(w, r)
 	if auth {
+		id := getUserIDFromCookie(r)
 		user, _ := db.GetUserByID(id)
 		res.User = &userResponseSimple{Name: user.Name, Email: user.Email}
 		savedRestaurants, _ := db.GetSavedRestaurantsID(id)
@@ -150,8 +152,9 @@ func restaurantHandler(w http.ResponseWriter, r *http.Request) {
 		writeResponse(w, http.StatusBadRequest, resErr)
 		return
 	}
-	auth, id := isAuthenticated(w, r, true)
+	auth := isAuthenticated(w, r)
 	if auth {
+		id := getUserIDFromCookie(r)
 		user, _ := db.GetUserByID(id)
 		res.User = &userResponseSimple{Name: user.Name, Email: user.Email}
 		savedRestaurants, _ := db.GetSavedRestaurantsID(id)

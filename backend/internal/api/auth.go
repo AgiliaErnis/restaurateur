@@ -43,28 +43,43 @@ func init() {
 	}
 }
 
-func isAuthenticated(w http.ResponseWriter, r *http.Request, addTime bool) (bool, int) {
+func authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if isAuthenticated(w, r) {
+			next.ServeHTTP(w, r)
+			return
+		}
+		res := &responseSimpleJSON{}
+		res.Msg = "Not authenticated"
+		writeResponse(w, http.StatusForbidden, res)
+	})
+}
+
+func isAuthenticated(w http.ResponseWriter, r *http.Request) bool {
 	session, err := store.Get(r, "session-id")
 	if err != nil {
 		log.Println(err)
-		return false, 0
+		return false
 	}
 	// Check if user is authenticated
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth ||
 		!(session.Values["expires"].(int64) > time.Now().Unix()) {
-		return false, 0
+		return false
 	}
 	// add 15 min to cookie
-	if addTime {
-		session.Values["expires"] = time.Now().Add(time.Minute * 15).Unix()
-		session.Options.MaxAge = 60 * 15
-		err = session.Save(r, w)
-		if err != nil {
-			log.Println(err)
-			return false, 0
-		}
+	session.Values["expires"] = time.Now().Add(time.Minute * 15).Unix()
+	session.Options.MaxAge = 60 * 15
+	err = session.Save(r, w)
+	if err != nil {
+		log.Println(err)
+		return false
 	}
-	return true, session.Values["user-id"].(int)
+	return true
+}
+
+func getUserIDFromCookie(r *http.Request) int {
+	session, _ := store.Get(r, "session-id")
+	return session.Values["user-id"].(int)
 }
 
 // registerHandler godoc
@@ -86,7 +101,8 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(user)
 	if err != nil {
 		log.Println(err)
-		writeResponse(w, http.StatusInternalServerError, res)
+		res.Msg = "Couldn't parse provided JSON"
+		writeResponse(w, http.StatusBadRequest, res)
 		return
 	}
 	validate := validator.New()
@@ -180,25 +196,19 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} responseSimpleJSON
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
-// @Router /logout [get]
+// @Router /auth/logout [get]
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "logoutHandler")
-	auth, _ := isAuthenticated(w, r, false)
 	res := &responseSimpleJSON{}
-	if auth {
-		session, _ := store.Get(r, "session-id")
-		session.Values["authenticated"] = false
-		session.Options.MaxAge = -1
-		err := session.Save(r, w)
-		if err != nil {
-			log.Println(err)
-			writeResponse(w, http.StatusInternalServerError, res)
-			return
-		}
-		res.Msg = "Successfuly logged out!"
-		writeResponse(w, http.StatusOK, res)
+	session, _ := store.Get(r, "session-id")
+	session.Values["authenticated"] = false
+	session.Options.MaxAge = -1
+	err := session.Save(r, w)
+	if err != nil {
+		log.Println(err)
+		writeResponse(w, http.StatusInternalServerError, res)
 		return
 	}
-	res.Msg = "Not authenticated"
-	writeResponse(w, http.StatusForbidden, res)
+	res.Msg = "Successfuly logged out!"
+	writeResponse(w, http.StatusOK, res)
 }
