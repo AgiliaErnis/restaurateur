@@ -27,7 +27,8 @@ function App() {
   const [logout, setLogout] = useState(false);
   const [newUsername, setNewUsername] = useState(false)
   const [incorrectPasswordOnDelete, setIncorrectPasswordOnDelete] = useState(false)
-  const [deleteAccount, setDeleteAccount ] = useState(false)
+  const [deleteAccount, setDeleteAccount] = useState(false)
+  const [savedRestaurants, setSavedRestaurants] = useState([])
 
   useEffect(() => {
     const userLoggedIn = localStorage.getItem("user-logged-in");
@@ -49,20 +50,21 @@ function App() {
       if (!incorrectPassword) {
         await fetch('http://localhost:8080/auth/user', UserInfo)
           .then(response => response.json())
-          .then(res => {console.log(res)
+          .then(res => {
             if (res.Status === 200) {
               setUsername(res.User.Name);
+              setSavedRestaurants(res.User.SavedRestaurants)
             }
           })
       }}
     getUserInfo();
 
   }, [incorrectPassword, successfullLogin,
-    newUsername, setSuccessfullLogin])
+    newUsername, setSuccessfullLogin,setSavedRestaurants])
 
   useEffect(() => {
        localStorage.setItem("user-logged-in", successfullLogin)
-  },[successfullLogin])
+  }, [successfullLogin])
 
   useEffect(() => {
     if (logout)
@@ -91,7 +93,8 @@ function App() {
             logout, setLogout,
             newUsername, setNewUsername,
             incorrectPasswordOnDelete, setIncorrectPasswordOnDelete,
-            deleteAccount, setDeleteAccount
+            deleteAccount, setDeleteAccount,
+            savedRestaurants,setSavedRestaurants
           }}>
             <Route path='/' exact component={Home} />
             <Route path='/restaurants' component={Restaurants} />

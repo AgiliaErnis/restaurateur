@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { VerticalFilter } from '../components/filtration/VerticalFilter';
-import RestaurantItem from '../components/restaurants/RestaurantItem';
+import { RestaurantItem } from '../components/restaurants/RestaurantItem';
 import Select from 'react-select'
 import Navbar from '../components/navbar/Navbar';
 import SelectStyle from '../components/search/SelectStyle';
@@ -137,6 +137,7 @@ export default function Restaurants() {
           {restaurants !== null ?
             currentRestaurants.map(filteredRestaurant => {
               return <RestaurantItem
+                ID={filteredRestaurant.ID}
                 photos={filteredRestaurant.Images !== "" ?
                   filteredRestaurant.Images : ImagePlaceHolder}
                 name={filteredRestaurant.Name}
