@@ -30,6 +30,7 @@ type userUpdate struct {
 // @Failure 500 {string} []byte
 // @Router /auth/user [get]
 func userGetHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "userGetHandler")
 	id := getUserIDFromCookie(r)
 	res := &responseUserJSON{}
 	user, _ := db.GetUserByID(id)
