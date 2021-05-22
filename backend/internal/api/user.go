@@ -30,25 +30,19 @@ type userUpdate struct {
 // @Failure 500 {string} []byte
 // @Router /user [get]
 func userGetHandler(w http.ResponseWriter, r *http.Request) {
-	auth, id := isAuthenticated(w, r, true)
-	if auth {
-		res := &responseUserJSON{}
-		user, _ := db.GetUserByID(id)
-		res.User = &userResponseFull{Name: user.Name, Email: user.Email}
-		savedRestaurants, err := db.GetSavedRestaurantsArr(id)
-		if err != nil {
-			log.Println("Couldn't get saved restaurants for user id:", id)
-			log.Println(err)
-		} else {
-			res.User.SavedRestaurants = savedRestaurants
-		}
-		res.Msg = "Success"
-		writeResponse(w, http.StatusOK, res)
-		return
+	id := getUserIDFromCookie(r)
+	res := &responseUserJSON{}
+	user, _ := db.GetUserByID(id)
+	res.User = &userResponseFull{Name: user.Name, Email: user.Email}
+	savedRestaurants, err := db.GetSavedRestaurantsArr(id)
+	if err != nil {
+		log.Println("Couldn't get saved restaurants for user id:", id)
+		log.Println(err)
+	} else {
+		res.User.SavedRestaurants = savedRestaurants
 	}
-	resErr := &responseSimpleJSON{}
-	resErr.Msg = "Not authenticated"
-	writeResponse(w, http.StatusForbidden, resErr)
+	res.Msg = "Success"
+	writeResponse(w, http.StatusOK, res)
 }
 
 // userDeleteHandler godoc
@@ -65,46 +59,40 @@ func userGetHandler(w http.ResponseWriter, r *http.Request) {
 // userDeleteHandler godoc
 func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "userDeleteHandler")
-	auth, id := isAuthenticated(w, r, true)
-	if auth {
-		res := &responseSimpleJSON{}
-		user, err := db.GetUserByID(id)
-		if err != nil {
-			log.Println(err)
-			res.Msg = "User doesn't exist in the db"
-			writeResponse(w, http.StatusBadRequest, res)
-			return
-		}
-		password := &userPassword{}
-		decoder := json.NewDecoder(r.Body)
-		decoder.DisallowUnknownFields()
-		err = decoder.Decode(password)
-		if err != nil {
-			log.Println(err)
-			res.Msg = "Missing a password"
-			writeResponse(w, http.StatusBadRequest, res)
-			return
-		}
-		errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password.Password))
-		if errf != nil {
-			log.Println(errf)
-			res.Msg = "Invalid password"
-			writeResponse(w, http.StatusForbidden, res)
-			return
-		}
-		err = db.DeleteUser(id)
-		if err != nil {
-			res.Msg = "Couldn't delete the record"
-			writeResponse(w, http.StatusBadRequest, res)
-			return
-		}
-		res.Msg = "Successfuly deleted the user!"
-		writeResponse(w, http.StatusOK, res)
+	id := getUserIDFromCookie(r)
+	res := &responseSimpleJSON{}
+	user, err := db.GetUserByID(id)
+	if err != nil {
+		log.Println(err)
+		res.Msg = "User doesn't exist in the db"
+		writeResponse(w, http.StatusBadRequest, res)
 		return
 	}
-	resErr := &responseSimpleJSON{}
-	resErr.Msg = "Not authenticated"
-	writeResponse(w, http.StatusForbidden, resErr)
+	password := &userPassword{}
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(password)
+	if err != nil {
+		log.Println(err)
+		res.Msg = "Missing a password"
+		writeResponse(w, http.StatusBadRequest, res)
+		return
+	}
+	errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password.Password))
+	if errf != nil {
+		log.Println(errf)
+		res.Msg = "Invalid password"
+		writeResponse(w, http.StatusForbidden, res)
+		return
+	}
+	err = db.DeleteUser(id)
+	if err != nil {
+		res.Msg = "Couldn't delete the record"
+		writeResponse(w, http.StatusBadRequest, res)
+		return
+	}
+	res.Msg = "Successfuly deleted the user!"
+	writeResponse(w, http.StatusOK, res)
 }
 
 // userPatchHandler godoc
@@ -120,64 +108,58 @@ func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 // @Router /user [patch]
 func userPatchHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "userPatchHandler")
-	auth, id := isAuthenticated(w, r, true)
-	if auth {
-		userUpdate := &userUpdate{}
-		res := &responseUserJSON{}
-		decoder := json.NewDecoder(r.Body)
-		decoder.DisallowUnknownFields()
-		err := decoder.Decode(userUpdate)
-		if err != nil {
-			resErr := &responseSimpleJSON{}
-			resErr.Msg = "Wrong or missing fields in JSON"
-			writeResponse(w, http.StatusBadRequest, resErr)
-			return
-		}
-		if userUpdate.NewUsername != "" {
-			username := html.EscapeString(userUpdate.NewUsername)
-			err = db.UpdateOne("name", username, id)
-			if err != nil {
-				resErr := &responseSimpleJSON{}
-				resErr.Msg = "Couldn't update username"
-				writeResponse(w, http.StatusBadRequest, resErr)
-			}
-			res.Msg = "Successfuly updated the username!"
-			writeResponse(w, http.StatusOK, res)
-			return
-		} else if userUpdate.OldPassword != "" && userUpdate.NewPassword != "" {
-			user, _ := db.GetUserByID(id)
-			errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userUpdate.OldPassword))
-			if errf != nil {
-				log.Println(errf)
-				resErr := &responseSimpleJSON{}
-				resErr.Msg = "Invalid password"
-				writeResponse(w, http.StatusForbidden, resErr)
-				return
-			}
-			pass, err := bcrypt.GenerateFromPassword([]byte(userUpdate.NewPassword), bcrypt.DefaultCost)
-			if err != nil {
-				log.Println(err)
-				writeResponse(w, http.StatusInternalServerError, res)
-				return
-			}
-			password := string(pass)
-			err = db.UpdateOne("password", password, id)
-			if err != nil {
-				res.Msg = "Couldn't update password"
-				writeResponse(w, http.StatusBadRequest, res)
-			}
-			res.Msg = "Successfuly updated the user's password!"
-			writeResponse(w, http.StatusOK, res)
-			return
-		}
+	id := getUserIDFromCookie(r)
+	userUpdate := &userUpdate{}
+	res := &responseUserJSON{}
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(userUpdate)
+	if err != nil {
 		resErr := &responseSimpleJSON{}
 		resErr.Msg = "Wrong or missing fields in JSON"
 		writeResponse(w, http.StatusBadRequest, resErr)
 		return
 	}
+	if userUpdate.NewUsername != "" {
+		username := html.EscapeString(userUpdate.NewUsername)
+		err = db.UpdateOne("name", username, id)
+		if err != nil {
+			resErr := &responseSimpleJSON{}
+			resErr.Msg = "Couldn't update username"
+			writeResponse(w, http.StatusBadRequest, resErr)
+		}
+		res.Msg = "Successfuly updated the username!"
+		writeResponse(w, http.StatusOK, res)
+		return
+	} else if userUpdate.OldPassword != "" && userUpdate.NewPassword != "" {
+		user, _ := db.GetUserByID(id)
+		errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userUpdate.OldPassword))
+		if errf != nil {
+			log.Println(errf)
+			resErr := &responseSimpleJSON{}
+			resErr.Msg = "Invalid password"
+			writeResponse(w, http.StatusForbidden, resErr)
+			return
+		}
+		pass, err := bcrypt.GenerateFromPassword([]byte(userUpdate.NewPassword), bcrypt.DefaultCost)
+		if err != nil {
+			log.Println(err)
+			writeResponse(w, http.StatusInternalServerError, res)
+			return
+		}
+		password := string(pass)
+		err = db.UpdateOne("password", password, id)
+		if err != nil {
+			res.Msg = "Couldn't update password"
+			writeResponse(w, http.StatusBadRequest, res)
+		}
+		res.Msg = "Successfuly updated the user's password!"
+		writeResponse(w, http.StatusOK, res)
+		return
+	}
 	resErr := &responseSimpleJSON{}
-	resErr.Msg = "Not authenticated"
-	writeResponse(w, http.StatusForbidden, resErr)
+	resErr.Msg = "Wrong or missing fields in JSON"
+	writeResponse(w, http.StatusBadRequest, resErr)
 }
 
 // savedPostHandler godoc
@@ -194,31 +176,26 @@ func userPatchHandler(w http.ResponseWriter, r *http.Request) {
 func savedPostHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "savedPostHandler")
 	res := &responseSimpleJSON{}
-	auth, id := isAuthenticated(w, r, true)
-	if auth {
-		restaurantIDJSON := &restaurantIDJSON{}
-		decoder := json.NewDecoder(r.Body)
-		decoder.DisallowUnknownFields()
-		err := decoder.Decode(restaurantIDJSON)
-		if err != nil {
-			log.Println(err)
-			res.Msg = "Missing a field"
-			writeResponse(w, http.StatusBadRequest, res)
-			return
-		}
-		err = db.AddSavedRestaurant(restaurantIDJSON.RestaurantID, id)
-		if err != nil {
-			log.Println(err)
-			res.Msg = "Couldn't add the restaurant"
-			writeResponse(w, http.StatusBadRequest, res)
-			return
-		}
-		res.Msg = "Successfuly added the restaurant!"
-		writeResponse(w, http.StatusOK, res)
+	id := getUserIDFromCookie(r)
+	restaurantIDJSON := &restaurantIDJSON{}
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(restaurantIDJSON)
+	if err != nil {
+		log.Println(err)
+		res.Msg = "Missing a field"
+		writeResponse(w, http.StatusBadRequest, res)
 		return
 	}
-	res.Msg = "Not authenticated"
-	writeResponse(w, http.StatusForbidden, res)
+	err = db.AddSavedRestaurant(restaurantIDJSON.RestaurantID, id)
+	if err != nil {
+		log.Println(err)
+		res.Msg = "Couldn't add the restaurant"
+		writeResponse(w, http.StatusBadRequest, res)
+		return
+	}
+	res.Msg = "Successfuly added the restaurant!"
+	writeResponse(w, http.StatusOK, res)
 }
 
 // savedDeleteHandler godoc
@@ -236,29 +213,24 @@ func savedPostHandler(w http.ResponseWriter, r *http.Request) {
 func savedDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "savedDeleteHandler")
 	res := &responseSimpleJSON{}
-	auth, id := isAuthenticated(w, r, true)
-	if auth {
-		restaurantIDJSON := &restaurantIDJSON{}
-		decoder := json.NewDecoder(r.Body)
-		decoder.DisallowUnknownFields()
-		err := decoder.Decode(restaurantIDJSON)
-		if err != nil {
-			log.Println(err)
-			res.Msg = "Missing a field"
-			writeResponse(w, http.StatusBadRequest, res)
-			return
-		}
-		err = db.DeleteSavedRestaurant(restaurantIDJSON.RestaurantID, id)
-		if err != nil {
-			log.Println(err)
-			res.Msg = "Couldn't delete the restaurant"
-			writeResponse(w, http.StatusBadRequest, res)
-			return
-		}
-		res.Msg = "Successfuly deleted the restaurant!"
-		writeResponse(w, http.StatusOK, res)
+	id := getUserIDFromCookie(r)
+	restaurantIDJSON := &restaurantIDJSON{}
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(restaurantIDJSON)
+	if err != nil {
+		log.Println(err)
+		res.Msg = "Missing a field"
+		writeResponse(w, http.StatusBadRequest, res)
 		return
 	}
-	res.Msg = "Not authenticated"
-	writeResponse(w, http.StatusForbidden, res)
+	err = db.DeleteSavedRestaurant(restaurantIDJSON.RestaurantID, id)
+	if err != nil {
+		log.Println(err)
+		res.Msg = "Couldn't delete the restaurant"
+		writeResponse(w, http.StatusBadRequest, res)
+		return
+	}
+	res.Msg = "Successfuly deleted the restaurant!"
+	writeResponse(w, http.StatusOK, res)
 }
