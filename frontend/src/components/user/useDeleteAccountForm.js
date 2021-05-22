@@ -39,7 +39,7 @@ const useDeleteAccountForm = (callback, validate) => {
                   'Content-Type': 'application/json'
                 }
             }
-        fetch('http://localhost:8080/user', deleteAccountRequest)
+        fetch('http://localhost:8080/auth/user', deleteAccountRequest)
           .then(response => response.json())
           .then(res => {
             if (res.Status === 403) {

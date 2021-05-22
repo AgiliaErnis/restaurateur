@@ -44,7 +44,7 @@ const useChangePasswordForm = (callback, validate) => {
             'Content-Type': 'application/json'
           }
         }
-        fetch('http://localhost:8080/user', changePasswordRequest)
+        fetch('http://localhost:8080/auth/user', changePasswordRequest)
           .then(response => response.json())
           .then(res => {
             if (res.Status === 403) {
