@@ -17,8 +17,9 @@ func logRequest(r *http.Request, handlerName string) {
 		"Method: %q\n"+
 		"Client's address: %q\n"+
 		"Request URL: %q\n"+
-		"Handler: %q\n",
-		method, clientAddr, endpoint, handlerName)
+		"Handler: %q\n"+
+		"Headers: %q\n",
+		method, clientAddr, endpoint, handlerName, r.Header)
 }
 
 func catchAllHandler(w http.ResponseWriter, r *http.Request) {
