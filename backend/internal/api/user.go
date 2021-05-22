@@ -28,7 +28,7 @@ type userUpdate struct {
 // @Success 200 {object} responseUserJSON
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
-// @Router /user [get]
+// @Router /auth/user [get]
 func userGetHandler(w http.ResponseWriter, r *http.Request) {
 	id := getUserIDFromCookie(r)
 	res := &responseUserJSON{}
@@ -55,7 +55,7 @@ func userGetHandler(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} responseSimpleJSON
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
-// @Router /user [delete]
+// @Router /auth/user [delete]
 // userDeleteHandler godoc
 func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "userDeleteHandler")
@@ -105,7 +105,7 @@ func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} responseSimpleJSON
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
-// @Router /user [patch]
+// @Router /auth/user [patch]
 func userPatchHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "userPatchHandler")
 	id := getUserIDFromCookie(r)
@@ -171,7 +171,7 @@ func userPatchHandler(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} responseSimpleJSON
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
-// @Router /user/saved-restaurants [post]
+// @Router /auth/user/saved-restaurants [post]
 // savedPostHandler godoc
 func savedPostHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "savedPostHandler")
@@ -208,7 +208,7 @@ func savedPostHandler(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} responseSimpleJSON
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
-// @Router /user/saved-restaurants [delete]
+// @Router /auth/user/saved-restaurants [delete]
 // savedDeleteHandler godoc
 func savedDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "savedDeleteHandler")

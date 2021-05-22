@@ -196,7 +196,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} responseSimpleJSON
 // @Success 400 {object} responseSimpleJSON
 // @Failure 500 {string} []byte
-// @Router /logout [get]
+// @Router /auth/logout [get]
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "logoutHandler")
 	res := &responseSimpleJSON{}
