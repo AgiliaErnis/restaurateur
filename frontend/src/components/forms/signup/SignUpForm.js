@@ -47,11 +47,12 @@ const SignUpForm = ({ submitForm }) => {
           />
         {errors.email && <p>{errors.email}</p>}
         {emailAlreadyUsed && <p>Email is already used</p>}
+        {console.log(goodPassword)}
       </div>
         <div className="form-inputs">
           <label className='form-label'>Password</label>
           <input
-          className={goodPassword.goodPassword ?
+          className={goodPassword ?
             values.password.length > 64 ?
               "form-input"
               :

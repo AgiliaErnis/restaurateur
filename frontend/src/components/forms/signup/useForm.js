@@ -2,7 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../../../UserContext';
 
 const useForm = (callback, validate) => {
-  const { emailAlreadyUsed, setEmailAlreadyUsed} = useContext(UserContext)
+  const { emailAlreadyUsed } = useContext(UserContext)
+  const {setEmailAlreadyUsed} = useContext(UserContext)
   const [values, setValues] = useState({
     username: '',
     email: '',
@@ -32,7 +33,7 @@ const useForm = (callback, validate) => {
     () => {
       if (Object.keys(errors).length === 0 &&
         isSubmitting &&
-        values.password.length > 6)
+        values.password.length >= 6)
       {
         const requestValues = {
             email: values.email,

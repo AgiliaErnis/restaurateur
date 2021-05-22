@@ -18,6 +18,7 @@ function UserNavbar() {
         fetch('http://localhost:8080/logout',logoutRequest)
             .then(response => response.json())
             .then(res => {
+                console.log(res)
                 if (res.Status === 200) {
                     setLogout(true)
                     setSuccessfullLogin(false)

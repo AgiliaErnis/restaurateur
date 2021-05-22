@@ -31,7 +31,7 @@ const useChangePasswordForm = (callback, validate) => {
     () => {
       if (Object.keys(errors).length === 0 &&
         isSubmitting &&
-        values.newPassword.length > 6) {
+        values.newPassword.length >= 6) {
         const requestValues = {
           oldPassword: values.oldPassword,
           newPassword: values.newPassword
