@@ -182,6 +182,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {string} []byte
 // @Router /logout [get]
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "logoutHandler")
 	auth, _ := isAuthenticated(w, r, false)
 	res := &responseSimpleJSON{}
 	if auth {
