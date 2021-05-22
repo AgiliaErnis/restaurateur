@@ -60,7 +60,7 @@ function App() {
     getUserInfo();
 
   }, [incorrectPassword, successfullLogin,
-    newUsername, setSuccessfullLogin,setSavedRestaurants])
+    newUsername, setSuccessfullLogin, setSavedRestaurants,savedRestaurants])
 
   useEffect(() => {
        localStorage.setItem("user-logged-in", successfullLogin)

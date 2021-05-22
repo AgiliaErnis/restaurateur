@@ -6,13 +6,11 @@ import { UserContext } from '../../UserContext';
 
 function SavedRestaurants() {
     const savedRestaurants  = useContext(UserContext)
-    console.log(savedRestaurants.savedRestaurants)
-
     return (
         <div className="saved-restaurants-container">
             {savedRestaurants.length !== 0 &&
                 savedRestaurants.savedRestaurants.map(restaurant => {
-                              return <RestaurantItem
+                  return <RestaurantItem
                 ID={restaurant.ID}
                 photos={restaurant.Images !== undefined ?
                   restaurant.Images : ImagePlaceHolder}
@@ -34,7 +32,8 @@ function SavedRestaurants() {
                 district={restaurant.District}
                 price={restaurant.PriceRange}
                 takeaway={restaurant.Takeaway}
-                delivery={restaurant.DeliveryOptions}
+                    delivery={restaurant.DeliveryOptions}
+                    click={true}
               />
             })}
         </div>

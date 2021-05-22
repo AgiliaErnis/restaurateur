@@ -2,13 +2,22 @@ import { useState, useContext } from 'react';
 import { UserContext } from "../../UserContext"
 
 const MobileNavbar = () => {
-  const [click, setClick] = useState(false);
+  const [click, setClick] = useState(restaurantIsClicked());
   const [button, setButton] = useState(true);
   const { setPragueCollegePath } = useContext(UserContext)
   const { setClickedDistrict, setClickedSuggestion } = useContext(UserContext)
   const { setChosenRestaurant, setGeneralSearchPath } = useContext(UserContext);
 
   const handleClick = () => setClick(!click);
+
+  function restaurantIsClicked () {
+    switch(window.location.pathname){
+      case '/user':
+         return true
+      default:
+        return false;
+    }
+  }
 
   const closeMenuOpenRestaurants = () => {
     setClick(false);
@@ -55,7 +64,7 @@ const MobileNavbar = () => {
   return {
     click, button, showButton, handleClick,
     showSearch, closeMenuOpenRestaurants,
-    closeMenuOpenPCRestaurants, closeMenuDiscardChanges
+    closeMenuOpenPCRestaurants, closeMenuDiscardChanges, setClick
   }
 
 }

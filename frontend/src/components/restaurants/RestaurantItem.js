@@ -8,6 +8,15 @@ export const RestaurantItem = React.memo((props) => {
   const {click, handleClick } = MobileNavbar();
   const [savedRestaurant, setSavedRestaurant] = useState(false)
 
+  function restaurantIsClicked () {
+    switch(window.location.pathname){
+      case '/user':
+         return true
+      default:
+        return false;
+    }
+  }
+
   useEffect(() => {
     if (savedRestaurant !== false) {
       const restaurantID = {
@@ -64,13 +73,17 @@ export const RestaurantItem = React.memo((props) => {
             <span className="restaurant-name">
               <div className="name-container">{props.name}</div>
               <div className="save-container">
-                <i onClick={
+                <i onClick={restaurantIsClicked ?
+                  () => {
+                    setSavedRestaurant(props.ID)
+                    handleClick();
+                  } :
                   () => {
                     setSavedRestaurant(props.ID);
                     handleClick()
                   }
                 }
-                  className={!click ? "save-btn" : "save-btn-active"  }
+                  className={restaurantIsClicked ? !click ? "save-btn" : "save-btn-active" : !click ? "save-btn" : "save-btn-active"  }
 
                 >
                 </i>
