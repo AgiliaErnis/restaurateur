@@ -2,7 +2,7 @@ name: deploy
 
 on:
   release:
-    types: [created, published, edited]
+    types: [released]
 
 # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -19,15 +19,7 @@ jobs:
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.KNOWN_HOST }}
-      - name: Deploy Production
-        if: github.event.release.action == 'released'
-        shell: bash
-        run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEP_PATH }}; sudo docker-compose -p restaurateur -f docker-compose.yml down"
-          rsync -avz . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEP_PATH }}
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEP_PATH }}; sudo docker-compose -p restaurateur -f docker-compose.yml up --build  -d"
       - name: Deploy Testing
-        if: github.event.release.action == 'published' && github.event.release.action != 'released'
         shell: bash
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEP_PATH }}; sudo docker-compose -p restaurateur-dev -f docker-compose-dev.yml down"
