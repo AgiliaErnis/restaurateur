@@ -4,17 +4,17 @@ import { UserContext } from '../../UserContext';
 import { UserMenuItemsData }   from './UserMenuItemsData'
 import ChangePassword from './ChangePassword'
 import DeleteAccount from './DeleteAccount';
-import SavedRestaurants from './SavedRestaurants';
 import UpdateUsername from './UpdateUsername';
 import { Redirect } from 'react-router';
+import SavedRestaurants from './SavedRestaurants'
 
 
 function UserProfile() {
-    const { clickedUserMenuItem, setClickedUserMenuItem,username } = useContext(UserContext)
+    const { clickedUserMenuItem, setClickedUserMenuItem,username,savedRestaurants } = useContext(UserContext)
 
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [newUsername, setNewUsername] = useState(false)
-    const [deleteAccount, setDeleteAccount ] = useState(false)
+    const [deleteAccount, setDeleteAccount] = useState(false)
 
     function submitForm() {
         setIsSubmitted(!isSubmitted);
@@ -39,7 +39,7 @@ function UserProfile() {
                             <p>{username}</p>
                     </div>
                     <div className="saved-restaurants">
-                        <span className="number">4</span>
+                            <span className="number">{savedRestaurants.length}</span>
                          <span>Saved Restaurants</span>
                     </div>
                 </div>
