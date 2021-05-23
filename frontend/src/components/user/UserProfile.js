@@ -39,7 +39,7 @@ function UserProfile() {
                             <p>{username}</p>
                     </div>
                     <div className="saved-restaurants">
-                            <span className="number">{savedRestaurants.length}</span>
+                            <span className="number">{savedRestaurants !== null ? savedRestaurants.length : 0}</span>
                          <span>Saved Restaurants</span>
                     </div>
                 </div>
