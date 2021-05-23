@@ -77,7 +77,23 @@ save favourite restaurants and modify account settings as needed.
 
 ## Usage
 
+### Stage 1 
+
 https://user-images.githubusercontent.com/56120787/115972966-c1b25500-a562-11eb-9fd9-ca9e72279b14.mp4
+
+### Stage 2 
+
+### Registration
+
+https://user-images.githubusercontent.com/56120787/119279329-0dc4e800-bc3c-11eb-82a2-b8d955f4d481.mp4
+
+### Authorization
+
+https://user-images.githubusercontent.com/56120787/119279367-55e40a80-bc3c-11eb-8354-1ff9bcb2e307.mp4
+
+### General Usage
+
+https://user-images.githubusercontent.com/56120787/119279240-72cc0e00-bc3b-11eb-94de-9e7aff14596f.mp4
 
 ## User Interface
 
