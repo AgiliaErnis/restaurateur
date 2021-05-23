@@ -105,6 +105,7 @@ export default function Restaurants() {
       currentRestaurants = null
   }
 
+
   return (
     <>
       <Navbar/>
@@ -145,8 +146,9 @@ export default function Restaurants() {
                     return false;
                   }})): []}
                 ID={filteredRestaurant.ID}
-               key={filteredRestaurant.ID}
-                photos={filteredRestaurant.Images.length !== 0 ?
+                key={filteredRestaurant.ID}
+                photos={filteredRestaurant.Images !== null &&
+                  filteredRestaurant.Images.length !== 0 ?
                   filteredRestaurant.Images : ImagePlaceHolder}
                 name={filteredRestaurant.Name}
                 rating={filteredRestaurant.Rating === "" ?
