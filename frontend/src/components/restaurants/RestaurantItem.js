@@ -83,8 +83,6 @@ export const RestaurantItem = React.memo((props) => {
     }
   }, [click, savedRestaurant, setNewSavedRestaurant])
 
-
-
   return (
     <>
       <li className='restaurant_card_item'>
@@ -93,6 +91,13 @@ export const RestaurantItem = React.memo((props) => {
           <div className="restaurant_description">
             <span className="restaurant-name">
               <div className="name-container">{props.name}</div>
+              {restaurantIsClicked() &&
+                <div className="save-container" onClick={() => {
+                  handleClick();
+                  setSavedRestaurant(props.ID)
+              }}>
+                 <p style={{color: "red", fontSize: "13px"}}>remove</p>
+              </div>}
               {hideSaveBtn() &&
                 <div className="save-container">
                 <i onClick={
@@ -109,7 +114,6 @@ export const RestaurantItem = React.memo((props) => {
                       setDeleteSavedOne(false)
                     }
                   }
-
                 }
                   className={!restaurantIsClicked() && props.RestaurantIsSaved.indexOf(true) !== -1 && !deleteSavedOne ? "save-btn-active" : click ? "save-btn-active" : "save-btn"}
                 >
