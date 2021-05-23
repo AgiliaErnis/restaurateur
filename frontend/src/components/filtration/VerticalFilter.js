@@ -7,7 +7,7 @@ export const VerticalFilter = (props) => {
     const { clickedDistrict, setClickedDistrict,
             clickedSuggestion, setClickedSuggestion,
             checkedDistance, setCheckedDistance,
-            chosenRestaurant} = useContext(UserContext)
+            chosenRestaurant,pragueCollegePath} = useContext(UserContext)
 
     const [seeMoreCuisines, setSeeMoreCuisines] = useState(false);
     const [seeMoreLocalities, setSeeMoreLocalities] = useState(false);
@@ -166,28 +166,29 @@ export const VerticalFilter = (props) => {
                         }
                 </div>
             ))}
-                <div className="filter-div">
-                    <div className="filter-inner-div">
-                        <p>Distance</p>
-                        <div className="filter-options">
-                            {distanceOptions.map(option => {
-                                return (
-                                    <label onChange={() => setCheckedDistance(option.filterValue)}>
-                                        <input className='radio' type='radio'
-                                            name='distance-option'
-                                            checked={chosenRestaurant !== false ? false :
-                                                checkedDistance === option.filterValue ? true : null}
+                {pragueCollegePath &&
+                    <div className="filter-div">
+                        <div className="filter-inner-div">
+                            <p>Distance</p>
+                            <div className="filter-options">
+                                {distanceOptions.map(option => {
+                                    return (
+                                        <label onChange={() => setCheckedDistance(option.filterValue)}>
+                                            <input className='radio' type='radio'
+                                                name='distance-option'
+                                                checked={chosenRestaurant !== false ? false :
+                                                    checkedDistance === option.filterValue ? true : null}
                                             />
-                                        <div className="checkmark"></div>
-                                        <span className="option-name">
-                                            {option.value}
-                                        </span>
-                                    </label>
-                                )
-                            })}
+                                            <div className="checkmark"></div>
+                                            <span className="option-name">
+                                                {option.value}
+                                            </span>
+                                        </label>
+                                    )
+                                })}
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </div>}
             </div>
         </div>
     )

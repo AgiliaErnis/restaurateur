@@ -169,20 +169,6 @@ export const FiltersData = [
     },
     {
         category: "other",
-        filterName: "Suggested",
-        options: [
-            {
-                filterValue: "open now",
-                value: "Open Now"
-            },
-            {
-                filterValue: "near me",
-                value: "Near me"
-            }
-        ]
-    },
-    {
-        category: "other",
         filterName: "Featured",
         options: [
             {

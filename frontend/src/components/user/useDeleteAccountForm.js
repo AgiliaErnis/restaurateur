@@ -42,17 +42,16 @@ const useDeleteAccountForm = (callback, validate) => {
         fetch('http://localhost:8080/auth/user', deleteAccountRequest)
           .then(response => response.json())
           .then(res => {
-            if (res.Status === 403) {
+            if (res.Status === 403) {setIsSubmitting(false)
               setIncorrectPasswordOnDelete(true)
+
             }
             else if (res.Status === 200) {
               callback();
               setIncorrectPasswordOnDelete(false)
               setSuccessfullLogin(false)
             }
-          })
-            setIncorrectPasswordOnDelete(false)
-          }
+          })}
     },
     [errors, isSubmitting, callback, values,
       setIncorrectPasswordOnDelete, setSuccessfullLogin]

@@ -42,10 +42,6 @@ const LogInForm = ({ submitForm }) => {
             :
             errors.password && <p>{errors.password}</p>}
         </div>
-        <div class='form-inputs'>
-          <input className='checkbox-input' type='checkbox'/>
-          <span>Remember me</span>
-        </div>
         <Button
           className='form-input-btn'
           buttonStyle="btn--form"
