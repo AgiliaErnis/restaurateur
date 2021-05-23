@@ -35,31 +35,31 @@ located throughout Prague.
 
 * The recommender provides the following
 information about each restaurant:
-    * Name
-    * Address, District
-    * Rating
-    * Price Range
-    * Cuisines
-    * Takeaway and Delivery Options
-    * Phone Number
+    ** Name
+    ** Address, District
+    ** Rating
+    ** Price Range
+    ** Cuisines
+    ** Takeaway and Delivery Options
+    ** Phone Number
 
 * Filtering Options:
 
     For Prague College local restaurants:
-        * Price Range
-        * District
-        * Delivery and Takeaway Options
-        * Vegetarian and Vegan Options
-        * Gluten Free Option
-        * Distance
+        ** Price Range
+        ** District
+        ** Delivery and Takeaway Options
+        ** Vegetarian and Vegan Options
+        ** Gluten Free Option
+        ** Distance
 
     For all restaurants:
-        * Cuisine
-        * Price Range
-        * District
-        * Delivery and Takeaway Options
-        * Vegetarian and Vegan Options
-        * Gluten Free Option
+        ** Cuisine
+        ** Price Range
+        ** District
+        ** Delivery and Takeaway Options
+        ** Vegetarian and Vegan Options
+        ** Gluten Free Option
 
 * Search engine suggests restaurants based on user's input and
  works as an autocomplete.
@@ -68,9 +68,9 @@ The restaurants can be searched by the given location or name.
 
 * The recommender can sort retrieved restaurants
  by:
-    * Price range - descending
-    * Price range - ascending
-    * Rating - descending
+    ** Price range - descending
+    ** Price range - ascending
+    ** Rating - descending
 
 * The application allows the user to create an account,
  save favourite restaurants and modify account settings as needed.
