@@ -14,7 +14,7 @@ function SavedRestaurants() {
                   return <RestaurantItem
                 phone={restaurant.PhoneNumber}
                 ID={restaurant.ID}
-                photos={restaurant.Images !== undefined ?
+                photos={restaurant.Images.length !== 0 ?
                   restaurant.Images : ImagePlaceHolder}
                 name={restaurant.Name}
                 rating={restaurant.Rating === "" ?
