@@ -1,0 +1,29 @@
+version: "3"
+services:
+  db:
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=$DB_USER
+      - POSTGRES_PASSWORD=$DB_PASS
+      - POSTGRES_DB=restaurateur
+    ports:
+      - '5432:5432'
+    volumes:
+      - ../postgres-data:/var/lib/postgresql/data
+      - ./backend/restaurants.sql:/docker-entrypoint-initdb.d/create_tables.sql
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+    ports:
+      - '3000:3000'
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+    environment:
+      - DB_DSN=postgresql://$DB_USER:$DB_PASS@postgres/restaurateur?sslmode=disable
+    ports:
+      - '8080:8080'
+

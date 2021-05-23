@@ -1,0 +1,8 @@
+FROM node:12.1-alpine
+ADD . .
+RUN npm install
+RUN npm run build
+
+CMD npm start
+
+EXPOSE 3000

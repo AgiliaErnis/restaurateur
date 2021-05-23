@@ -4,9 +4,6 @@ import styled from 'styled-components'
 import { MdClose } from 'react-icons/md'
 import AnimatedForms from './AnimatedForms'
 
-export const Modal = ({ showSignUpModal, setShowSignUpModal,
-  showLogInModal, setShowLogInModal }) => {
-
   const CloseModalButton = styled(MdClose)`
   cursor: pointer;
   position: absolute;
@@ -18,6 +15,9 @@ export const Modal = ({ showSignUpModal, setShowSignUpModal,
   z-index: 10;
   color: #fff;
 `;
+
+
+export const Modal = ({ showSignUpModal, setShowSignUpModal, showLogInModal, setShowLogInModal }) => {
 
   return (
     <>
