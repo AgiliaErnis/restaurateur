@@ -5,12 +5,14 @@ import { ImagePlaceHolder } from
 import { UserContext } from '../../UserContext';
 
 function SavedRestaurants() {
-    const savedRestaurants  = useContext(UserContext)
+  const savedRestaurants = useContext(UserContext)
+
     return (
         <div className="saved-restaurants-container">
-            {savedRestaurants.length !== 0 &&
+            {savedRestaurants.savedRestaurants !== null &&
                 savedRestaurants.savedRestaurants.map(restaurant => {
                   return <RestaurantItem
+                phone={restaurant.PhoneNumber}
                 ID={restaurant.ID}
                 photos={restaurant.Images !== undefined ?
                   restaurant.Images : ImagePlaceHolder}

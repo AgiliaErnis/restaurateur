@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { Button } from '../button/Button';
 import MobileNavbar from './MobileNavbar'
 import { Link } from 'react-router-dom';
@@ -10,8 +10,7 @@ import { UserContext } from '../../UserContext';
 import UserNavbar from '../user/UserNavbar';
 
 function Navbar() {
-  const { click, button, showButton,
-          handleClick, closeMenuDiscardChanges, closeMenuOpenPCRestaurants }
+  const { button, showButton, closeMenuDiscardChanges, closeMenuOpenPCRestaurants }
     = MobileNavbar();
   const { navMenuClassName, searchbox, showLogInModal,
           showSignUpModal, openLogInModal, openSignUpModal,
@@ -20,6 +19,11 @@ function Navbar() {
   const { pragueCollegePath,
     successfullLogin, setSuccessfullLogin, logout }
     = useContext(UserContext);
+  const [click, setClick] = useState(false)
+
+  const handleClick = () => {
+    setClick(!click)
+  }
 
    function setRestaurantsNavLink () {
     switch(window.location.pathname){

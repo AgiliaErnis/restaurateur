@@ -1,20 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './RestaurantItem.css'
 import Rating from '@material-ui/lab/Rating';
 import { PhotoSlider } from './PhotoSlider/PhotoSlider';
-import MobileNavbar from '../navbar/MobileNavbar'
+import PhoneModal from './PhoneModal';
+import { UserContext } from '../../UserContext';
 
 export const RestaurantItem = React.memo((props) => {
-  const {click, handleClick } = MobileNavbar();
+  const [click, setClick] = useState(restaurantIsClicked());
   const [savedRestaurant, setSavedRestaurant] = useState(false)
+  const [clickOnPhone, setClickOnPhone] = useState(false)
+  const { setNewSavedRestaurant } = useContext(UserContext)
+  const [deleteSavedOne, setDeleteSavedOne] = useState(false)
+
+  const handleClick = () => setClick(!click);
 
   function restaurantIsClicked () {
     switch(window.location.pathname){
       case '/user':
-         return true
+        return true
       default:
         return false;
     }
+  }
+
+  function hideSaveBtn () {
+    switch(window.location.pathname){
+      case '/restaurants':
+        return true
+      case '/user':
+        return false;
+      default:
+        return null;
+    }
+  }
+
+  const handleClickOnPhone = () => {
+    setClickOnPhone(!clickOnPhone)
   }
 
   useEffect(() => {
@@ -36,7 +57,7 @@ export const RestaurantItem = React.memo((props) => {
           .then(response => response.json())
           .then(res => {
             if (res.Status === 200) {
-              console.log(res)
+              setNewSavedRestaurant(restaurantID)
             }
           })
       } else {
@@ -52,16 +73,16 @@ export const RestaurantItem = React.memo((props) => {
         fetch('http://localhost:8080/auth/user/saved-restaurants', deleteRestaurantRequest)
           .then(response => response.json())
           .then(res => {
-            console.log(res)
             if (res.Status === 200) {
-              console.log(res)
+              setNewSavedRestaurant(restaurantID)
+              setDeleteSavedOne(false)
             }
-
           })
       }
 
     }
-  },[click,savedRestaurant])
+  }, [click, savedRestaurant, setNewSavedRestaurant])
+
 
 
   return (
@@ -72,27 +93,33 @@ export const RestaurantItem = React.memo((props) => {
           <div className="restaurant_description">
             <span className="restaurant-name">
               <div className="name-container">{props.name}</div>
-              <div className="save-container">
-                <i onClick={restaurantIsClicked ?
+              {hideSaveBtn() &&
+                <div className="save-container">
+                <i onClick={
                   () => {
-                    setSavedRestaurant(props.ID)
-                    handleClick();
-                  } :
-                  () => {
-                    setSavedRestaurant(props.ID);
-                    handleClick()
+                    if (!restaurantIsClicked() &&
+                      props.RestaurantIsSaved.indexOf(true) !== -1) {
+                      setClick(false)
+                      setSavedRestaurant(props.ID)
+                      setDeleteSavedOne(true)
+                    }
+                    else {
+                      setSavedRestaurant(props.ID);
+                      handleClick();
+                      setDeleteSavedOne(false)
+                    }
                   }
-                }
-                  className={restaurantIsClicked ? !click ? "save-btn" : "save-btn-active" : !click ? "save-btn" : "save-btn-active"  }
 
+                }
+                  className={!restaurantIsClicked() && props.RestaurantIsSaved.indexOf(true) !== -1 && !deleteSavedOne ? "save-btn-active" : click ? "save-btn-active" : "save-btn"}
                 >
                 </i>
-                <div className={!click ?'save-on-hover'
+                <div className={!click ? 'save-on-hover'
                   : 'save-on-hover-hidden'} >
                   Click to Save
                 </div>
-                <div className={!click? "saved-hidden" : "saved"}>Saved</div>
-              </div>
+                <div className={!click ? "saved-hidden" : "saved"}>Saved</div>
+              </div>}
             </span>
             <div className="rating-container">
               <Rating name="read-only"
@@ -115,9 +142,10 @@ export const RestaurantItem = React.memo((props) => {
               <i className={props.delivery != null ?
                 "fas fa-check" : "fas fa-times"}></i>Delivery</span>
             <div className="more-options">
-              <div className="option">
-                Call
+              <div className="option" onClick={handleClickOnPhone}>
+                Phone
                     <i className="fas fa-phone"></i>
+                {clickOnPhone && <PhoneModal name={props.name} phone={props.phone}/>}
               </div>
               <div className="option">
                 Menu

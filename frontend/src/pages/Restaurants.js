@@ -15,7 +15,7 @@ import { UserContext } from '../UserContext';
 export default function Restaurants() {
   const { customThemes, customStyles } = SelectStyle();
   const { sortOptions, setSortResultHandler,sortResult } = SelectLogic();
-  const { chosenRestaurant, generalSearchPath } = useContext(UserContext);
+  const { chosenRestaurant, generalSearchPath,savedRestaurants } = useContext(UserContext);
 
   const [checkedFilters, setCheckedFilters] = useState([]);
   const { restaurants, setRestaurants,
@@ -137,6 +137,13 @@ export default function Restaurants() {
           {restaurants !== null ?
             currentRestaurants.map(filteredRestaurant => {
               return <RestaurantItem
+                RestaurantIsSaved={savedRestaurants !== null ?(savedRestaurants.map(index => {
+                  if (index.ID === filteredRestaurant.ID)
+                    {
+                    return true;
+                  } else {
+                    return false;
+                  }})): []}
                 ID={filteredRestaurant.ID}
                 photos={filteredRestaurant.Images !== "" ?
                   filteredRestaurant.Images : ImagePlaceHolder}
@@ -159,6 +166,7 @@ export default function Restaurants() {
                 price={filteredRestaurant.PriceRange}
                 takeaway={filteredRestaurant.Takeaway}
                 delivery={filteredRestaurant.DeliveryOptions}
+                phone={filteredRestaurant.PhoneNumber}
               />
             })
             :

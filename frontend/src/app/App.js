@@ -29,6 +29,7 @@ function App() {
   const [incorrectPasswordOnDelete, setIncorrectPasswordOnDelete] = useState(false)
   const [deleteAccount, setDeleteAccount] = useState(false)
   const [savedRestaurants, setSavedRestaurants] = useState([])
+  const [newSavedRestaurant, setNewSavedRestaurant ] = useState(null)
 
   useEffect(() => {
     const userLoggedIn = localStorage.getItem("user-logged-in");
@@ -59,8 +60,7 @@ function App() {
       }}
     getUserInfo();
 
-  }, [incorrectPassword, successfullLogin,
-    newUsername, setSuccessfullLogin, setSavedRestaurants,savedRestaurants])
+  }, [incorrectPassword, newUsername, successfullLogin, newSavedRestaurant,setNewSavedRestaurant])
 
   useEffect(() => {
        localStorage.setItem("user-logged-in", successfullLogin)
@@ -94,7 +94,8 @@ function App() {
             newUsername, setNewUsername,
             incorrectPasswordOnDelete, setIncorrectPasswordOnDelete,
             deleteAccount, setDeleteAccount,
-            savedRestaurants,setSavedRestaurants
+            savedRestaurants, setSavedRestaurants,
+            newSavedRestaurant,setNewSavedRestaurant
           }}>
             <Route path='/' exact component={Home} />
             <Route path='/restaurants' component={Restaurants} />
