@@ -11,6 +11,7 @@ export const RestaurantItem = React.memo((props) => {
   const [clickOnPhone, setClickOnPhone] = useState(false)
   const { setNewSavedRestaurant } = useContext(UserContext)
   const [deleteSavedOne, setDeleteSavedOne] = useState(false)
+  const {successfullLogin} = useContext(UserContext)
 
   const handleClick = () => setClick(!click);
 
@@ -98,7 +99,7 @@ export const RestaurantItem = React.memo((props) => {
               }}>
                  <p style={{color: "red", fontSize: "13px"}}>remove</p>
               </div>}
-              {hideSaveBtn() &&
+              {hideSaveBtn() && successfullLogin &&
                 <div className="save-container">
                 <i onClick={
                   () => {

@@ -29,7 +29,7 @@ function App() {
   const [incorrectPasswordOnDelete, setIncorrectPasswordOnDelete] = useState(false)
   const [deleteAccount, setDeleteAccount] = useState(false)
   const [savedRestaurants, setSavedRestaurants] = useState([])
-  const [newSavedRestaurant, setNewSavedRestaurant ] = useState(null)
+  const [newSavedRestaurant, setNewSavedRestaurant] = useState(null)
 
   useEffect(() => {
     const userLoggedIn = localStorage.getItem("user-logged-in");
