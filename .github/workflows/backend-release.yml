@@ -1,11 +1,11 @@
-name: backend
+name: backend-release
 
 on:
   push:
     paths: backend/**
   pull_request:
     paths: backend/**
-    branches: [ main ]
+    branches: [ release-0.2**, release-0.3** ]
 
 # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

@@ -67,20 +67,14 @@ function Navbar() {
                 {setRestaurantsNavLink()}
               </Link>
             </li>
-            <li>
-              <Link
-                className='nav-links-mobile'
-                onClick={openLogInModal}
-              >
-                Log In
-              </Link>
-
-              <Link
-                className='nav-links-mobile'
-                onClick={openSignUpModal}
-              >
+            <li className='nav-links-mobile'
+                onClick={openLogInModal}>
+              Log In
+            </li>
+            <li
+              className='nav-links-mobile'
+              onClick={openSignUpModal}>
                 Sign Up
-              </Link>
             </li>
           </ul>
           {button &&

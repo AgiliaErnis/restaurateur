@@ -9,16 +9,8 @@ import { shallow, configure } from 'enzyme';
 configure({ adapter: new Adapter() });
 
 describe('testing CardItem', () => {
-    
+
     it('should render', () => {
         shallow(<CardItem />);
     })
-    
-
-    // it('should render label', () => {
-    //     const label_example = "test";
-    //     const cardWrapper = enzyme.mount(<CardItem label={label_example} />);
-    //     expect(cardWrapper.props().label).toEqual(label_example);
-    // })
-
 })
