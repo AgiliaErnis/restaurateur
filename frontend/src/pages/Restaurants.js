@@ -181,14 +181,12 @@ export default function Restaurants() {
         </div>
       </div>
       {restaurants &&
-        <div style={{paddingLeft: "20%"}}>
           <RestaurantPagination
             restaurantsPerPage={restaurantsPerPage}
             totalRestaurants={restaurants.length}
             paginate={paginate}
             page={currentPage}
-            />
-        </div>}
+            />}
     </>
   );
 }

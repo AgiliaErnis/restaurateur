@@ -7,7 +7,6 @@ body {
     flex-direction: row;
     width: 100%;
     margin-bottom: 2rem;
-    justify-content: center;
 }
 
 .restaurant-cards-container{
