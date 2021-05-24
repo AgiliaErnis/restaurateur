@@ -98,7 +98,7 @@ function Searchbox() {
 
   useEffect(() => {
     if (isVisible) {
-      fetch(`/autocomplete?${searchByPath}${input}`).then(response =>
+      fetch(`http://localhost:8080/autocomplete?${searchByPath}${input}`).then(response =>
         response.json()).then(
           json => setSuggestedRestaurants(json.Data))
     }

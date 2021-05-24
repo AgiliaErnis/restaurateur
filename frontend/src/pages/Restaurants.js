@@ -93,7 +93,7 @@ export default function Restaurants() {
   const path = showFilteredResults();
 
   useEffect(() => {
-    fetch(`${path}`).then(response => response.json()).then(
+    fetch(`http://localhost:8080/${path}`).then(response => response.json()).then(
       json => setRestaurants(json.Data))
     paginate(1);
   }, [path,setRestaurants])
