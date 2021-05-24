@@ -24,6 +24,7 @@ import (
 // @Param gluten-free query bool false "Filters out all non gluten free restaurants."
 // @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
 // @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
+// @Param has-menu query bool false "Filters out all restaurants that don't have a weekly menu."
 // @Param sort query string false "Sorts restaurants. Available sort options: price-asc, price-desc, rating"
 // @Success 200 {object} responseFullJSON
 // @Failure 405 {object} responseSimpleJSON
@@ -47,10 +48,13 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 		Msg:  "Success",
 		Data: filteredRestaurants,
 	}
-	auth, id := isAuthenticated(w, r, true)
+	auth := isAuthenticated(w, r)
 	if auth {
+		id := getUserIDFromCookie(r)
 		user, _ := db.GetUserByID(id)
-		res.User = &userResponse{Name: user.Name, Email: user.Email}
+		res.User = &userResponseSimple{Name: user.Name, Email: user.Email}
+		savedRestaurants, _ := db.GetSavedRestaurantsID(id)
+		res.User.SavedRestaurantsIDs = savedRestaurants
 	}
 	writeResponse(w, http.StatusOK, res)
 }
@@ -72,6 +76,7 @@ func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
 // @Param gluten-free query bool false "Filters out all non gluten free restaurants."
 // @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
 // @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
+// @Param has-menu query bool false "Filters out all restaurants that don't have a weekly menu."
 // @Param sort query string false "Sorts restaurants. Available sort options: price-asc, price-desc, rating"
 // @Success 200 {object} responseFullJSON
 // @Failure 400 {object} responseSimpleJSON
@@ -98,10 +103,13 @@ func restaurantsHandler(w http.ResponseWriter, r *http.Request) {
 	filteredRestaurants := filterRestaurants(loadedRestaurants, params, lat, lon)
 	res.Msg = "Success"
 	res.Data = filteredRestaurants
-	auth, id := isAuthenticated(w, r, true)
+	auth := isAuthenticated(w, r)
 	if auth {
+		id := getUserIDFromCookie(r)
 		user, _ := db.GetUserByID(id)
-		res.User = &userResponse{Name: user.Name, Email: user.Email}
+		res.User = &userResponseSimple{Name: user.Name, Email: user.Email}
+		savedRestaurants, _ := db.GetSavedRestaurantsID(id)
+		res.User.SavedRestaurantsIDs = savedRestaurants
 	}
 	if err != nil {
 		log.Println("Database not initialized")
@@ -144,10 +152,13 @@ func restaurantHandler(w http.ResponseWriter, r *http.Request) {
 		writeResponse(w, http.StatusBadRequest, resErr)
 		return
 	}
-	auth, id := isAuthenticated(w, r, true)
+	auth := isAuthenticated(w, r)
 	if auth {
+		id := getUserIDFromCookie(r)
 		user, _ := db.GetUserByID(id)
-		res.User = &userResponse{Name: user.Name, Email: user.Email}
+		res.User = &userResponseSimple{Name: user.Name, Email: user.Email}
+		savedRestaurants, _ := db.GetSavedRestaurantsID(id)
+		res.User.SavedRestaurantsIDs = savedRestaurants
 	}
 	res.Msg = "Success"
 	writeResponse(w, http.StatusOK, res)

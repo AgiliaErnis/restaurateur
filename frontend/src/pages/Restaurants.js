@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { VerticalFilter } from '../components/filtration/VerticalFilter';
-import RestaurantItem from '../components/restaurants/RestaurantItem';
+import { RestaurantItem } from '../components/restaurants/RestaurantItem';
 import Select from 'react-select'
 import Navbar from '../components/navbar/Navbar';
 import SelectStyle from '../components/search/SelectStyle';
@@ -15,14 +15,12 @@ import { UserContext } from '../UserContext';
 export default function Restaurants() {
   const { customThemes, customStyles } = SelectStyle();
   const { sortOptions, setSortResultHandler,sortResult } = SelectLogic();
-  const pragueCollegePath = useContext(UserContext)
-  const clickedDistrict = useContext(UserContext)
-  const clickedSuggestion = useContext(UserContext)
-  const checkedDistance = useContext(UserContext)
-  const { chosenRestaurant, generalSearchPath } = useContext(UserContext);
+  const { chosenRestaurant, generalSearchPath,savedRestaurants } = useContext(UserContext);
 
   const [checkedFilters, setCheckedFilters] = useState([]);
-  const [restaurants, setRestaurants] = useState([]);
+  const { restaurants, setRestaurants,
+          clickedDistrict, clickedSuggestion,
+          checkedDistance, pragueCollegePath } = useContext(UserContext)
 
   const [currentPage, setCurrentPage] = useState(1);
   const [restaurantsPerPage] = useState(5);
@@ -53,36 +51,36 @@ export default function Restaurants() {
     if (chosenRestaurant !== false) {
       var chosenRestaurantPath = `/restaurant/${chosenRestaurant}`
       return chosenRestaurantPath
-    } else if (pragueCollegePath.pragueCollegePath === true) {
+    } else if (pragueCollegePath === true) {
         var pragueCollegeRestaurants =
-          `/prague-college/restaurants?radius=${checkedDistance.checkedDistance}&`
+          `/prague-college/restaurants?radius=${checkedDistance}&`
 
-        if (clickedDistrict.clickedDistrict !== false) {
-          pragueCollegeRestaurants += `district=${clickedDistrict.clickedDistrict}`
+        if (clickedDistrict !== false) {
+          pragueCollegeRestaurants += `district=${clickedDistrict}`
         }
 
-        if (clickedSuggestion.clickedSuggestion !== false) {
-          if (clickedSuggestion.clickedSuggestion === "vegetarian" ||
-            clickedSuggestion.clickedSuggestion === "gluten-free") {
-            pragueCollegeRestaurants += `${clickedSuggestion.clickedSuggestion}`
+        if (clickedSuggestion !== false) {
+          if (clickedSuggestion === "vegetarian" ||
+            clickedSuggestion === "gluten-free") {
+            pragueCollegeRestaurants += `${clickedSuggestion}`
           } else {
             pragueCollegeRestaurants +=
-              `cuisine=${clickedSuggestion.clickedSuggestion}`
+              `cuisine=${clickedSuggestion}`
           }
         }
       return pragueCollegeRestaurants + arrayOfPathValues.join("&") +
         (arrayOfPathValues.length !== 0 ? "&" : "") + `sort=${sortResult}`
     } else {
         var path = "/restaurants?radius=ignore&"
-        if (clickedDistrict.clickedDistrict !== false) {
-          path += `district=${clickedDistrict.clickedDistrict}&`
-        } else if (clickedSuggestion.clickedSuggestion !== false) {
-            if (clickedSuggestion.clickedSuggestion === "vegetarian"
+        if (clickedDistrict !== false) {
+          path += `district=${clickedDistrict}&`
+        } else if (clickedSuggestion !== false) {
+            if (clickedSuggestion === "vegetarian"
               ||
-              clickedSuggestion.clickedSuggestion === "gluten-free") {
-              path += clickedSuggestion.clickedSuggestion + "&"
+              clickedSuggestion === "gluten-free") {
+              path += clickedSuggestion + "&"
             } else {
-              path += `cuisine=${clickedSuggestion.clickedSuggestion}&`
+              path += `cuisine=${clickedSuggestion}&`
             }
         } else if (generalSearchPath !== false) {
             path += generalSearchPath + "&"
@@ -95,10 +93,10 @@ export default function Restaurants() {
   const path = showFilteredResults();
 
   useEffect(() => {
-    fetch(`${path}`).then(response => response.json()).then(
+    fetch(`http://localhost:8080/${path}`).then(response => response.json()).then(
       json => setRestaurants(json.Data))
     paginate(1);
-  }, [path])
+  }, [path,setRestaurants])
 
   if (restaurants !== null) {
     var currentRestaurants = restaurants.slice(
@@ -106,6 +104,7 @@ export default function Restaurants() {
   } else {
       currentRestaurants = null
   }
+
 
   return (
     <>
@@ -118,7 +117,7 @@ export default function Restaurants() {
         <div className="restaurant-cards-container">
           <div className="restaurant-cards-header">
             <h1>
-              {pragueCollegePath.pragueCollegePath === true
+              {pragueCollegePath === true
                 ?
                 "Restaurants around Prague College"
                 :
@@ -138,8 +137,18 @@ export default function Restaurants() {
           </div>
           {restaurants !== null ?
             currentRestaurants.map(filteredRestaurant => {
-              return <RestaurantItem key={filteredRestaurant.ID}
-                photos={filteredRestaurant.Images.length !== 0 ?
+              return <RestaurantItem
+                RestaurantIsSaved={savedRestaurants !== null ?(savedRestaurants.map(index => {
+                  if (index.ID === filteredRestaurant.ID)
+                    {
+                    return true;
+                  } else {
+                    return false;
+                  }})): []}
+                ID={filteredRestaurant.ID}
+                key={filteredRestaurant.ID}
+                photos={filteredRestaurant.Images !== null &&
+                  filteredRestaurant.Images.length !== 0 ?
                   filteredRestaurant.Images : ImagePlaceHolder}
                 name={filteredRestaurant.Name}
                 rating={filteredRestaurant.Rating === "" ?
@@ -160,6 +169,8 @@ export default function Restaurants() {
                 price={filteredRestaurant.PriceRange}
                 takeaway={filteredRestaurant.Takeaway}
                 delivery={filteredRestaurant.DeliveryOptions}
+                phone={filteredRestaurant.PhoneNumber}
+                menu={filteredRestaurant.WeeklyMenu !== "null" ? filteredRestaurant.WeeklyMenu : null}
               />
             })
             :
@@ -170,12 +181,12 @@ export default function Restaurants() {
         </div>
       </div>
       {restaurants &&
-        <RestaurantPagination
-          restaurantsPerPage={restaurantsPerPage}
-          totalRestaurants={restaurants.length}
-          paginate={paginate}
-          page={currentPage}
-        />}
+          <RestaurantPagination
+            restaurantsPerPage={restaurantsPerPage}
+            totalRestaurants={restaurants.length}
+            paginate={paginate}
+            page={currentPage}
+            />}
     </>
   );
 }

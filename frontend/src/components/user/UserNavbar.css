@@ -1,0 +1,91 @@
+.user-menu-container {
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.user-container {
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: end;
+    justify-content: flex-end;
+    max-width: 16rem;
+    margin-left: 5.5rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.fas.fa-user,.fas.fa-chevron-down {
+    font-size: 30px;
+    color: #fff;
+}
+
+.fas.fa-chevron-down {
+    font-size: 15px;
+    margin-left: 0.7rem;
+}
+
+.username {
+    margin-left: 0.7rem;
+    font-size: 14px;
+    color: #fff;
+}
+
+.user-menu {
+    position: absolute;
+    width: 226px;
+    z-index: 1012;
+    padding: 16px;
+    border-radius: 4px;
+    background-color: #fff;
+    box-shadow: 0 0 18px rgb(0 0 0 / 15%);
+    margin-top: 0.8rem;
+    text-decoration: none;
+}
+
+.menu-item {
+    background-color: #fff;
+    color: #2b273c;
+    border-radius: 4px;
+    display: block;
+    text-decoration: none;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    font-size: 100%;
+    line-height: 1;
+    display: flex;
+    padding: 8px;
+    list-style: none;
+    text-decoration: none !important;
+}
+
+.menu-item p {
+    font-family: 'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(43,39,60,1);
+    text-align: left;
+    margin-left: 1rem;
+    text-decoration: none !important;
+}
+
+.menu-item:hover {
+    background-color: rgb(235, 235, 235);
+}
+
+.menu-item.logout {
+    border-top: 1px solid #eeeeef;
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+.far.fa-bookmark {
+    margin-left: 1px;
+}

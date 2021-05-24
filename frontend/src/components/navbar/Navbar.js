@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { Button } from '../button/Button';
 import MobileNavbar from './MobileNavbar'
 import { Link } from 'react-router-dom';
@@ -7,16 +7,23 @@ import { Modal } from '../forms/Modal'
 import Searchbox from '../search/Searchbox';
 import NavbarLogic from './NavbarLogic';
 import { UserContext } from '../../UserContext';
+import UserNavbar from '../user/UserNavbar';
 
 function Navbar() {
-  const { click, button, showButton,
-          handleClick, closeMenuDiscardChanges, closeMenuOpenPCRestaurants }
+  const { button, showButton, closeMenuDiscardChanges, closeMenuOpenPCRestaurants }
     = MobileNavbar();
   const { navMenuClassName, searchbox, showLogInModal,
           showSignUpModal, openLogInModal, openSignUpModal,
           setShowLogInModal, setShowSignUpModal }
     = NavbarLogic();
-  const { pragueCollegePath } = useContext(UserContext)
+  const { pragueCollegePath,
+    successfullLogin, setSuccessfullLogin, logout }
+    = useContext(UserContext);
+  const [click, setClick] = useState(false)
+
+  const handleClick = () => {
+    setClick(!click)
+  }
 
    function setRestaurantsNavLink () {
     switch(window.location.pathname){
@@ -34,7 +41,24 @@ function Navbar() {
    showButton();
   }, [showButton]);
 
+  useEffect(() => {
+    if (logout) {
+      setShowLogInModal(false);
+      setSuccessfullLogin(false)
+    }
+  }, [logout,setSuccessfullLogin,setShowLogInModal])
+
+  useContext(() => {
+    if (localStorage.getItem("user-logged-in") === "true") {
+      setShowSignUpModal(false); setShowLogInModal(false)
+    }
+  },[localStorage.getItem("user-logged-in")])
+
   window.addEventListener('resize', showButton);
+
+  useEffect(() => {
+    setSuccessfullLogin(successfullLogin)
+  },[successfullLogin,setSuccessfullLogin])
 
   return (
     <>
@@ -77,29 +101,34 @@ function Navbar() {
                 Sign Up
             </li>
           </ul>
-          {button &&
-            <Button
-              buttonStyle='btn--outline'
-              buttonSize='btn--medium'
-              onClick={openLogInModal}
-              id="login">
+          {successfullLogin  === true  ?
+            <UserNavbar />
+            :
+            <>
+            {button &&
+              <Button
+                buttonStyle='btn--outline'
+                buttonSize='btn--medium'
+                onClick={openLogInModal}
+                id="login">
                 LOG IN
             </Button>}
-          <Modal
-            showLogInModal={showLogInModal}
-            setShowLogInModal={setShowLogInModal}
-          />
-          {button &&
-            <Button
-              id="signup"
-              buttonSize='btn--medium'
-              onClick={openSignUpModal}>
+            <Modal
+              showLogInModal={showLogInModal}
+              setShowLogInModal={setShowLogInModal}
+            />
+            {button &&
+              <Button
+                id="signup"
+                buttonSize='btn--medium'
+                onClick={openSignUpModal}>
                 SIGN UP
             </Button>}
-          <Modal
-            showSignUpModal={showSignUpModal}
-            setShowSignUpModal={setShowSignUpModal}
-          />
+            <Modal
+              showSignUpModal={showSignUpModal}
+              setShowSignUpModal={setShowSignUpModal}
+            />
+          </>}
         </div>
       </nav>
     </>

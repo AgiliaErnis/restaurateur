@@ -55,7 +55,7 @@ const MobileNavbar = () => {
   return {
     click, button, showButton, handleClick,
     showSearch, closeMenuOpenRestaurants,
-    closeMenuOpenPCRestaurants, closeMenuDiscardChanges
+    closeMenuOpenPCRestaurants, closeMenuDiscardChanges, setClick
   }
 
 }

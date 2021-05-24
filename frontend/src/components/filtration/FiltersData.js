@@ -122,6 +122,16 @@ export const FiltersData = [
         ]
     },
     {
+        category: "other",
+        filterName: "Suggested",
+        options: [
+            {
+                filterValue: "has-menu",
+                value: "Weekly Menus"
+            }
+        ]
+    },
+    {
         category: "district",
         filterName: "Localities",
         options: [
@@ -164,20 +174,6 @@ export const FiltersData = [
             {
                 filterValue: "Praha 10",
                 value: "Praha 10"
-            }
-        ]
-    },
-    {
-        category: "other",
-        filterName: "Suggested",
-        options: [
-            {
-                filterValue: "open now",
-                value: "Open Now"
-            },
-            {
-                filterValue: "near me",
-                value: "Near me"
             }
         ]
     },

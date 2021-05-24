@@ -25,6 +25,252 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/logout": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logout"
+                ],
+                "summary": "Logs out a user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/user": {
+            "get": {
+                "description": "Returns a JSON with user info if the request headers contain an authenticated cookie.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get info about a user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseUserJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a user if the request headers contain an authenticated cookie and the body contains a JSON with a valid password.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Deletes a user",
+                "parameters": [
+                    {
+                        "description": "Password of the current user",
+                        "name": "password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.userPassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates user's password or username based on the provided JSON. Only 1 field can be updated at a time. For password you need to provide \"oldPassword\" and \"newPassword\" fields, omitting the \"newUsername\" field and vice versa if you'd like to update the username",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Updates a user's password or username",
+                "parameters": [
+                    {
+                        "description": "Create a new user",
+                        "name": "updateJSON",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.userUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/user/saved-restaurants": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Saved restaurants"
+                ],
+                "summary": "Saves a restaurant mapped to a user to db",
+                "parameters": [
+                    {
+                        "description": "ID of restaurant to save",
+                        "name": "restaurantID",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.restaurantIDJSON"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a saved restaurant if the request headers contain an authenticated cookie",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Saved restaurants"
+                ],
+                "summary": "Deletes a saved restaurant",
+                "parameters": [
+                    {
+                        "description": "ID of restaurant to delete",
+                        "name": "restaurantID",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.restaurantIDJSON"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseSimpleJSON"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/autocomplete": {
             "get": {
                 "description": "Provides restaurant candidates for autocompletion based on provided input",
@@ -114,40 +360,6 @@ var doc = `{
                 }
             }
         },
-        "/logout": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "logout"
-                ],
-                "summary": "Logs out a user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.responseSimpleJSON"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.responseSimpleJSON"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/prague-college/restaurants": {
             "get": {
                 "consumes": [
@@ -207,6 +419,12 @@ var doc = `{
                         "type": "boolean",
                         "description": "Filters out all restaurants that don't have a delivery option.",
                         "name": "delivery-options",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filters out all restaurants that don't have a weekly menu.",
+                        "name": "has-menu",
                         "in": "query"
                     },
                     {
@@ -406,6 +624,12 @@ var doc = `{
                         "in": "query"
                     },
                     {
+                        "type": "boolean",
+                        "description": "Filters out all restaurants that don't have a weekly menu.",
+                        "name": "has-menu",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "Sorts restaurants. Available sort options: price-asc, price-desc, rating",
                         "name": "sort",
@@ -417,129 +641,6 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/api.responseFullJSON"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.responseSimpleJSON"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user": {
-            "get": {
-                "description": "Returns a JSON with user info if the request headers contain an authenticated cookie.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Get info about a user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.responseUserJSON"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.responseSimpleJSON"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deletes a user if the request headers contain an authenticated cookie and the body contains a JSON with a valid password.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Deletes a user",
-                "parameters": [
-                    {
-                        "description": "Password of the current user",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.userPassword"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.responseSimpleJSON"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.responseSimpleJSON"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "description": "Updates user's password or username based on the provided JSON. Only 1 field can be updated at a time. For password you need to provide \"oldPassword\" and \"newPassword\" fields, omitting the \"newUsername\" field and vice versa if you'd like to update the username",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Updates a user's password or username",
-                "parameters": [
-                    {
-                        "description": "Create a new user",
-                        "name": "updateJSON",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.userUpdate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.responseSimpleJSON"
                         }
                     },
                     "400": {
@@ -597,7 +698,7 @@ var doc = `{
                 },
                 "User": {
                     "type": "object",
-                    "$ref": "#/definitions/api.userResponse"
+                    "$ref": "#/definitions/api.userResponseSimple"
                 }
             }
         },
@@ -625,7 +726,7 @@ var doc = `{
                 },
                 "User": {
                     "type": "object",
-                    "$ref": "#/definitions/api.userResponse"
+                    "$ref": "#/definitions/api.userResponseFull"
                 }
             }
         },
@@ -654,6 +755,14 @@ var doc = `{
                 }
             }
         },
+        "api.restaurantIDJSON": {
+            "type": "object",
+            "properties": {
+                "restaurantID": {
+                    "type": "integer"
+                }
+            }
+        },
         "api.userLogin": {
             "type": "object",
             "required": [
@@ -677,7 +786,7 @@ var doc = `{
                 }
             }
         },
-        "api.userResponse": {
+        "api.userResponseFull": {
             "type": "object",
             "properties": {
                 "email": {
@@ -685,6 +794,29 @@ var doc = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "savedRestaurants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.RestaurantDB"
+                    }
+                }
+            }
+        },
+        "api.userResponseSimple": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "savedRestaurantsIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },
@@ -721,6 +853,9 @@ var doc = `{
                 "DeliveryOptions": {
                     "type": "string"
                 },
+                "Distance": {
+                    "type": "number"
+                },
                 "District": {
                     "type": "string",
                     "example": "Praha 1"
@@ -743,6 +878,9 @@ var doc = `{
                 "Lon": {
                     "type": "number",
                     "example": 14.3032
+                },
+                "MenuValidUntil": {
+                    "type": "string"
                 },
                 "Name": {
                     "type": "string",

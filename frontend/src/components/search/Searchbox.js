@@ -97,10 +97,12 @@ function Searchbox() {
   },[cursor,suggestedRestaurants])
 
   useEffect(() => {
-    fetch(`/autocomplete?${searchByPath}${input}`).then(response =>
-      response.json()).then(
-        json => setSuggestedRestaurants(json.Data))
-  }, [input, searchByPath])
+    if (isVisible) {
+      fetch(`http://localhost:8080/autocomplete?${searchByPath}${input}`).then(response =>
+        response.json()).then(
+          json => setSuggestedRestaurants(json.Data))
+    }
+  }, [input, searchByPath,isVisible])
 
   const keyboardNavigation = (e) => {
     if (e.key === "ArrowDown") {

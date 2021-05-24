@@ -26,7 +26,7 @@ definitions:
         example: 200
         type: integer
       User:
-        $ref: '#/definitions/api.userResponse'
+        $ref: '#/definitions/api.userResponseSimple'
         type: object
     type: object
   api.responseSimpleJSON:
@@ -45,7 +45,7 @@ definitions:
         example: 200
         type: integer
       User:
-        $ref: '#/definitions/api.userResponse'
+        $ref: '#/definitions/api.userResponseFull'
         type: object
     type: object
   api.restaurantAutocomplete:
@@ -66,6 +66,11 @@ definitions:
         example: Steakhouse
         type: string
     type: object
+  api.restaurantIDJSON:
+    properties:
+      restaurantID:
+        type: integer
+    type: object
   api.userLogin:
     properties:
       email:
@@ -81,12 +86,27 @@ definitions:
       password:
         type: string
     type: object
-  api.userResponse:
+  api.userResponseFull:
     properties:
       email:
         type: string
       name:
         type: string
+      savedRestaurants:
+        items:
+          $ref: '#/definitions/db.RestaurantDB'
+        type: array
+    type: object
+  api.userResponseSimple:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      savedRestaurantsIDs:
+        items:
+          type: integer
+        type: array
     type: object
   api.userUpdate:
     properties:
@@ -111,6 +131,8 @@ definitions:
         type: string
       DeliveryOptions:
         type: string
+      Distance:
+        type: number
       District:
         example: Praha 1
         type: string
@@ -128,6 +150,8 @@ definitions:
       Lon:
         example: 14.3032
         type: number
+      MenuValidUntil:
+        type: string
       Name:
         example: Steakhouse
         type: string
@@ -175,6 +199,173 @@ info:
   title: Restaurateur API
   version: 0.2.0
 paths:
+  /auth/logout:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Logs out a user
+      tags:
+      - logout
+  /auth/user:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a user if the request headers contain an authenticated
+        cookie and the body contains a JSON with a valid password.
+      parameters:
+      - description: Password of the current user
+        in: body
+        name: password
+        required: true
+        schema:
+          $ref: '#/definitions/api.userPassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Deletes a user
+      tags:
+      - user
+    get:
+      consumes:
+      - application/json
+      description: Returns a JSON with user info if the request headers contain an
+        authenticated cookie.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.responseUserJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get info about a user
+      tags:
+      - user
+    patch:
+      consumes:
+      - application/json
+      description: Updates user's password or username based on the provided JSON.
+        Only 1 field can be updated at a time. For password you need to provide "oldPassword"
+        and "newPassword" fields, omitting the "newUsername" field and vice versa
+        if you'd like to update the username
+      parameters:
+      - description: Create a new user
+        in: body
+        name: updateJSON
+        required: true
+        schema:
+          $ref: '#/definitions/api.userUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Updates a user's password or username
+      tags:
+      - user
+  /auth/user/saved-restaurants:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a saved restaurant if the request headers contain an authenticated
+        cookie
+      parameters:
+      - description: ID of restaurant to delete
+        in: body
+        name: restaurantID
+        required: true
+        schema:
+          $ref: '#/definitions/api.restaurantIDJSON'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Deletes a saved restaurant
+      tags:
+      - Saved restaurants
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of restaurant to save
+        in: body
+        name: restaurantID
+        required: true
+        schema:
+          $ref: '#/definitions/api.restaurantIDJSON'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.responseSimpleJSON'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Saves a restaurant mapped to a user to db
+      tags:
+      - Saved restaurants
   /autocomplete:
     get:
       consumes:
@@ -235,28 +426,6 @@ paths:
       summary: Logs in a user
       tags:
       - login
-  /logout:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Logs out a user
-      tags:
-      - logout
   /prague-college/restaurants:
     get:
       consumes:
@@ -304,6 +473,10 @@ paths:
       - description: Filters out all restaurants that don't have a delivery option.
         in: query
         name: delivery-options
+        type: boolean
+      - description: Filters out all restaurants that don't have a weekly menu.
+        in: query
+        name: has-menu
         type: boolean
       - description: 'Sorts restaurants. Available sort options: price-asc, price-desc,
           rating'
@@ -449,6 +622,10 @@ paths:
         in: query
         name: delivery-options
         type: boolean
+      - description: Filters out all restaurants that don't have a weekly menu.
+        in: query
+        name: has-menu
+        type: boolean
       - description: 'Sorts restaurants. Available sort options: price-asc, price-desc,
           rating'
         in: query
@@ -472,90 +649,4 @@ paths:
       summary: Returns restaurants based on queries
       tags:
       - restaurants
-  /user:
-    delete:
-      consumes:
-      - application/json
-      description: Deletes a user if the request headers contain an authenticated
-        cookie and the body contains a JSON with a valid password.
-      parameters:
-      - description: Password of the current user
-        in: body
-        name: password
-        required: true
-        schema:
-          $ref: '#/definitions/api.userPassword'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Deletes a user
-      tags:
-      - user
-    get:
-      consumes:
-      - application/json
-      description: Returns a JSON with user info if the request headers contain an
-        authenticated cookie.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.responseUserJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Get info about a user
-      tags:
-      - user
-    patch:
-      consumes:
-      - application/json
-      description: Updates user's password or username based on the provided JSON.
-        Only 1 field can be updated at a time. For password you need to provide "oldPassword"
-        and "newPassword" fields, omitting the "newUsername" field and vice versa
-        if you'd like to update the username
-      parameters:
-      - description: Create a new user
-        in: body
-        name: updateJSON
-        required: true
-        schema:
-          $ref: '#/definitions/api.userUpdate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Updates a user's password or username
-      tags:
-      - user
 swagger: "2.0"

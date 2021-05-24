@@ -4,7 +4,7 @@ import { UserContext } from '../../UserContext';
 import './Districts.css';
 
 function DistrictItem(props) {
-  const { setClickedDistrict } = useContext(UserContext)
+  const { setClickedDistrict }  = useContext(UserContext)
 
   return (
     <>
