@@ -19,9 +19,9 @@ jobs:
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.KNOWN_HOST }}
-      - name: Deploy
+      - name: Deploy Testing
         shell: bash
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEP_PATH }}; sudo docker-compose down"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEP_PATH }}; sudo docker-compose -p restaurateur-dev -f docker-compose-dev.yml down"
           rsync -avz . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEP_PATH }}
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEP_PATH }}; sudo docker-compose up --build -d"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEP_PATH }}; sudo docker-compose -p restaurateur-dev -f docker-compose-dev.yml up --build  -d"
