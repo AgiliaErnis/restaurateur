@@ -42,24 +42,28 @@ information about each restaurant:
     * Cuisines
     * Takeaway and Delivery Options
     * Phone Number
+    * Weekly Menu
 
 * Filtering Options:
 
-   * For Prague College local restaurants:
-       * Price Range
-       * District
-       * Delivery and Takeaway Options
-       * Vegetarian and Vegan Options
-       * Gluten Free Option
-       * Distance
+    * For Prague College local restaurants:
+        * Cuisine
+        * Price Range
+        * District
+        * Delivery and Takeaway Options
+        * Vegetarian and Vegan Options
+        * Gluten Free Option
+        * Weekly Menu
+        * Distance
 
-   * For all restaurants:
-       * Cuisine
-       * Price Range
-       * District
-       * Delivery and Takeaway Options
-       * Vegetarian and Vegan Options
-       * Gluten Free Option
+    * For all restaurants:
+        * Cuisine
+        * Price Range
+        * District
+        * Delivery and Takeaway Options
+        * Vegetarian and Vegan Options
+        * Gluten Free Option
+        * Weekly Menu
 
 * Search engine suggests restaurants based on user's input and
 works as an autocomplete.
