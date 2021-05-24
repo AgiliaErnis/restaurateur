@@ -54,7 +54,7 @@ information about each restaurant:
 
 * Updated filtering options:
 
-    For Prague College local restaurants:
+    * For Prague College local restaurants:
         * Price Range
         * District
         * Delivery and Takeaway Options
@@ -62,7 +62,7 @@ information about each restaurant:
         * Gluten Free Option
         * Distance
 
-    For all restaurants:
+    * For all restaurants:
         * Cuisine
         * Price Range
         * District
