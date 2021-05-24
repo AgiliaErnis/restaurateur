@@ -26,6 +26,7 @@ services:
       context: ./backend
     environment:
       - DB_DSN=postgresql://$DB_USER:$DB_PASS@postgres/restaurateur?sslmode=disable
+      - ORIGIN_ALLOWED=http://frontend:3000
     ports:
       - '8080:8080'
 

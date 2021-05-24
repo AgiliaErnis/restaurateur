@@ -4,6 +4,6 @@ WORKDIR /app
 RUN go mod download
 RUN cd cmd/backend && go build
 
-CMD ./cmd/backend
+CMD ./backend
 
 EXPOSE 8080
