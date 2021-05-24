@@ -42,6 +42,7 @@ information about each restaurant:
     * Cuisines
     * Takeaway and Delivery Options
     * Phone Number
+    * Weekly Menu
 
 * Filtering Options:
 
