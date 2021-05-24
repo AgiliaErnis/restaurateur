@@ -38,8 +38,6 @@ whenever the vertical filtration or pagination is clicked.
 
 ## [0.2.0] - 2021-05-23
 
-### Fixed
-
 ### Added
 
 * The recommender provides the following
