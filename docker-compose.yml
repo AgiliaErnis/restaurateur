@@ -1,7 +1,7 @@
 version: "3"
 services:
   db:
-    container_name: postgres
+    container_name: postgres-dev
     image: postgres
     environment:
       - POSTGRES_USER=$DB_USER
@@ -12,21 +12,14 @@ services:
     volumes:
       - ../postgres-data:/var/lib/postgresql/data
       - ./backend/restaurants.sql:/docker-entrypoint-initdb.d/create_tables.sql
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend
-      args:
-        - HTTP_PROXY=backend
-    ports:
-      - '3000:3000'
-  backend:
-    container_name: backend
-    build:
-      context: ./backend
+  app:
+    build: .
+    container_name: app
+    depends_on:
+      - db
     environment:
       - DB_DSN=postgresql://$DB_USER:$DB_PASS@postgres/restaurateur?sslmode=disable
-      - ORIGIN_ALLOWED=http://frontend:3000
+      - ORIGIN_ALLOWED=https://restaurateur.tech
     ports:
+      - '3000:3000'
       - '8080:8080'
-

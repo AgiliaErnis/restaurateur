@@ -12,20 +12,14 @@ services:
     volumes:
       - ../postgres-data-dev:/var/lib/postgresql/data
       - ./backend/restaurants.sql:/docker-entrypoint-initdb.d/create_tables.sql
-  frontend-dev:
-    container_name: frontend-dev
-    build:
-      context: ./frontend
-      args:
-        - HTTP_PROXY=backend-dev
-    ports:
-      - '3030:3000'
-  backend-dev:
-    container_name: backend-dev
-    build:
-      context: ./backend
+  app-dev:
+    build: .
+    container_name: app-dev
+    depends_on:
+      - db-dev
     environment:
       - DB_DSN=postgresql://$DB_USER:$DB_PASS@postgres-dev/restaurateur?sslmode=disable
-      - ORIGIN_ALLOWED=http://frontend-dev:3000
+      - ORIGIN_ALLOWED=https://test.restaurateur.tech
     ports:
+      - '3030:3000'
       - '8085:8080'
