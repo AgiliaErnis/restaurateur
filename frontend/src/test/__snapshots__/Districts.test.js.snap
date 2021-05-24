@@ -21,6 +21,7 @@ exports[`testing CollegeSection should render 1`] = `
       >
         <li
           className="districts__item"
+          onClick={[Function]}
         >
           <a
             className="districts__item__link"
@@ -28,18 +29,19 @@ exports[`testing CollegeSection should render 1`] = `
             onClick={[Function]}
           >
             <h4>
-              Prague 1
+              Praha 1
                (
-              50
+              1062
                places)
             </h4>
             <i
-              className="fas fa-angle-right"
+              class="fas fa-angle-right"
             />
           </a>
         </li>
         <li
           className="districts__item"
+          onClick={[Function]}
         >
           <a
             className="districts__item__link"
@@ -47,18 +49,19 @@ exports[`testing CollegeSection should render 1`] = `
             onClick={[Function]}
           >
             <h4>
-              Prague 2
+              Praha 2
                (
-              50
+              387
                places)
             </h4>
             <i
-              className="fas fa-angle-right"
+              class="fas fa-angle-right"
             />
           </a>
         </li>
         <li
           className="districts__item"
+          onClick={[Function]}
         >
           <a
             className="districts__item__link"
@@ -66,13 +69,13 @@ exports[`testing CollegeSection should render 1`] = `
             onClick={[Function]}
           >
             <h4>
-              Prague 3
+              Praha 4
                (
-              50
+              296
                places)
             </h4>
             <i
-              className="fas fa-angle-right"
+              class="fas fa-angle-right"
             />
           </a>
         </li>
@@ -82,6 +85,7 @@ exports[`testing CollegeSection should render 1`] = `
       >
         <li
           className="districts__item"
+          onClick={[Function]}
         >
           <a
             className="districts__item__link"
@@ -89,18 +93,19 @@ exports[`testing CollegeSection should render 1`] = `
             onClick={[Function]}
           >
             <h4>
-              Prague 4
+              Praha 5
                (
-              50
+              310
                places)
             </h4>
             <i
-              className="fas fa-angle-right"
+              class="fas fa-angle-right"
             />
           </a>
         </li>
         <li
           className="districts__item"
+          onClick={[Function]}
         >
           <a
             className="districts__item__link"
@@ -108,18 +113,19 @@ exports[`testing CollegeSection should render 1`] = `
             onClick={[Function]}
           >
             <h4>
-              Prague 5
+              Praha 6
                (
-              50
+              222
                places)
             </h4>
             <i
-              className="fas fa-angle-right"
+              class="fas fa-angle-right"
             />
           </a>
         </li>
         <li
           className="districts__item"
+          onClick={[Function]}
         >
           <a
             className="districts__item__link"
@@ -127,13 +133,13 @@ exports[`testing CollegeSection should render 1`] = `
             onClick={[Function]}
           >
             <h4>
-              Prague 6
+              Praha 10
                (
-              50
+              259
                places)
             </h4>
             <i
-              className="fas fa-angle-right"
+              class="fas fa-angle-right"
             />
           </a>
         </li>

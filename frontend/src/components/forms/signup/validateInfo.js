@@ -3,6 +3,8 @@ export default function validateInfo(values) {
 
     if (!values.username.trim()) {
       errors.username = 'Username required';
+    } else if (values.username.length < 2) {
+      errors.username = 'Username needs to be 2 characters or more'
     }
 
     if (!values.email) {

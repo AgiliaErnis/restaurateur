@@ -14,6 +14,7 @@ const useStyles = makeStyles((theme) => ({
 export default function RestaurantPagination({ restaurantsPerPage, totalRestaurants, paginate, page }) {
 
   const pageNumbers = [];
+  
   for (let i = 1; i <= Math.ceil(totalRestaurants / restaurantsPerPage); i++) {
     pageNumbers.push(i);
   }

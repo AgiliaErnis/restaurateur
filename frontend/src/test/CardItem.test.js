@@ -5,12 +5,14 @@ import CardItem from "../components/cards/CardItem";
 import * as enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16'
 import { shallow, configure } from 'enzyme';
+import { UserContext } from "../UserContext";
 
 configure({ adapter: new Adapter() });
 
 describe('testing CardItem', () => {
 
     it('should render', () => {
-        shallow(<CardItem />);
+        shallow(<UserContext.Provider value={true}><CardItem /></UserContext.Provider>);
     })
+
 })

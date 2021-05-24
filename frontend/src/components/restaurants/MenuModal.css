@@ -1,0 +1,41 @@
+.menu-modal-container {
+    background-color: rgba(0,0,0,0.3);
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.menu-modal, .not-available-menu-modal {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    box-shadow: 0px 2px 7px rgba(0,0,0,1.2);
+    background: rgb(255, 255, 255);
+    border-radius: 5px;
+    overflow: hidden;
+    overflow-y: scroll;
+    max-height: 70%;
+
+}
+
+.not-available-menu-modal {
+    height: 20%;
+    width: 20%;
+    overflow-y: hidden;
+}
+
+.menu-container {
+    padding: 1rem;
+}
+
+.date {
+    position: relative;
+    width: inherit;
+    text-align: start;
+}
