@@ -122,6 +122,16 @@ export const FiltersData = [
         ]
     },
     {
+        category: "other",
+        filterName: "Suggested",
+        options: [
+            {
+                filterValue: "has-menu",
+                value: "Weekly Menus"
+            }
+        ]
+    },
+    {
         category: "district",
         filterName: "Localities",
         options: [

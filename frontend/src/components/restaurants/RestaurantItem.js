@@ -4,11 +4,13 @@ import Rating from '@material-ui/lab/Rating';
 import { PhotoSlider } from './PhotoSlider/PhotoSlider';
 import PhoneModal from './PhoneModal';
 import { UserContext } from '../../UserContext';
+import MenuModal from './MenuModal';
 
 export const RestaurantItem = React.memo((props) => {
   const [click, setClick] = useState(restaurantIsClicked());
   const [savedRestaurant, setSavedRestaurant] = useState(false)
   const [clickOnPhone, setClickOnPhone] = useState(false)
+  const [clickOnMenu, setClickOnMenu] = useState(false)
   const { setNewSavedRestaurant } = useContext(UserContext)
   const [deleteSavedOne, setDeleteSavedOne] = useState(false)
   const {successfullLogin} = useContext(UserContext)
@@ -37,6 +39,10 @@ export const RestaurantItem = React.memo((props) => {
 
   const handleClickOnPhone = () => {
     setClickOnPhone(!clickOnPhone)
+  }
+
+  const handleClickOnMenu = () => {
+    setClickOnMenu(!clickOnMenu)
   }
 
   useEffect(() => {
@@ -152,9 +158,10 @@ export const RestaurantItem = React.memo((props) => {
                     <i className="fas fa-phone"></i>
                 {clickOnPhone && <PhoneModal name={props.name} phone={props.phone}/>}
               </div>
-              <div className="option">
-                Menu
+              <div className="option" onClick={handleClickOnMenu}>
+                Weekly Menu 
                     <i className="fab fa-elementor"></i>
+                {clickOnMenu && <MenuModal name={props.name} menu={props.menu} date={props.menuDates}/>}
               </div>
               <div className="option view">
                 View More

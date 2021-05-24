@@ -170,6 +170,7 @@ export default function Restaurants() {
                 takeaway={filteredRestaurant.Takeaway}
                 delivery={filteredRestaurant.DeliveryOptions}
                 phone={filteredRestaurant.PhoneNumber}
+                menu={filteredRestaurant.WeeklyMenu !== "null" ? filteredRestaurant.WeeklyMenu : null}
               />
             })
             :
