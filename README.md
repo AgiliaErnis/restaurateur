@@ -63,7 +63,6 @@ information about each restaurant:
 
 * Search engine suggests restaurants based on user's input and
 works as an autocomplete.
-
 The restaurants can be searched by the given location or name.
 
 * The recommender can sort retrieved restaurants
