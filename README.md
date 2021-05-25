@@ -103,7 +103,21 @@ https://user-images.githubusercontent.com/56120787/119279240-72cc0e00-bc3b-11eb-
 The UI of the Restaurateur web application is fully
 based on JavaScript Library – React.
 
-### Running the application
+## Environment variables 
+
+### Frontend
+
+The application requires setting up .env file with the follwing environment variables:
+
+**SKIP_PREFLIGHT_CHECK** : `SKIP_PREFLIGHT_CHECK=true`
+
+**REACT_APP_PROXY** : `REACT_APP_PROXY=http://localhost:8080`
+
+### Backend
+
+Check out https://github.com/AgiliaErnis/restaurateur/tree/main/backend#environment-variables to see the required environment variables for backend.
+
+## Running the application
 
 #### Frontend
 
