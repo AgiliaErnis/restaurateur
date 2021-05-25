@@ -191,7 +191,7 @@ definitions:
     - password
     - username
     type: object
-host: localhost:8080
+host: https://api.restaurateur.tech
 info:
   contact: {}
   description: Provides info about restaurants in Prague
