@@ -1,16 +1,18 @@
 # Restaurateur API
 
+Deployed on https://api.restaurateur.tech
+
 ## Documentation
 
-API documentation can be seen in Swagger UI on `/docs/index.html`
+API documentation can be seen in Swagger UI on https://api.restaurateur.tech/docs/index.html
+
 The API can be tested directly on that page by clicking on *try out*
 and inputting query parameters (cookie authentication cannot be tested there).
 
-Generate new documentation:
 
-`$ swag init -g internal/api/api.go -o docs`
+## Local installation
 
-## Environment variables 
+### Environment variables 
 
 **DB_DSN**
 
@@ -24,7 +26,7 @@ Example:
 
 `$ export ORIGIN_ALLOWED=http://localhost:3000`
 
-## Database set-up
+### Database set-up
 
 postgres >= 13
 
@@ -39,10 +41,16 @@ you can use the following command:
 
 `$ ./backend --download`
 
-## Starting the server
+### Starting the server
 
 `$ cd cmd/backend && go build `
 
 `$ ./backend`
 
 To configure listen port use the `-p` or `--port` flag
+
+### Build documentation
+
+`$ go get -u github.com/swaggo/swag/cmd/swag`
+
+`$ swag init -g internal/api/api.go -o docs`
