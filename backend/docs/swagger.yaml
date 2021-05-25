@@ -191,7 +191,7 @@ definitions:
     - password
     - username
     type: object
-host: https://api.restaurateur.tech
+host: api.restaurateur.tech
 info:
   contact: {}
   description: Provides info about restaurants in Prague
@@ -649,4 +649,6 @@ paths:
       summary: Returns restaurants based on queries
       tags:
       - restaurants
+schemes:
+- https
 swagger: "2.0"

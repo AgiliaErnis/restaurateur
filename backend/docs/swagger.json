@@ -1,4 +1,7 @@
 {
+    "schemes": [
+        "https"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "Provides info about restaurants in Prague",
@@ -7,7 +10,7 @@
         "license": {},
         "version": "0.2.0"
     },
-    "host": "https://api.restaurateur.tech",
+    "host": "api.restaurateur.tech",
     "basePath": "/",
     "paths": {
         "/auth/logout": {
