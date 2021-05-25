@@ -39,7 +39,7 @@ const useDeleteAccountForm = (callback, validate) => {
                   'Content-Type': 'application/json'
                 }
             }
-        fetch('http://localhost:8080/auth/user', deleteAccountRequest)
+        fetch(`${process.env.REACT_APP_PROXY}/auth/user`, deleteAccountRequest)
           .then(response => response.json())
           .then(res => {
             if (res.Status === 403) {setIsSubmitting(false)

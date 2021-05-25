@@ -49,7 +49,7 @@ function App() {
 
     async function getUserInfo() {
       if (!incorrectPassword) {
-        await fetch('http://localhost:8080/auth/user', UserInfo)
+        await fetch(`${process.env.REACT_APP_PROXY}/auth/user`, UserInfo)
           .then(response => response.json())
           .then(res => {
             if (res.Status === 200) {

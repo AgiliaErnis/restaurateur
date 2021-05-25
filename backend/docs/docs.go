@@ -953,9 +953,9 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "0.2.0",
-	Host:        "localhost:8080",
+	Host:        "api.restaurateur.tech",
 	BasePath:    "/",
-	Schemes:     []string{},
+	Schemes:     []string{"https"},
 	Title:       "Restaurateur API",
 	Description: "Provides info about restaurants in Prague",
 }

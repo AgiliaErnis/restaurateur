@@ -80,11 +80,11 @@ save favourite restaurants and modify account settings as needed.
 
 ## Usage
 
-### Stage 1 
+### Stage 1
 
 https://user-images.githubusercontent.com/56120787/115972966-c1b25500-a562-11eb-9fd9-ca9e72279b14.mp4
 
-### Stage 2 
+### Stage 2
 
 ### Registration
 
@@ -98,27 +98,15 @@ https://user-images.githubusercontent.com/56120787/119279367-55e40a80-bc3c-11eb-
 
 https://user-images.githubusercontent.com/56120787/119279240-72cc0e00-bc3b-11eb-94de-9e7aff14596f.mp4
 
-## User Interface
+## Running the application
 
-The UI of the Restaurateur web application is fully
-based on JavaScript Library – React.
-
-### Running the application
+The detailed insturctions for running the application
+can be seen in the following README files:
 
 #### Frontend
 
-`$ cd frontend `
-
-`$ npm install `
-
-`$ npm start `
+https://github.com/AgiliaErnis/restaurateur/tree/proxy_setting/frontend#readme
 
 #### Backend
 
-`$ cd backend `
-
-`$ go build `
-
-`$ ./backend `
-
-For more information check out the backend README file - https://github.com/AgiliaErnis/restaurateur/tree/main/backend#readme
+https://github.com/AgiliaErnis/restaurateur/tree/main/backend#readme

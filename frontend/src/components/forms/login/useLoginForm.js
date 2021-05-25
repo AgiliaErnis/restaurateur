@@ -39,7 +39,7 @@ const useLoginForm = (callback, validate) => {
           }
         }
 
-        fetch('http://localhost:8080/login', loginRequest)
+        fetch(`${process.env.REACT_APP_PROXY}/login`, loginRequest)
         .then(response => response.json())
           .then(res => {
             if (res.Status === 403) {
