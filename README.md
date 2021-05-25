@@ -107,7 +107,7 @@ based on JavaScript Library – React.
 
 ### Frontend
 
-The application requires setting up .env file with the follwing environment variables:
+The application requires setting up `.env` file with the follwing environment variables:
 
 **SKIP_PREFLIGHT_CHECK** : `SKIP_PREFLIGHT_CHECK=true`
 
