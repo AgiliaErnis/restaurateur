@@ -60,7 +60,7 @@ export const RestaurantItem = React.memo((props) => {
           }
         }
 
-        fetch('http://localhost:8080/auth/user/saved-restaurants', saveRestaurantRequest)
+        fetch(`${process.env.REACT_APP_PROXY}auth/user/saved-restaurants`, saveRestaurantRequest)
           .then(response => response.json())
           .then(res => {
             if (res.Status === 200) {
@@ -77,7 +77,7 @@ export const RestaurantItem = React.memo((props) => {
           }
         }
 
-        fetch('http://localhost:8080/auth/user/saved-restaurants', deleteRestaurantRequest)
+        fetch(`${process.env.REACT_APP_PROXY}auth/user/saved-restaurants`, deleteRestaurantRequest)
           .then(response => response.json())
           .then(res => {
             if (res.Status === 200) {
@@ -159,7 +159,7 @@ export const RestaurantItem = React.memo((props) => {
                 {clickOnPhone && <PhoneModal name={props.name} phone={props.phone}/>}
               </div>
               <div className="option" onClick={handleClickOnMenu}>
-                Weekly Menu 
+                Weekly Menu
                     <i className="fab fa-elementor"></i>
                 {clickOnMenu && <MenuModal name={props.name} menu={props.menu} date={props.menuDates}/>}
               </div>

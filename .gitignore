@@ -2,3 +2,4 @@ backend/cmd/backend/backend.exe
 backend/cmd/backend/backend
 frontend/node_modules
 frontend/build
+frontend/.env

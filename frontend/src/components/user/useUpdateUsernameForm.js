@@ -38,7 +38,7 @@ const useChangePasswordForm = (callback, validate) => {
                 }
             }
 
-    fetch('http://localhost:8080/auth/user', updateUsernameRequest)
+    fetch(`${process.env.REACT_APP_PROXY}auth/user`, updateUsernameRequest)
       .then(response => response.json())
       .then(res => {
         if (res.Status === 200) {
