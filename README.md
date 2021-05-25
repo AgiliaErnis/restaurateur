@@ -80,11 +80,11 @@ save favourite restaurants and modify account settings as needed.
 
 ## Usage
 
-### Stage 1 
+### Stage 1
 
 https://user-images.githubusercontent.com/56120787/115972966-c1b25500-a562-11eb-9fd9-ca9e72279b14.mp4
 
-### Stage 2 
+### Stage 2
 
 ### Registration
 
@@ -98,41 +98,13 @@ https://user-images.githubusercontent.com/56120787/119279367-55e40a80-bc3c-11eb-
 
 https://user-images.githubusercontent.com/56120787/119279240-72cc0e00-bc3b-11eb-94de-9e7aff14596f.mp4
 
-## User Interface
-
-The UI of the Restaurateur web application is fully
-based on JavaScript Library – React.
-
-## Environment variables 
-
-### Frontend
-
-The application requires setting up of `.env` file with the following environment variables:
-
-**SKIP_PREFLIGHT_CHECK** : `SKIP_PREFLIGHT_CHECK=true`
-
-**REACT_APP_PROXY** : `REACT_APP_PROXY=http://localhost:8080`
-
-### Backend
-
-Check out https://github.com/AgiliaErnis/restaurateur/tree/main/backend#environment-variables to see the required environment variables for backend.
-
 ## Running the application
+
+The detailed insturctions for running the application
+can be seen in the following README files:
 
 #### Frontend
 
-`$ cd frontend `
-
-`$ npm install `
-
-`$ npm start `
-
 #### Backend
 
-`$ cd backend `
-
-`$ go build `
-
-`$ ./backend `
-
-For more information check out the backend README file - https://github.com/AgiliaErnis/restaurateur/tree/main/backend#readme
+https://github.com/AgiliaErnis/restaurateur/tree/main/backend#readme
