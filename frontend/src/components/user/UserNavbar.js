@@ -15,7 +15,7 @@ function UserNavbar() {
               'Content-Type': 'application/json'
             }
         }
-        fetch(`${process.env.REACT_APP_PROXY}auth/logout`,logoutRequest)
+        fetch(`${process.env.REACT_APP_PROXY}/auth/logout`,logoutRequest)
             .then(response => response.json())
             .then(res => {
                 if (res.Status === 200) {

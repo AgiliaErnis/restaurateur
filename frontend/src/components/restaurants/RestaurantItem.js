@@ -60,7 +60,7 @@ export const RestaurantItem = React.memo((props) => {
           }
         }
 
-        fetch(`${process.env.REACT_APP_PROXY}auth/user/saved-restaurants`, saveRestaurantRequest)
+        fetch(`${process.env.REACT_APP_PROXY}/auth/user/saved-restaurants`, saveRestaurantRequest)
           .then(response => response.json())
           .then(res => {
             if (res.Status === 200) {
@@ -77,7 +77,7 @@ export const RestaurantItem = React.memo((props) => {
           }
         }
 
-        fetch(`${process.env.REACT_APP_PROXY}auth/user/saved-restaurants`, deleteRestaurantRequest)
+        fetch(`${process.env.REACT_APP_PROXY}/auth/user/saved-restaurants`, deleteRestaurantRequest)
           .then(response => response.json())
           .then(res => {
             if (res.Status === 200) {

@@ -48,7 +48,7 @@ const useForm = (callback, validate) => {
           }
         }
 
-        fetch(`${process.env.REACT_APP_PROXY}register`, signupRequest)
+        fetch(`${process.env.REACT_APP_PROXY}/register`, signupRequest)
           .then(response => response.json())
           .then(res => {
             if (res.Status === 200) {

@@ -44,7 +44,7 @@ const useChangePasswordForm = (callback, validate) => {
             'Content-Type': 'application/json'
           }
         }
-        fetch(`${process.env.REACT_APP_PROXY}auth/user`, changePasswordRequest)
+        fetch(`${process.env.REACT_APP_PROXY}/auth/user`, changePasswordRequest)
           .then(response => response.json())
           .then(res => {
             if (res.Status === 403) {
