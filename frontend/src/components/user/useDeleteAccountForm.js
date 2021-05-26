@@ -42,7 +42,8 @@ const useDeleteAccountForm = (callback, validate) => {
         fetch(`${process.env.REACT_APP_PROXY}/auth/user`, deleteAccountRequest)
           .then(response => response.json())
           .then(res => {
-            if (res.status === 403) {setIsSubmitting(false)
+            if (res.status === 403) {
+              setIsSubmitting(false)
               setIncorrectPasswordOnDelete(true)
 
             }

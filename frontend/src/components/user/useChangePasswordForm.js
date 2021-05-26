@@ -49,6 +49,7 @@ const useChangePasswordForm = (callback, validate) => {
           .then(res => {
             if (res.status === 403) {
               setIncorrectOldPassword(true);
+              setIsSubmitting(false)
             }
             else {
               callback();
