@@ -52,9 +52,9 @@ function App() {
         await fetch(`${process.env.REACT_APP_PROXY}/auth/user`, UserInfo)
           .then(response => response.json())
           .then(res => {
-            if (res.Status === 200) {
-              setUsername(res.User.Name);
-              setSavedRestaurants(res.User.SavedRestaurants)
+            if (res.status === 200) {
+              setUsername(res.user.name);
+              setSavedRestaurants(res.user.savedRestaurants)
             }
           })
       }}
