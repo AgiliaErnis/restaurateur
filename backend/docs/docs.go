@@ -360,96 +360,6 @@ var doc = `{
                 }
             }
         },
-        "/prague-college/restaurants": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "PC restaurants"
-                ],
-                "summary": "Returns restaurants around Prague College",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Radius (in meters) of the area around a provided or pre-selected starting point. Restaurants in this area will be returned. Radius can be ignored when specified with radius=ignore and lat and lon parameters will no longer be required. When no radius is provided, a default value of 1000 meters is used.",
-                        "name": "radius",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filters restaurants based on a list of cuisines, separated by commas -\u003e cuisine=Czech,English. A restaurant will be returned only if it satisfies all provided cuisines.Available cuisines: American, Italian, Asian, Indian, Japanese, Vietnamese, Spanish, Mediterranean, French, Thai, Mexican, International, Czech, English, Balkan, Brazil, Russian, Chinese, Greek, Arabic, Korean.",
-                        "name": "cuisine",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filters restaurants based on a list of price ranges, separated by commas -\u003e price-range=0-300,600-. A restaurant will be returned if it satisfies at least one provided price range. Available price ranges: 0-300,300-600,600-",
-                        "name": "price-range",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filters out all non vegetarian restaurants.",
-                        "name": "vegetarian",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filters out all non vegan restaurants.",
-                        "name": "vegan",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filters out all non gluten free restaurants.",
-                        "name": "gluten-free",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filters out all restaurants that don't have a takeaway option.",
-                        "name": "takeaway",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filters out all restaurants that don't have a delivery option.",
-                        "name": "delivery-options",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filters out all restaurants that don't have a weekly menu.",
-                        "name": "has-menu",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sorts restaurants. Available sort options: price-asc, price-desc, rating",
-                        "name": "sort",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.responseFullJSON"
-                        }
-                    },
-                    "405": {
-                        "description": "Method Not Allowed",
-                        "schema": {
-                            "$ref": "#/definitions/api.responseSimpleJSON"
-                        }
-                    }
-                }
-            }
-        },
         "/register": {
             "post": {
                 "consumes": [
@@ -663,17 +573,17 @@ var doc = `{
         "api.responseAutocompleteJSON": {
             "type": "object",
             "properties": {
-                "Data": {
+                "data": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/api.restaurantAutocomplete"
                     }
                 },
-                "Msg": {
+                "msg": {
                     "type": "string",
                     "example": "Success"
                 },
-                "Status": {
+                "status": {
                     "type": "integer",
                     "example": 200
                 }
@@ -682,21 +592,21 @@ var doc = `{
         "api.responseFullJSON": {
             "type": "object",
             "properties": {
-                "Data": {
+                "data": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/db.RestaurantDB"
                     }
                 },
-                "Msg": {
+                "msg": {
                     "type": "string",
                     "example": "Success"
                 },
-                "Status": {
+                "status": {
                     "type": "integer",
                     "example": 200
                 },
-                "User": {
+                "user": {
                     "type": "object",
                     "$ref": "#/definitions/api.userResponseSimple"
                 }
@@ -705,10 +615,10 @@ var doc = `{
         "api.responseSimpleJSON": {
             "type": "object",
             "properties": {
-                "Msg": {
+                "msg": {
                     "type": "string"
                 },
-                "Status": {
+                "status": {
                     "type": "integer"
                 }
             }
@@ -716,15 +626,15 @@ var doc = `{
         "api.responseUserJSON": {
             "type": "object",
             "properties": {
-                "Msg": {
+                "msg": {
                     "type": "string",
                     "example": "Success"
                 },
-                "Status": {
+                "status": {
                     "type": "integer",
                     "example": 200
                 },
-                "User": {
+                "user": {
                     "type": "object",
                     "$ref": "#/definitions/api.userResponseFull"
                 }
@@ -733,23 +643,23 @@ var doc = `{
         "api.restaurantAutocomplete": {
             "type": "object",
             "properties": {
-                "Address": {
+                "address": {
                     "type": "string",
                     "example": "Polská 13"
                 },
-                "District": {
+                "district": {
                     "type": "string",
                     "example": "Praha 1"
                 },
-                "ID": {
+                "id": {
                     "type": "integer",
                     "example": 1
                 },
-                "Image": {
+                "image": {
                     "type": "string",
                     "example": "url.com"
                 },
-                "Name": {
+                "name": {
                     "type": "string",
                     "example": "Steakhouse"
                 }
@@ -793,7 +703,8 @@ var doc = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "name"
                 },
                 "savedRestaurants": {
                     "type": "array",
@@ -810,13 +721,18 @@ var doc = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "name"
                 },
                 "savedRestaurantsIDs": {
                     "type": "array",
                     "items": {
                         "type": "integer"
-                    }
+                    },
+                    "example": [
+                        1,
+                        2
+                    ]
                 }
             }
         },
@@ -842,79 +758,79 @@ var doc = `{
         "db.RestaurantDB": {
             "type": "object",
             "properties": {
-                "Address": {
+                "address": {
                     "type": "string",
                     "example": "Polská 12"
                 },
-                "Cuisines": {
+                "cuisines": {
                     "type": "string",
                     "example": "Italian,Czech"
                 },
-                "DeliveryOptions": {
+                "deliveryOptions": {
                     "type": "string"
                 },
-                "Distance": {
+                "distance": {
                     "type": "number"
                 },
-                "District": {
+                "district": {
                     "type": "string",
                     "example": "Praha 1"
                 },
-                "GlutenFree": {
+                "glutenFree": {
                     "type": "boolean"
                 },
-                "ID": {
+                "id": {
                     "type": "integer",
                     "example": 1
                 },
-                "Images": {
+                "images": {
                     "type": "string",
                     "example": "image1.com, image2.com"
                 },
-                "Lat": {
+                "lat": {
                     "type": "number",
                     "example": 50.03493
                 },
-                "Lon": {
+                "lon": {
                     "type": "number",
                     "example": 14.3032
                 },
-                "MenuValidUntil": {
+                "menuValidUntil": {
                     "type": "string"
                 },
-                "Name": {
+                "name": {
                     "type": "string",
                     "example": "Steakhouse"
                 },
-                "OpeningHours": {
+                "openingHours": {
                     "type": "string"
                 },
-                "PhoneNumber": {
+                "phoneNumber": {
                     "type": "string",
                     "example": "+420123456789"
                 },
-                "PriceRange": {
+                "priceRange": {
                     "type": "string",
                     "example": "300-600 Kč"
                 },
-                "Rating": {
+                "rating": {
                     "type": "string",
                     "example": "4.6"
                 },
-                "Takeaway": {
+                "takeaway": {
                     "type": "boolean"
                 },
-                "URL": {
+                "url": {
                     "type": "string",
                     "example": "http://restaurant.com"
                 },
-                "Vegan": {
+                "vegan": {
                     "type": "boolean"
                 },
-                "Vegetarian": {
+                "vegetarian": {
                     "type": "boolean"
                 },
-                "WeeklyMenu": {
+                "weeklyMenu": {
                     "type": "string"
                 }
             }
