@@ -89,6 +89,7 @@ definitions:
   api.userResponseFull:
     properties:
       email:
+        example: test@mail.com
         type: string
       name:
         example: name
@@ -101,6 +102,7 @@ definitions:
   api.userResponseSimple:
     properties:
       email:
+        example: test@mail.com
         type: string
       name:
         example: name

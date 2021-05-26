@@ -700,7 +700,8 @@ var doc = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "test@mail.com"
                 },
                 "name": {
                     "type": "string",
@@ -718,7 +719,8 @@ var doc = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "test@mail.com"
                 },
                 "name": {
                     "type": "string",
