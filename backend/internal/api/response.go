@@ -17,13 +17,13 @@ type restaurantIDJSON struct {
 
 type userResponseFull struct {
 	Name             string             `json:"name" example:"name"`
-	Email            string             `json:"email" example:"test@mail.com`
+	Email            string             `json:"email" example:"test@mail.com"`
 	SavedRestaurants []*db.RestaurantDB `json:"savedRestaurants"`
 }
 
 type userResponseSimple struct {
 	Name                string `json:"name" example:"name"`
-	Email               string `json:"email" example:"test@mail.com`
+	Email               string `json:"email" example:"test@mail.com"`
 	SavedRestaurantsIDs []int  `json:"savedRestaurantsIDs" example:"1,2"`
 }
 
