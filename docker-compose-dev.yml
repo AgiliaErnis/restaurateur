@@ -20,6 +20,7 @@ services:
     environment:
       - DB_DSN=postgresql://$DB_USER:$DB_PASS@postgres-dev/restaurateur?sslmode=disable
       - ORIGIN_ALLOWED=https://test.restaurateur.tech
+      - REACT_APP_PROXY=https://testapi.restaurateur.tech
     ports:
       - '3030:3000'
       - '8085:8080'
