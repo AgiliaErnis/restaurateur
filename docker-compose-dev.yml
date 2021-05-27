@@ -13,14 +13,16 @@ services:
       - ../postgres-data-dev:/var/lib/postgresql/data
       - ./backend/restaurants.sql:/docker-entrypoint-initdb.d/create_tables.sql
   app-dev:
-    build: .
+    build:
+      context: .
+      args:
+        - REACT_APP_PROXY=https://testapi.restaurateur.tech
     container_name: app-dev
     depends_on:
       - db-dev
     environment:
       - DB_DSN=postgresql://$DB_USER:$DB_PASS@postgres-dev/restaurateur?sslmode=disable
       - ORIGIN_ALLOWED=https://test.restaurateur.tech
-      - REACT_APP_PROXY=https://testapi.restaurateur.tech
     ports:
       - '3030:3000'
       - '8085:8080'

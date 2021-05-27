@@ -8,6 +8,9 @@ FROM node:12.1-alpine
 ADD ./frontend /app
 WORKDIR /app
 COPY --from=gobuilder /backend/cmd/backend ./backend
+ARG REACT_APP_PROXY
+ENV REACT_APP_PROXY $REACT_APP_PROXY
+RUN echo '\nREACT_APP_PROXY=$REACT_APP_PROXY' .env
 RUN npm install
 RUN npm run build
 RUN npm install -g serve

@@ -13,7 +13,10 @@ services:
       - ../postgres-data:/var/lib/postgresql/data
       - ./backend/restaurants.sql:/docker-entrypoint-initdb.d/create_tables.sql
   app:
-    build: .
+    build:
+      context: .
+      args:
+        - REACT_APP_PROXY=https://api.restaurateur.tech
     container_name: app
     depends_on:
       - db
