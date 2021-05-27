@@ -20,8 +20,8 @@ import (
 )
 
 var allowedEndpoints = [...]string{
-	"/restaurants", "/prague-college/restaurants",
-	"/autocomplete", "/auth/user", "/login", "/auth/logout", "/register",
+	"/restaurants", "/autocomplete", "/auth/user", "/login",
+	"/auth/logout", "/register",
 	"/auth/user/saved-restaurants"}
 
 // Run starts the server on the specified port
@@ -46,7 +46,6 @@ func Run() {
 	r := mux.NewRouter()
 	authRouter := r.PathPrefix("/auth").Subrouter()
 	authRouter.Use(authMiddleware)
-	r.HandleFunc("/prague-college/restaurants", pcRestaurantsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/restaurants", restaurantsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/restaurant/{id:[0-9]+}", restaurantHandler).Methods(http.MethodGet)
 	r.HandleFunc("/autocomplete", autocompleteHandler).Methods(http.MethodGet)

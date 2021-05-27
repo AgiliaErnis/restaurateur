@@ -18,7 +18,7 @@ function UserNavbar() {
         fetch(`${process.env.REACT_APP_PROXY}/auth/logout`,logoutRequest)
             .then(response => response.json())
             .then(res => {
-                if (res.Status === 200) {
+                if (res.status === 200) {
                     setLogout(true)
                     setSuccessfullLogin(false)
                 }

@@ -8,11 +8,11 @@ import (
 )
 
 type restaurantAutocomplete struct {
-	ID       int    `json:"ID" example:"1"`
-	Name     string `json:"Name" example:"Steakhouse"`
-	Address  string `json:"Address" example:"Polská 13"`
-	District string `json:"District" example:"Praha 1"`
-	Image    string `json:"Image" example:"url.com"`
+	ID       int    `json:"id" example:"1"`
+	Name     string `json:"name" example:"Steakhouse"`
+	Address  string `json:"address" example:"Polská 13"`
+	District string `json:"district" example:"Praha 1"`
+	Image    string `json:"image" example:"url.com"`
 }
 
 func getAutocompleteCandidates(params url.Values) ([]*restaurantAutocomplete, error) {
