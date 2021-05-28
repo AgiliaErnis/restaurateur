@@ -66,11 +66,6 @@ function App() {
        localStorage.setItem("user-logged-in", successfullLogin)
   }, [successfullLogin])
 
-  useEffect(() => {
-    if (logout)
-      <Redirect to="/" />
-  }, [logout, successfullLogin])
-
   return (
     <>
       <Router>
@@ -99,13 +94,12 @@ function App() {
           }}>
             <Route path='/' exact component={Home} />
             <Route path='/restaurants' component={Restaurants} />
-            { (successfullLogin && !logout && !deleteAccount) ?
+            {successfullLogin && !logout && !deleteAccount ?
               <Route path='/user' component={UserAccount} />
               :
-              <>
-               <Route path='/user' component={UserAccount} />
-              <Redirect to='/' /></>
-          }
+
+              ( logout && <Redirect path='/' />)
+            }
           </UserContext.Provider>
         </Switch>
         <Footer />

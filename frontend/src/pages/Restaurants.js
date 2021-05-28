@@ -105,7 +105,6 @@ export default function Restaurants() {
       currentRestaurants = null
   }
 
-
   return (
     <>
       <Navbar/>
@@ -169,8 +168,14 @@ export default function Restaurants() {
                 price={filteredRestaurant.priceRange}
                 takeaway={filteredRestaurant.takeaway}
                 delivery={filteredRestaurant.deliveryOptions}
-                phone={filteredRestaurant.phoneNumber}
-                menu={filteredRestaurant.weeklyMenu !== "null" ? filteredRestaurant.weeklyMenu : null}
+                phone={filteredRestaurant.phoneNumber !== "" ?
+                      filteredRestaurant.phoneNumber
+                      :
+                      null}
+                menu={filteredRestaurant.weeklyMenu !== "null" ?
+                  filteredRestaurant.weeklyMenu
+                  :
+                  null}
               />
             })
             :

@@ -12,7 +12,10 @@ function SavedRestaurants() {
             {savedRestaurants.savedRestaurants !== null &&
                 savedRestaurants.savedRestaurants.map(restaurant => {
                   return <RestaurantItem
-                phone={restaurant.phoneNumber}
+                    phone={restaurant.phoneNumber !== "" ?
+                      restaurant.phoneNumber
+                      :
+                      "Phone Number is Not Available"}
                 ID={restaurant.id}
                 photos={restaurant.images.length !== 0 ?
                   restaurant.images : ImagePlaceHolder}
@@ -34,8 +37,9 @@ function SavedRestaurants() {
                 district={restaurant.district}
                 price={restaurant.priceRange}
                 takeaway={restaurant.takeaway}
-                    delivery={restaurant.deliveryOptions}
-                    click={true}
+                delivery={restaurant.deliveryOptions}
+                click={true}
+                menu={restaurant.weeklyMenu !== "null" ? restaurant.weeklyMenu : null}
               />
             })}
         </div>
