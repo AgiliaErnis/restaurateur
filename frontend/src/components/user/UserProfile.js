@@ -10,7 +10,7 @@ import SavedRestaurants from './SavedRestaurants'
 
 
 function UserProfile() {
-    const { clickedUserMenuItem, setClickedUserMenuItem,username,savedRestaurants } = useContext(UserContext)
+    const { clickedUserMenuItem, setClickedUserMenuItem,username,savedRestaurants, successfullLogin } = useContext(UserContext)
 
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [newUsername, setNewUsername] = useState(false)
@@ -83,7 +83,7 @@ function UserProfile() {
                                 :
                                 "Saved Restaurants"}
                     </h4>
-                    {clickedUserMenuItem === "password" ?
+                    {successfullLogin && clickedUserMenuItem === "password" ?
                         (!isSubmitted ? <ChangePassword submitForm={submitForm} /> :
                         <>
                             <div style={{width: "100%", textAlign: "center", marginTop:"2rem"}}>

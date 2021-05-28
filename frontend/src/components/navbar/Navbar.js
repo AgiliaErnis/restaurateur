@@ -109,7 +109,7 @@ function Navbar() {
                 Sign Up
             </li>
           </ul>
-          {successfullLogin && localStorage.getItem("user-logged-in").match(true)
+          {(successfullLogin && localStorage.getItem("user-logged-in") === "true")
             ?
             <UserNavbar />
             :

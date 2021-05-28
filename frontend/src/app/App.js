@@ -33,9 +33,7 @@ function App() {
 
   useEffect(() => {
     const userLoggedIn = localStorage.getItem("user-logged-in");
-    if (userLoggedIn) {
       setSuccessfullLogin(userLoggedIn);
-    }
   }, [])
 
   useEffect(() => {
@@ -56,11 +54,15 @@ function App() {
               setUsername(res.user.name);
               setSavedRestaurants(res.user.savedRestaurants)
             }
+            else if (res.status === 403) {
+              setLogout(true)
+              setSuccessfullLogin(false)
+            }
           })
       }}
     getUserInfo();
 
-  }, [incorrectPassword, newUsername, successfullLogin, newSavedRestaurant,setNewSavedRestaurant])
+  }, [incorrectPassword, newUsername, successfullLogin, newSavedRestaurant,setNewSavedRestaurant,clickedUserMenuItem])
 
   useEffect(() => {
        localStorage.setItem("user-logged-in", successfullLogin)
@@ -94,12 +96,10 @@ function App() {
           }}>
             <Route path='/' exact component={Home} />
             <Route path='/restaurants' component={Restaurants} />
-            {successfullLogin && !logout && !deleteAccount ?
               <Route path='/user' component={UserAccount} />
-              :
 
-              ( logout && <Redirect path='/' />)
-            }
+              {(logout && successfullLogin !== true && localStorage.getItem("user-logged-in") !== false) && <Redirect path='/' />}
+
           </UserContext.Provider>
         </Switch>
         <Footer />
