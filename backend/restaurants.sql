@@ -20,6 +20,11 @@ SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
+
+CREATE EXTENSION pg_trgm;
+CREATE EXTENSION unaccent;
+
+
 --
 -- Name: restaurants; Type: TABLE; Schema: public; Owner: postgres
 --

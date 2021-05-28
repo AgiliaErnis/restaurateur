@@ -68,35 +68,35 @@ type User struct {
 
 // UserDB holds information about a user provided from the postgres DB
 type UserDB struct {
-	ID       int
-	Name     string
-	Email    string
-	Password string
+	ID       int    `json:"id"`
+	Name     string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 // RestaurantDB holds all data about a restaurant that is stored in the db
 type RestaurantDB struct {
-	ID              int            `db:"id" json:"ID" example:"1"`
-	Name            string         `db:"name" json:"Name" example:"Steakhouse"`
-	Address         string         `db:"address" json:"Address" example:"Polská 12"`
-	District        string         `db:"district" json:"District" example:"Praha 1"`
-	Images          pq.StringArray `db:"images" json:"Images" example:"image1.com, image2.com"`
-	Cuisines        pq.StringArray `db:"cuisines" json:"Cuisines" example:"Italian,Czech"`
-	PriceRange      string         `db:"price_range" json:"PriceRange" example:"300-600 Kč"`
-	Rating          string         `db:"rating" json:"Rating" example:"4.6"`
-	URL             string         `db:"url" json:"URL" example:"http://restaurant.com"`
-	PhoneNumber     string         `db:"phone_number" json:"PhoneNumber" example:"+420123456789"`
-	Lat             float64        `db:"lat" json:"Lat" example:"50.03493"`
-	Lon             float64        `db:"lon" json:"Lon" example:"14.30320"`
-	Vegan           bool           `db:"vegan" json:"Vegan"`
-	Vegetarian      bool           `db:"vegetarian" json:"Vegetarian"`
-	GlutenFree      bool           `db:"gluten_free" json:"GlutenFree"`
-	WeeklyMenu      string         `db:"weekly_menu" json:"WeeklyMenu"`
-	MenuValidUntil  time.Time      `db:"menu_valid_until" json:"MenuValidUntil"`
-	OpeningHours    string         `db:"opening_hours" json:"OpeningHours"`
-	Takeaway        bool           `db:"takeaway" json:"Takeaway"`
-	DeliveryOptions pq.StringArray `db:"delivery_options" json:"DeliveryOptions"`
-	Distance        float64        `json:"Distance"`
+	ID              int            `db:"id" json:"id" example:"1"`
+	Name            string         `db:"name" json:"name" example:"Steakhouse"`
+	Address         string         `db:"address" json:"address" example:"Polská 12"`
+	District        string         `db:"district" json:"district" example:"Praha 1"`
+	Images          pq.StringArray `db:"images" json:"images" example:"image1.com, image2.com"`
+	Cuisines        pq.StringArray `db:"cuisines" json:"cuisines" example:"Italian,Czech"`
+	PriceRange      string         `db:"price_range" json:"priceRange" example:"300-600 Kč"`
+	Rating          string         `db:"rating" json:"rating" example:"4.6"`
+	URL             string         `db:"url" json:"url" example:"http://restaurant.com"`
+	PhoneNumber     string         `db:"phone_number" json:"phoneNumber" example:"+420123456789"`
+	Lat             float64        `db:"lat" json:"lat" example:"50.03493"`
+	Lon             float64        `db:"lon" json:"lon" example:"14.30320"`
+	Vegan           bool           `db:"vegan" json:"vegan"`
+	Vegetarian      bool           `db:"vegetarian" json:"vegetarian"`
+	GlutenFree      bool           `db:"gluten_free" json:"glutenFree"`
+	WeeklyMenu      string         `db:"weekly_menu" json:"weeklyMenu"`
+	MenuValidUntil  time.Time      `db:"menu_valid_until" json:"menuValidUntil"`
+	OpeningHours    string         `db:"opening_hours" json:"openingHours"`
+	Takeaway        bool           `db:"takeaway" json:"takeaway"`
+	DeliveryOptions pq.StringArray `db:"delivery_options" json:"deliveryOptions"`
+	Distance        float64        `json:"distance"`
 }
 
 // SortBy is a type for sorting the RestaurantDB struct

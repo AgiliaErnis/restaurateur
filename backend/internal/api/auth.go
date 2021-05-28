@@ -38,7 +38,7 @@ func init() {
 	)
 
 	store.Options = &sessions.Options{
-		MaxAge:   60 * 15, // 15 min
+		MaxAge:   60 * 30, // 30 min
 		HttpOnly: true,
 		Path:     "/",
 		Secure:   true,
@@ -70,9 +70,9 @@ func isAuthenticated(w http.ResponseWriter, r *http.Request) bool {
 		!(session.Values["expires"].(int64) > time.Now().Unix()) {
 		return false
 	}
-	// add 15 min to cookie
-	session.Values["expires"] = time.Now().Add(time.Minute * 15).Unix()
-	session.Options.MaxAge = 60 * 15
+	// add 30 min to cookie
+	session.Values["expires"] = time.Now().Add(time.Minute * 30).Unix()
+	session.Options.MaxAge = 60 * 30
 	err = session.Save(r, w)
 	if err != nil {
 		log.Println(err)

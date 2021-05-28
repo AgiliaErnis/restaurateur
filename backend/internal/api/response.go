@@ -8,7 +8,7 @@ import (
 )
 
 type response interface {
-	SetStatus(status int)
+	setStatus(status int)
 }
 
 type restaurantIDJSON struct {
@@ -16,61 +16,61 @@ type restaurantIDJSON struct {
 }
 
 type userResponseFull struct {
-	Name             string
-	Email            string
-	SavedRestaurants []*db.RestaurantDB
+	Name             string             `json:"name" example:"name"`
+	Email            string             `json:"email" example:"test@mail.com"`
+	SavedRestaurants []*db.RestaurantDB `json:"savedRestaurants"`
 }
 
 type userResponseSimple struct {
-	Name                string
-	Email               string
-	SavedRestaurantsIDs []int
+	Name                string `json:"name" example:"name"`
+	Email               string `json:"email" example:"test@mail.com"`
+	SavedRestaurantsIDs []int  `json:"savedRestaurantsIDs" example:"1,2"`
 }
 
 type responseFullJSON struct {
-	Status int                 `json:"Status" example:"200"`
-	Msg    string              `json:"Msg" example:"Success"`
-	Data   []*db.RestaurantDB  `json:"Data"`
-	User   *userResponseSimple `json:"User"`
+	Status int                 `json:"status" example:"200"`
+	Msg    string              `json:"msg" example:"Success"`
+	Data   []*db.RestaurantDB  `json:"data"`
+	User   *userResponseSimple `json:"user"`
 }
 
 type responseSimpleJSON struct {
-	Status int    `json:"Status"`
-	Msg    string `json:"Msg"`
+	Status int    `json:"status"`
+	Msg    string `json:"msg"`
 }
 
 type responseUserJSON struct {
-	Status int               `json:"Status" example:"200"`
-	Msg    string            `json:"Msg" example:"Success"`
-	User   *userResponseFull `json:"User"`
+	Status int               `json:"status" example:"200"`
+	Msg    string            `json:"msg" example:"Success"`
+	User   *userResponseFull `json:"user"`
 }
 
 type responseAutocompleteJSON struct {
-	Status int                       `json:"Status" example:"200"`
-	Msg    string                    `json:"Msg" example:"Success"`
-	Data   []*restaurantAutocomplete `json:"Data"`
+	Status int                       `json:"status" example:"200"`
+	Msg    string                    `json:"msg" example:"Success"`
+	Data   []*restaurantAutocomplete `json:"data"`
 }
 
-func (r *responseAutocompleteJSON) SetStatus(status int) {
+func (r *responseAutocompleteJSON) setStatus(status int) {
 	r.Status = status
 }
 
-func (r *responseUserJSON) SetStatus(status int) {
+func (r *responseUserJSON) setStatus(status int) {
 	r.Status = status
 }
 
-func (r *responseFullJSON) SetStatus(status int) {
+func (r *responseFullJSON) setStatus(status int) {
 	r.Status = status
 }
 
-func (r *responseSimpleJSON) SetStatus(status int) {
+func (r *responseSimpleJSON) setStatus(status int) {
 	r.Status = status
 }
 
 func writeResponse(w http.ResponseWriter, status int, res response) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	res.SetStatus(status)
+	res.setStatus(status)
 	r, err := json.Marshal(res)
 	if err != nil {
 		log.Println("Error while marshalling JSON response")
