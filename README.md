@@ -6,6 +6,11 @@ ones based on applied filtering preferences.
 
 The recommender also works for a fixed location - Prague College.
 
+- [Functionality](#functionality)
+- [Usage](#usage)
+- [Running the application](#running-the-application)
+- [Deployment Information](#deployment-information)
+
 ## Functionality
 
 ### Stage 1
@@ -110,3 +115,5 @@ https://github.com/AgiliaErnis/restaurateur/tree/proxy_setting/frontend#readme
 #### Backend
 
 https://github.com/AgiliaErnis/restaurateur/tree/main/backend#readme
+
+## Deployment Information
