@@ -100,8 +100,8 @@ export const RestaurantItem = React.memo((props) => {
               <div className="name-container">{props.name}</div>
               {restaurantIsClicked() &&
                 <div className="save-container" onClick={() => {
-                  handleClick();
-                  setSavedRestaurant(props.ID)
+                setSavedRestaurant(props.ID);
+                setClick(false);
               }}>
                  <p style={{color: "red", fontSize: "13px"}}>remove</p>
               </div>}
