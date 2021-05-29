@@ -108,3 +108,11 @@ https://github.com/AgiliaErnis/restaurateur/tree/main/frontend#readme
 #### Backend
 
 https://github.com/AgiliaErnis/restaurateur/tree/main/backend#readme
+
+#### TUI
+
+https://github.com/adzai/restaurateur-tui/tree/main/#readme
+
+If you don't see TUI locally, run `git submodule update --init --recursive`
+
+Alternatively just clone https://github.com/adzai/restaurateur-tui/
