@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 func strArrToStr(arr []string) string {
@@ -20,6 +21,9 @@ var imgArrayReal []string = []string{"https://www.restu.cz/ir/restaurant/62a/62a
 var cuisineArrayReal []string = []string{"Czech", "International"}
 var openHoursArrayReal []string = []string{"Friday", ":", "Zavřeno", ",", "Monday", ":", "Zavřeno", ",", "Saturday", ":", "Zavřeno", ",", "Sunday", ":", "Zavřeno", ",", "Thursday", ":", "Zavřeno", ",", "Tuesday", ":", "Zavřeno", ",", "Wednesday", ":", "Zavřeno"}
 var openHoursStrReal string = strArrToStr(openHoursArrayReal)
+
+//zero value for time
+var timeSample = time.Time{}
 
 var imgArrayGarbage []string = []string{"bushDidNineEleven.exe"}
 var cuisineArrayGarbage []string = []string{"from", "out", "of", "this", "world"}
@@ -43,9 +47,11 @@ var sampleRestaurant = RestaurantDB{
 	false,
 	false,
 	"",
+	timeSample,
 	openHoursStrReal,
 	false,
 	nil,
+	0,
 }
 
 // restaurant struct filled with garbage data
@@ -66,9 +72,11 @@ var sampleRestaurantGarbage = RestaurantDB{
 	true,
 	false,
 	"don't have one, boss",
+	timeSample,
 	openHoursStrGarbage,
 	false,
 	nil,
+	0,
 }
 
 func TestIsInRadiusFalse(t *testing.T) {
