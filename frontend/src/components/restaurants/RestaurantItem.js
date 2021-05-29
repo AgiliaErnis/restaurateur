@@ -5,12 +5,14 @@ import { PhotoSlider } from './PhotoSlider/PhotoSlider';
 import PhoneModal from './PhoneModal';
 import { UserContext } from '../../UserContext';
 import MenuModal from './MenuModal';
+import ViewModal from './ViewModal';
 
 export const RestaurantItem = React.memo((props) => {
   const [click, setClick] = useState(restaurantIsClicked());
   const [savedRestaurant, setSavedRestaurant] = useState(false)
   const [clickOnPhone, setClickOnPhone] = useState(false)
   const [clickOnMenu, setClickOnMenu] = useState(false)
+  const [clickOnView, setClickOnView] = useState(false)
   const { setNewSavedRestaurant } = useContext(UserContext)
   const [deleteSavedOne, setDeleteSavedOne] = useState(false)
   const {successfullLogin} = useContext(UserContext)
@@ -43,6 +45,10 @@ export const RestaurantItem = React.memo((props) => {
 
   const handleClickOnMenu = () => {
     setClickOnMenu(!clickOnMenu)
+  }
+
+  const handleClickOnView = () => {
+    setClickOnView(!clickOnView)
   }
 
   useEffect(() => {
@@ -163,9 +169,11 @@ export const RestaurantItem = React.memo((props) => {
                     <i className="fab fa-elementor"></i>
                 {clickOnMenu && <MenuModal name={props.name} menu={props.menu} date={props.menuDates}/>}
               </div>
-              <div className="option view">
+              <div className="option" onClick={handleClickOnView}>
                 View More
-                    <i className="fas fa-angle-right" />
+                    <i className="fas fa-angle-right"></i>
+                    {clickOnView && <ViewModal name={props.name} cuisines={props.cuisines}
+                    vegan={props.vegan} vegetarian={props.vegetarian} website={props.website}/>}
               </div>
             </div>
           </div>
