@@ -117,11 +117,12 @@ https://github.com/AgiliaErnis/restaurateur/tree/proxy_setting/frontend#readme
 https://github.com/AgiliaErnis/restaurateur/tree/main/backend#readme
 
 ## Deployment Information
-The application has two environments - test.restaurateur.tech for testing, and restaurateur.tech for production builds. Backend API is accessible at testapi.restaurateur.tech and api.restaurateur.tech.
+The application has two environments - https://test.restaurateur.tech for testing, and https://restaurateur.tech for production builds. Backend API is accessible at https://testapi.restaurateur.tech and https://api.restaurateur.tech.
 
 ### Architecture
  
 The application is contained inside 2 Docker containers:
+
     * db - Postgres container with a persistent storage on the server
     * app - a container based on NodeJS for both Node and Go parts
 
