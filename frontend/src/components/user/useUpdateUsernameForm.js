@@ -41,7 +41,7 @@ const useChangePasswordForm = (callback, validate) => {
     fetch(`${process.env.REACT_APP_PROXY}/auth/user`, updateUsernameRequest)
       .then(response => response.json())
       .then(res => {
-        if (res.Status === 200) {
+        if (res.status === 200) {
           callback();
             setNewUsername(true)
         }

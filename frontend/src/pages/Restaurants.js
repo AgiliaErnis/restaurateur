@@ -53,7 +53,7 @@ export default function Restaurants() {
       return chosenRestaurantPath
     } else if (pragueCollegePath === true) {
         var pragueCollegeRestaurants =
-          `/prague-college/restaurants?radius=${checkedDistance}&`
+          `/restaurants?radius=${checkedDistance}&lat=50.0785714&lon=14.4400922&`
 
         if (clickedDistrict !== false) {
           pragueCollegeRestaurants += `district=${clickedDistrict}`
@@ -94,7 +94,7 @@ export default function Restaurants() {
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_PROXY}/${path}`).then(response => response.json()).then(
-      json => setRestaurants(json.Data))
+      json => setRestaurants(json.data))
     paginate(1);
   }, [path,setRestaurants])
 
@@ -139,24 +139,24 @@ export default function Restaurants() {
             currentRestaurants.map(filteredRestaurant => {
               return <RestaurantItem
                 RestaurantIsSaved={savedRestaurants !== null ?(savedRestaurants.map(index => {
-                  if (index.ID === filteredRestaurant.ID)
+                  if (index.id === filteredRestaurant.id)
                     {
                     return true;
                   } else {
                     return false;
                   }})): []}
-                ID={filteredRestaurant.ID}
-                key={filteredRestaurant.ID}
-                photos={filteredRestaurant.Images !== null &&
-                  filteredRestaurant.Images.length !== 0 ?
-                  filteredRestaurant.Images : ImagePlaceHolder}
-                name={filteredRestaurant.Name}
-                rating={filteredRestaurant.Rating === "" ?
-                  0 : parseFloat(filteredRestaurant.Rating)}
-                tags={filteredRestaurant.Cuisines !== null ?
-                  filteredRestaurant.Cuisines.map((cuisine) => {
-                    if (filteredRestaurant.Cuisines.indexOf(cuisine) ===
-                      filteredRestaurant.Cuisines.length - 1) {
+                ID={filteredRestaurant.id}
+                key={filteredRestaurant.id}
+                photos={filteredRestaurant.images !== null &&
+                  filteredRestaurant.images.length !== 0 ?
+                  filteredRestaurant.images : ImagePlaceHolder}
+                name={filteredRestaurant.name}
+                rating={filteredRestaurant.rating === "" ?
+                  0 : parseFloat(filteredRestaurant.rating)}
+                tags={filteredRestaurant.cuisines !== null ?
+                  filteredRestaurant.cuisines.map((cuisine) => {
+                    if (filteredRestaurant.cuisines.indexOf(cuisine) ===
+                      filteredRestaurant.cuisines.length - 1) {
                       return cuisine
                     } else {
                         return cuisine + ","
@@ -164,19 +164,19 @@ export default function Restaurants() {
                     })
                     :
                     "Cuisines are not available"}
-                address={filteredRestaurant.Address}
-                district={filteredRestaurant.District}
-                price={filteredRestaurant.PriceRange}
-                takeaway={filteredRestaurant.Takeaway}
-                delivery={filteredRestaurant.DeliveryOptions}
-                phone={filteredRestaurant.PhoneNumber}
-                cuisines={filteredRestaurant.Cuisines}
-                menu={filteredRestaurant.WeeklyMenu !== "null" ? filteredRestaurant.WeeklyMenu : null}
-                vegan={filteredRestaurant.Vegan}
-                vegetarian={filteredRestaurant.Vegetarian}
-                glutenFree={filteredRestaurant.GlutenFree}
-                url={filteredRestaurant.URL !== "" ? filteredRestaurant.URL : "URL is not available"}
-                OpeningHours={filteredRestaurant.OpeningHours}
+                address={filteredRestaurant.address}
+                district={filteredRestaurant.district}
+                price={filteredRestaurant.priceRange}
+                takeaway={filteredRestaurant.takeaway}
+                delivery={filteredRestaurant.deliveryOptions}
+                phone={filteredRestaurant.phoneNumber}
+                cuisines={filteredRestaurant.cuisines}
+                menu={filteredRestaurant.weeklyMenu !== "null" ? filteredRestaurant.weeklyMenu : null}
+                vegan={filteredRestaurant.vegan}
+                vegetarian={filteredRestaurant.vegetarian}
+                glutenFree={filteredRestaurant.glutenFree}
+                url={filteredRestaurant.url !== "" ? filteredRestaurant.url : "URL is not available"}
+                OpeningHours={filteredRestaurant.openingHours}
               />
             })
             :

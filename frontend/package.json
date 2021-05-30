@@ -1,6 +1,8 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "description": "Secure App Dev Project",
+  "main": "index.js",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.3",

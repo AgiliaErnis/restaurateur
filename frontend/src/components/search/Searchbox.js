@@ -100,7 +100,7 @@ function Searchbox() {
     if (isVisible) {
       fetch(`${process.env.REACT_APP_PROXY}/autocomplete?${searchByPath}${input}`).then(response =>
         response.json()).then(
-          json => setSuggestedRestaurants(json.Data))
+          json => setSuggestedRestaurants(json.data))
     }
   }, [input, searchByPath,isVisible])
 
@@ -117,7 +117,7 @@ function Searchbox() {
 
     if (e.key === "Enter") {
       if (cursor > -1) {
-        setChosenRestaurant(suggestedRestaurants[cursor].ID)
+        setChosenRestaurant(suggestedRestaurants[cursor].id)
       } else {
         setGeneralSearchPath(generalSearch);
         setChosenRestaurant(false)
@@ -162,14 +162,14 @@ function Searchbox() {
               suggestedRestaurants.map(restaurant => {
                 return <Link to='/restaurants' style={{ textDecoration: "none" }}>
                   <SuggestedRestaurantItem
-                    key={restaurant.ID}
-                    image={restaurant.Image}
-                    name={restaurant.Name}
-                    address={restaurant.Address}
-                    district={restaurant.District}
+                    key={restaurant.id}
+                    image={restaurant.image}
+                    name={restaurant.name}
+                    address={restaurant.address}
+                    district={restaurant.district}
                     onSelectItem={() => {
                       hideSuggestions();
-                      setChosenRestaurant(restaurant.ID);
+                      setChosenRestaurant(restaurant.id);
                       setPragueCollegePath(false)
                     }}
                     isHighlighted={cursor === suggestedRestaurants.indexOf(restaurant) ?
