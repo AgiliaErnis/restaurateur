@@ -93,7 +93,7 @@ Thus, the threat agents we're primarily concerned about are outsiders, and the m
 Like many commercial sites, we do not have the (substantial) resources necessary to counter a state actor who decided to directly attack our site. However, there's no reason a state actor would directly attack the site (we don't store anything that valuable), so while many are very capable, we do not expect them to be a threat to this site.
 
 ## DBMS
-There is no direct access for normal users to the DBMS; in production, access requires special Heroku keys.
+There is no direct access for normal users to the DBMS; in production, access requires access to the server.
 
 The DBMS does not know which user the Restaurateur is operating on behalf of and does not have separate privileges. However, the Restaurateur uses Active Record and prepared statements, making it unlikely that an attacker can use SQL injections to insert malicious queries.
 
@@ -104,14 +104,10 @@ The DBMS does not know which user the Restaurateur is operating on behalf of and
 - Denial of service. See earlier comments on DoS.
 - Elevation of privilege. N/A, the DBMS doesn't separate privileges.
 
-## Admin CLI
-There is a command line interface (CLI) for admins. This is the Heroku CLI. Admins must use their unique credentials to log in.
-- Spoofing identity. Every admin has a unique credential.
-- Tampering with data. The communication channel is encrypted.
-- Repudiation. Admins have unique credentials.
-- Information disclosure. The channel is encrypted in motion.
-- Denial of service. Heroku has a financial incentive to keep this available and takes steps to do so.
-- Elevation of privilege. N/A; anyone allowed to use this is privileged.
+## Server
+Server is not accessible via password authentication and therefore impossible to brute force. Accesses is granted via private keys. The only root private key is the key of the owner and it is only located on the owner's computer. The only other user with access to the application is the dev user. Its private key is only stored in GitHub secrets and hence it is not accessible to anyone besides the owner of the server and the repository. Dev user has restricted permissions - it is only allowed to use specific commands that are necessary for the deployment process. 
+
+The application is contained inside Docker containers. There is no access to the actual server from within the container. This makes an attack that would come from any code exploit and target the server quite impossible. The most it would destroy is a Docker container, which is easily reconfigurable with no side effects.
 
 ## Secure design principles
 Applying various secure design principles helps us avoid security problems in the first place. The most widely used list of security design principles, and one we build on, is the list developed by Saltzer and Schroeder.
