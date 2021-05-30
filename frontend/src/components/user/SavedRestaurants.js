@@ -34,9 +34,15 @@ function SavedRestaurants() {
                 district={restaurant.District}
                 price={restaurant.PriceRange}
                 takeaway={restaurant.Takeaway}
-                    delivery={restaurant.DeliveryOptions}
-                    click={true}
-              />
+                delivery={restaurant.DeliveryOptions}
+                click={true}
+                menu={restaurant.WeeklyMenu !== "null" ? restaurant.WeeklyMenu : null}
+                vegan={restaurant.Vegan}
+                vegetarian={restaurant.Vegetarian}
+                glutenFree={restaurant.GlutenFree}
+                url={restaurant.URL !== "" ? restaurant.URL : "URL is not available"}
+                OpeningHours={restaurant.OpeningHours}
+                  />
             })}
         </div>
     )

@@ -171,10 +171,12 @@ export default function Restaurants() {
                 delivery={filteredRestaurant.DeliveryOptions}
                 phone={filteredRestaurant.PhoneNumber}
                 cuisines={filteredRestaurant.Cuisines}
+                menu={filteredRestaurant.WeeklyMenu !== "null" ? filteredRestaurant.WeeklyMenu : null}
                 vegan={filteredRestaurant.Vegan}
                 vegetarian={filteredRestaurant.Vegetarian}
-                website={filteredRestaurant.Website}
-                menu={filteredRestaurant.WeeklyMenu !== "null" ? filteredRestaurant.WeeklyMenu : null}
+                glutenFree={filteredRestaurant.GlutenFree}
+                url={filteredRestaurant.URL !== "" ? filteredRestaurant.URL : "URL is not available"}
+                OpeningHours={filteredRestaurant.OpeningHours}
               />
             })
             :
