@@ -117,3 +117,18 @@ https://github.com/AgiliaErnis/restaurateur/tree/proxy_setting/frontend#readme
 https://github.com/AgiliaErnis/restaurateur/tree/main/backend#readme
 
 ## Deployment Information
+The application has two environments - test.restaurateur.tech for testing, and restaurateur.tech for production builds. Backend API is accessible at testapi.restaurateur.tech and api.restaurateur.tech.
+
+### Architecture
+ 
+The application is contained inside 2 Docker containers:
+    * db - Postgres container with a persistent storage on the server
+    * app - a container based on NodeJS for both Node and Go parts
+
+There is an nginx reverse proxy set up on the server on ports 80 and 443. It is used for easy SSL and domain configuration. 
+
+### Deployment
+
+`docker compose` is used to build the containers on the server. `docker-compose-dev.yml` is used for test.restaurateur.tech, and `docker-compose.yml` for restaurateur.tech.
+
+The deployment process is automated through GitHub actions. GitHub runner connects to the server through SSH and executes the necessary commands. Test environment is released to test.restaurateur.tech on prerelease GitHub event. Production environment is released to restaurateur.tech on release GitHub event. `deploy-prerelese.yml` and `deploy-release.yml` files are the workflows responsible for that. 
