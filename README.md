@@ -123,8 +123,8 @@ The application has two environments - https://test.restaurateur.tech for testin
  
 The application is contained inside 2 Docker containers:
 
-    * db - Postgres container with a persistent storage on the server
-    * app - a container based on NodeJS for both Node and Go parts
+* db - Postgres container with a persistent storage on the server
+* app - a container based on NodeJS for both Node and Go parts
 
 There is an nginx reverse proxy set up on the server on ports 80 and 443. It is used for easy SSL and domain configuration. 
 
