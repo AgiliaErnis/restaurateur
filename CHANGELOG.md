@@ -84,3 +84,24 @@ information about each restaurant:
 * Implemented user registration/logging in with the
  possibility to save favourite restaurants or modify
  the account settings(password, username, delete account) as needed.
+
+## [0.3.0] - 2021-05-31
+
+### Fixed
+* Fixed the following frontend bugs:
+    * The problem of page refresh making the user stay on the same page.
+    * If the phone number is not available, the phone modal
+     displays the corresponding message,instead of empty space.
+    * The user will be logged out if the cookie time passes the limit.
+    * If the user is logged in, the page refresh doesn't make
+    the user log out anymore, so the user will remain logged in.
+    * The problem of having to click twice on remove
+     button in order to delete the saved retaurant.
+    * The issue of saving restaurant scrolling to the top of the page.
+
+### Added
+
+* Added following extra information about each restaurant:
+    * URL
+    * Vegan, Vegetarian and Gluten Free Options
+    * Opening Hours
