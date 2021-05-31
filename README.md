@@ -109,9 +109,7 @@ The detailed insturctions for running the application
 can be seen in the following README files:
 
 #### Frontend
-
-https://github.com/AgiliaErnis/restaurateur/tree/proxy_setting/frontend#readme
-
+https://github.com/AgiliaErnis/restaurateur/tree/main/frontend#readme
 #### Backend
 
 https://github.com/AgiliaErnis/restaurateur/tree/main/backend#readme

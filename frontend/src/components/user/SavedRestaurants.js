@@ -12,17 +12,17 @@ function SavedRestaurants() {
             {savedRestaurants.savedRestaurants !== null &&
                 savedRestaurants.savedRestaurants.map(restaurant => {
                   return <RestaurantItem
-                phone={restaurant.PhoneNumber}
-                ID={restaurant.ID}
-                photos={restaurant.Images.length !== 0 ?
-                  restaurant.Images : ImagePlaceHolder}
-                name={restaurant.Name}
-                rating={restaurant.Rating === "" ?
-                  "Rating is not available" : restaurant.Rating}
-                tags={restaurant.Cuisines !== null ?
-                  restaurant.Cuisines.map((cuisine) => {
-                    if (restaurant.Cuisines.indexOf(cuisine) ===
-                      restaurant.Cuisines.length - 1) {
+                phone={restaurant.phoneNumber}
+                ID={restaurant.id}
+                photos={restaurant.images.length !== 0 ?
+                  restaurant.images : ImagePlaceHolder}
+                name={restaurant.name}
+                rating={restaurant.rating === "" ?
+                  "Rating is not available" : restaurant.rating}
+                tags={restaurant.cuisines !== null ?
+                  restaurant.cuisines.map((cuisine) => {
+                    if (restaurant.cuisines.indexOf(cuisine) ===
+                      restaurant.cuisines.length - 1) {
                       return cuisine
                     } else {
                         return cuisine + ","
@@ -30,13 +30,19 @@ function SavedRestaurants() {
                     })
                     :
                     "Cuisines are not available"}
-                address={restaurant.Address}
-                district={restaurant.District}
-                price={restaurant.PriceRange}
-                takeaway={restaurant.Takeaway}
-                    delivery={restaurant.DeliveryOptions}
-                    click={true}
-              />
+                address={restaurant.address}
+                district={restaurant.district}
+                price={restaurant.priceRange}
+                takeaway={restaurant.takeaway}
+                delivery={restaurant.deliveryOptions}
+                click={true}
+                menu={restaurant.weeklyMenu !== "null" ? restaurant.weeklyMenu : null}
+                vegan={restaurant.vegan}
+                vegetarian={restaurant.vegetarian}
+                glutenFree={restaurant.glutenFree}
+                url={restaurant.url !== "" ? restaurant.url : "URL is not available"}
+                OpeningHours={restaurant.openingHours}
+                  />
             })}
         </div>
     )

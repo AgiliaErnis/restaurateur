@@ -88,8 +88,9 @@ func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = db.DeleteUser(id)
 	if err != nil {
+		log.Println(err)
 		res.Msg = "Couldn't delete the record"
-		writeResponse(w, http.StatusBadRequest, res)
+		writeResponse(w, http.StatusInternalServerError, res)
 		return
 	}
 	res.Msg = "Successfuly deleted the user!"
@@ -229,7 +230,7 @@ func savedDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		res.Msg = "Couldn't delete the restaurant"
-		writeResponse(w, http.StatusBadRequest, res)
+		writeResponse(w, http.StatusInternalServerError, res)
 		return
 	}
 	res.Msg = "Successfuly deleted the restaurant!"

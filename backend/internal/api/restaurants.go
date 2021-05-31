@@ -11,54 +11,6 @@ import (
 	"strconv"
 )
 
-// pcRestaurantsHandler godoc
-// @Summary Returns restaurants around Prague College
-// @Tags PC restaurants
-// @Accept  json
-// @Produce  json
-// @Param radius query string false "Radius (in meters) of the area around a provided or pre-selected starting point. Restaurants in this area will be returned. Radius can be ignored when specified with radius=ignore and lat and lon parameters will no longer be required. When no radius is provided, a default value of 1000 meters is used."
-// @Param cuisine query string false "Filters restaurants based on a list of cuisines, separated by commas -> cuisine=Czech,English. A restaurant will be returned only if it satisfies all provided cuisines.Available cuisines: American, Italian, Asian, Indian, Japanese, Vietnamese, Spanish, Mediterranean, French, Thai, Mexican, International, Czech, English, Balkan, Brazil, Russian, Chinese, Greek, Arabic, Korean."
-// @Param price-range query string false "Filters restaurants based on a list of price ranges, separated by commas -> price-range=0-300,600-. A restaurant will be returned if it satisfies at least one provided price range. Available price ranges: 0-300,300-600,600-"
-// @Param vegetarian query bool false "Filters out all non vegetarian restaurants."
-// @Param vegan query bool false "Filters out all non vegan restaurants."
-// @Param gluten-free query bool false "Filters out all non gluten free restaurants."
-// @Param takeaway query bool false "Filters out all restaurants that don't have a takeaway option."
-// @Param delivery-options query bool false "Filters out all restaurants that don't have a delivery option."
-// @Param has-menu query bool false "Filters out all restaurants that don't have a weekly menu."
-// @Param sort query string false "Sorts restaurants. Available sort options: price-asc, price-desc, rating"
-// @Success 200 {object} responseFullJSON
-// @Failure 405 {object} responseSimpleJSON
-// @Router /prague-college/restaurants [get]
-func pcRestaurantsHandler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r, "pcRestaurantsHandler")
-	params := r.URL.Query()
-	pcLat := 50.0785714
-	pcLon := 14.4400922
-	// Null is sometimes "null" sometimes null
-	loadedRestaurants, err := db.GetDBRestaurants(params)
-	if err != nil {
-		log.Println("Couldn't load restaurants from db")
-		log.Println(err)
-		res := &responseSimpleJSON{}
-		writeResponse(w, http.StatusInternalServerError, res)
-		return
-	}
-	filteredRestaurants := filterRestaurants(loadedRestaurants, params, pcLat, pcLon)
-	res := &responseFullJSON{
-		Msg:  "Success",
-		Data: filteredRestaurants,
-	}
-	auth := isAuthenticated(w, r)
-	if auth {
-		id := getUserIDFromCookie(r)
-		user, _ := db.GetUserByID(id)
-		res.User = &userResponseSimple{Name: user.Name, Email: user.Email}
-		savedRestaurants, _ := db.GetSavedRestaurantsID(id)
-		res.User.SavedRestaurantsIDs = savedRestaurants
-	}
-	writeResponse(w, http.StatusOK, res)
-}
-
 // restaurantsHandler godoc
 // @Summary Returns restaurants based on queries
 // @Tags restaurants

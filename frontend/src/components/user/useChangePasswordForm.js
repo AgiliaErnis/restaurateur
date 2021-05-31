@@ -47,8 +47,9 @@ const useChangePasswordForm = (callback, validate) => {
         fetch(`${process.env.REACT_APP_PROXY}/auth/user`, changePasswordRequest)
           .then(response => response.json())
           .then(res => {
-            if (res.Status === 403) {
+            if (res.status === 403) {
               setIncorrectOldPassword(true);
+              setIsSubmitting(false)
             }
             else {
               callback();

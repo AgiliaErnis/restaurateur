@@ -2,67 +2,67 @@ basePath: /
 definitions:
   api.responseAutocompleteJSON:
     properties:
-      Data:
+      data:
         items:
           $ref: '#/definitions/api.restaurantAutocomplete'
         type: array
-      Msg:
+      msg:
         example: Success
         type: string
-      Status:
+      status:
         example: 200
         type: integer
     type: object
   api.responseFullJSON:
     properties:
-      Data:
+      data:
         items:
           $ref: '#/definitions/db.RestaurantDB'
         type: array
-      Msg:
+      msg:
         example: Success
         type: string
-      Status:
+      status:
         example: 200
         type: integer
-      User:
+      user:
         $ref: '#/definitions/api.userResponseSimple'
         type: object
     type: object
   api.responseSimpleJSON:
     properties:
-      Msg:
+      msg:
         type: string
-      Status:
+      status:
         type: integer
     type: object
   api.responseUserJSON:
     properties:
-      Msg:
+      msg:
         example: Success
         type: string
-      Status:
+      status:
         example: 200
         type: integer
-      User:
+      user:
         $ref: '#/definitions/api.userResponseFull'
         type: object
     type: object
   api.restaurantAutocomplete:
     properties:
-      Address:
+      address:
         example: Polská 13
         type: string
-      District:
+      district:
         example: Praha 1
         type: string
-      ID:
+      id:
         example: 1
         type: integer
-      Image:
+      image:
         example: url.com
         type: string
-      Name:
+      name:
         example: Steakhouse
         type: string
     type: object
@@ -89,8 +89,10 @@ definitions:
   api.userResponseFull:
     properties:
       email:
+        example: test@mail.com
         type: string
       name:
+        example: name
         type: string
       savedRestaurants:
         items:
@@ -100,10 +102,15 @@ definitions:
   api.userResponseSimple:
     properties:
       email:
+        example: test@mail.com
         type: string
       name:
+        example: name
         type: string
       savedRestaurantsIDs:
+        example:
+        - 1
+        - 2
         items:
           type: integer
         type: array
@@ -123,59 +130,59 @@ definitions:
     type: object
   db.RestaurantDB:
     properties:
-      Address:
+      address:
         example: Polská 12
         type: string
-      Cuisines:
+      cuisines:
         example: Italian,Czech
         type: string
-      DeliveryOptions:
+      deliveryOptions:
         type: string
-      Distance:
+      distance:
         type: number
-      District:
+      district:
         example: Praha 1
         type: string
-      GlutenFree:
+      glutenFree:
         type: boolean
-      ID:
+      id:
         example: 1
         type: integer
-      Images:
+      images:
         example: image1.com, image2.com
         type: string
-      Lat:
+      lat:
         example: 50.03493
         type: number
-      Lon:
+      lon:
         example: 14.3032
         type: number
-      MenuValidUntil:
+      menuValidUntil:
         type: string
-      Name:
+      name:
         example: Steakhouse
         type: string
-      OpeningHours:
+      openingHours:
         type: string
-      PhoneNumber:
+      phoneNumber:
         example: "+420123456789"
         type: string
-      PriceRange:
+      priceRange:
         example: 300-600 Kč
         type: string
-      Rating:
+      rating:
         example: "4.6"
         type: string
-      Takeaway:
+      takeaway:
         type: boolean
-      URL:
+      url:
         example: http://restaurant.com
         type: string
-      Vegan:
+      vegan:
         type: boolean
-      Vegetarian:
+      vegetarian:
         type: boolean
-      WeeklyMenu:
+      weeklyMenu:
         type: string
     type: object
   db.User:
@@ -426,77 +433,6 @@ paths:
       summary: Logs in a user
       tags:
       - login
-  /prague-college/restaurants:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: Radius (in meters) of the area around a provided or pre-selected
-          starting point. Restaurants in this area will be returned. Radius can be
-          ignored when specified with radius=ignore and lat and lon parameters will
-          no longer be required. When no radius is provided, a default value of 1000
-          meters is used.
-        in: query
-        name: radius
-        type: string
-      - description: 'Filters restaurants based on a list of cuisines, separated by
-          commas -> cuisine=Czech,English. A restaurant will be returned only if it
-          satisfies all provided cuisines.Available cuisines: American, Italian, Asian,
-          Indian, Japanese, Vietnamese, Spanish, Mediterranean, French, Thai, Mexican,
-          International, Czech, English, Balkan, Brazil, Russian, Chinese, Greek,
-          Arabic, Korean.'
-        in: query
-        name: cuisine
-        type: string
-      - description: 'Filters restaurants based on a list of price ranges, separated
-          by commas -> price-range=0-300,600-. A restaurant will be returned if it
-          satisfies at least one provided price range. Available price ranges: 0-300,300-600,600-'
-        in: query
-        name: price-range
-        type: string
-      - description: Filters out all non vegetarian restaurants.
-        in: query
-        name: vegetarian
-        type: boolean
-      - description: Filters out all non vegan restaurants.
-        in: query
-        name: vegan
-        type: boolean
-      - description: Filters out all non gluten free restaurants.
-        in: query
-        name: gluten-free
-        type: boolean
-      - description: Filters out all restaurants that don't have a takeaway option.
-        in: query
-        name: takeaway
-        type: boolean
-      - description: Filters out all restaurants that don't have a delivery option.
-        in: query
-        name: delivery-options
-        type: boolean
-      - description: Filters out all restaurants that don't have a weekly menu.
-        in: query
-        name: has-menu
-        type: boolean
-      - description: 'Sorts restaurants. Available sort options: price-asc, price-desc,
-          rating'
-        in: query
-        name: sort
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.responseFullJSON'
-        "405":
-          description: Method Not Allowed
-          schema:
-            $ref: '#/definitions/api.responseSimpleJSON'
-      summary: Returns restaurants around Prague College
-      tags:
-      - PC restaurants
   /register:
     post:
       consumes:
