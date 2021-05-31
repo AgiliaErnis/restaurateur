@@ -15,7 +15,7 @@ RUN npm install
 RUN npm run build
 RUN npm install -g serve
 
-CMD sh -c './backend/backend --update-menus &>> backend.log &' \
+CMD sh -c './backend/backend --update-menus >> backend.log 2>&1 &' \
  && serve -s build -l 3000
 
 EXPOSE 3000
