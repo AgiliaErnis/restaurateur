@@ -6,7 +6,6 @@ import (
 	"github.com/AgiliaErnis/restaurateur/backend/pkg/scraper"
 	"log"
 	"net/http"
-	"time"
 )
 
 func logRequest(r *http.Request, handlerName string) {
@@ -41,20 +40,14 @@ func catchAllHandler(w http.ResponseWriter, r *http.Request) {
 	writeResponse(w, http.StatusBadRequest, res)
 }
 
-func menuUpdater() {
-	t := time.Now()
-	for {
-		nextRun := time.Date(t.Year(), t.Month(), t.Day(), 11, 0, 0, 0, t.Location())
-		time.Sleep(time.Until(nextRun))
-		log.Println("Updating weekly menus...")
-		menus, err := scraper.GetRestaurantMenus()
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println("Updating weekly menus in the db")
-			db.UpdateWeeklyMenus(menus)
-			log.Println("Weekly menus successfuly updated!")
-		}
-		t = t.Add(24 * time.Hour)
+func updateWeeklyMenus() {
+	log.Println("Updating weekly menus...")
+	menus, err := scraper.GetRestaurantMenus()
+	if err != nil {
+		log.Println(err)
+	} else {
+		log.Println("Updating weekly menus in the db")
+		db.UpdateWeeklyMenus(menus)
+		log.Println("Weekly menus successfuly updated!")
 	}
 }
