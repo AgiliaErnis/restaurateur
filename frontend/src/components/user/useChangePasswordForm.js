@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../../UserContext';
 
 const useChangePasswordForm = (callback, validate) => {
-  const {incorrectOldPassword, setIncorrectOldPassword} = useContext(UserContext)
+  const {incorrectOldPassword, setIncorrectOldPassword,setSucessfullLogin} = useContext(UserContext)
   const [values, setValues] = useState({
     oldPassword: '',
     newPassword: '',
@@ -47,8 +47,10 @@ const useChangePasswordForm = (callback, validate) => {
         fetch(`${process.env.REACT_APP_PROXY}/auth/user`, changePasswordRequest)
           .then(response => response.json())
           .then(res => {
-            if (res.Status === 403) {
+            if (res.status === 403) {
               setIncorrectOldPassword(true);
+              setIsSubmitting(false)
+              setSucessfullLogin(false)
             }
             else {
               callback();
@@ -58,7 +60,7 @@ const useChangePasswordForm = (callback, validate) => {
         }
     },
     [errors, isSubmitting, callback, values,
-      incorrectOldPassword, setIncorrectOldPassword]
+      incorrectOldPassword, setIncorrectOldPassword, setSucessfullLogin]
   );
 
   return { handleChange, handleSubmit, values, errors, useEffect};

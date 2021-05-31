@@ -212,6 +212,6 @@ export const distanceOptions = [
     },
     {
         filterValue: "3000",
-        value: "5km radius",
+        value: "3km radius",
     }
 ]

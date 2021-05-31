@@ -51,9 +51,9 @@ const useForm = (callback, validate) => {
         fetch(`${process.env.REACT_APP_PROXY}/register`, signupRequest)
           .then(response => response.json())
           .then(res => {
-            if (res.Status === 200) {
+            if (res.status === 200) {
               callback();
-            } else if (res.Status === 400) {
+            } else if (res.status === 400) {
               setIsSubmitting(false);
               setEmailAlreadyUsed(!emailAlreadyUsed)
             }

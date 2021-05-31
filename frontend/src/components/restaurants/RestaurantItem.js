@@ -11,9 +11,14 @@ export const RestaurantItem = React.memo((props) => {
   const [savedRestaurant, setSavedRestaurant] = useState(false)
   const [clickOnPhone, setClickOnPhone] = useState(false)
   const [clickOnMenu, setClickOnMenu] = useState(false)
+  const [clickOnView, setClickOnView] = useState(false)
   const { setNewSavedRestaurant } = useContext(UserContext)
   const [deleteSavedOne, setDeleteSavedOne] = useState(false)
-  const {successfullLogin} = useContext(UserContext)
+  const { successfullLogin } = useContext(UserContext)
+  
+  const openingHours = (props.OpeningHours !== null && JSON.parse(props.OpeningHours))
+  const days = [...Object.keys(openingHours)]
+  const hours = [...Object.values(openingHours)]
 
   const handleClick = () => setClick(!click);
 
@@ -45,6 +50,10 @@ export const RestaurantItem = React.memo((props) => {
     setClickOnMenu(!clickOnMenu)
   }
 
+  const handleClickOnView = () => {
+    setClickOnView(!clickOnView)
+  }
+
   useEffect(() => {
     if (savedRestaurant !== false) {
       const restaurantID = {
@@ -63,7 +72,7 @@ export const RestaurantItem = React.memo((props) => {
         fetch(`${process.env.REACT_APP_PROXY}/auth/user/saved-restaurants`, saveRestaurantRequest)
           .then(response => response.json())
           .then(res => {
-            if (res.Status === 200) {
+            if (res.status === 200) {
               setNewSavedRestaurant(restaurantID)
             }
           })
@@ -80,7 +89,7 @@ export const RestaurantItem = React.memo((props) => {
         fetch(`${process.env.REACT_APP_PROXY}/auth/user/saved-restaurants`, deleteRestaurantRequest)
           .then(response => response.json())
           .then(res => {
-            if (res.Status === 200) {
+            if (res.status === 200) {
               setNewSavedRestaurant(restaurantID)
               setDeleteSavedOne(false)
             }
@@ -100,8 +109,8 @@ export const RestaurantItem = React.memo((props) => {
               <div className="name-container">{props.name}</div>
               {restaurantIsClicked() &&
                 <div className="save-container" onClick={() => {
-                  handleClick();
-                  setSavedRestaurant(props.ID)
+                setSavedRestaurant(props.ID);
+                setClick(false);
               }}>
                  <p style={{color: "red", fontSize: "13px"}}>remove</p>
               </div>}
@@ -140,7 +149,14 @@ export const RestaurantItem = React.memo((props) => {
               />
               <span className="rating-num">({props.rating})</span>
             </div>
-            <span className="tags">{props.tags}</span>
+            <span className="tags">
+              {props.tags}
+            </span>
+                <span style={{ color: "green", fontSize: "14px", marginLeft:"2px" }}>
+                  {props.vegan !== false && "Vegan "}
+                  {props.vegetarian !== false && "Vegetarian "}
+                  {props.glutenFree !== false && "Gluten Free"}
+                </span>
             <span className="address">{props.address}, {props.district}</span>
             <span className="price-range">Price Range: {props.price}</span>
             <span className="takeaway">
@@ -152,6 +168,26 @@ export const RestaurantItem = React.memo((props) => {
             <span className="delivery">
               <i className={props.delivery != null ?
                 "fas fa-check" : "fas fa-times"}></i>Delivery</span>
+            <div className={clickOnView ? "view-less" : "view-more"}>
+              <span style={{ marginTop: "0.2rem" }}>
+                URL:<a href={props.url} target="_blank" rel="noreferrer">{props.url}</a>
+              </span>
+              <span
+                style={{ display: "flex", flexDirection: "row", marginTop: "0.2rem" }}>
+                Opening hours:
+                <span>
+                  {props.openingHours === null ? "Opening Hours are Not Available" :
+                   days.length !== 0 && days.map(day =>
+                            <div style={{ display: "flex", flexDirection: "row" }}>
+                                <p className="day">{day}:</p>
+                                <p style={{ textAlign: "start" }}>
+                                    {hours[days.indexOf(day)]}
+                                </p>
+                            </div>)
+                }
+                </span>
+              </span>
+            </div>
             <div className="more-options">
               <div className="option" onClick={handleClickOnPhone}>
                 Phone
@@ -163,9 +199,9 @@ export const RestaurantItem = React.memo((props) => {
                     <i className="fab fa-elementor"></i>
                 {clickOnMenu && <MenuModal name={props.name} menu={props.menu} date={props.menuDates}/>}
               </div>
-              <div className="option view">
-                View More
-                    <i className="fas fa-angle-right" />
+              <div className="option" onClick={handleClickOnView}>
+                {clickOnView ? "View Less" : "View More"}
+                <i className={clickOnView ? "fas fa-angle-up" : "fas fa-angle-down"}></i>
               </div>
             </div>
           </div>

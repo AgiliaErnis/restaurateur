@@ -3,14 +3,14 @@ import { UserContext } from '../../../UserContext';
 
 const useLoginForm = (callback, validate) => {
   const { incorrectPassword, setIncorrectPassword,
-    setSuccessfullLogin, } = useContext(UserContext)
+    setSuccessfullLogin } = useContext(UserContext)
 
   const [values, setValues] = useState({
     email: '',
     password: ''
   });
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -42,7 +42,7 @@ const useLoginForm = (callback, validate) => {
         fetch(`${process.env.REACT_APP_PROXY}/login`, loginRequest)
         .then(response => response.json())
           .then(res => {
-            if (res.Status === 403) {
+            if (res.status === 403) {
               setIncorrectPassword(true);
               setSuccessfullLogin(false);
               setIsSubmitting(false)
@@ -50,6 +50,7 @@ const useLoginForm = (callback, validate) => {
               callback()
               setIncorrectPassword(false);
               setSuccessfullLogin(true)
+              setIsSubmitting(true)
             };
           })
       }
