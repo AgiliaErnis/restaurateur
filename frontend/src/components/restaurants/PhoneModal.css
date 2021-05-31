@@ -13,7 +13,6 @@
 }
 
 .phone-modal {
-    height: 150px;
     width: 350px;
     position: absolute;
     left: 50%;
@@ -30,19 +29,21 @@
     color: red;
     border-bottom: 1px solid #aaa;
 }
-.phone-container {
+/* .phone-container {
     text-align: center;
     justify-content: center;
+    position: relative;
+    align-items: center;
+    height: inherit;
+    padding: 1rem;
+} */
+
+.phone-container {
+padding: 1rem;
+}
+/* .phone-num {
     position: absolute;
-    left: 50%;
     top: 50%;
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-    height: 100%;
-}
-.phone-num {
-    position: absolute;
-    top: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-}
+} */

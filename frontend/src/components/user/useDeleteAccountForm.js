@@ -45,7 +45,7 @@ const useDeleteAccountForm = (callback, validate) => {
             if (res.status === 403) {
               setIsSubmitting(false)
               setIncorrectPasswordOnDelete(true)
-
+              setSuccessfullLogin(false)
             }
             else if (res.status === 200) {
               callback();

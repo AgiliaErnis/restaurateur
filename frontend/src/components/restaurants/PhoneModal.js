@@ -9,11 +9,11 @@ function PhoneModal(props) {
                   <p>{props.name}</p>
                 </div>
                 <div className="phone-container">
-                    <p className="phone-num">
-                        Phone Number: {props.phone}
-                    </p>
+                    {props.phone === null ?
+                        "Phone Number is Not Available"
+                        :
+                        `Phone Number: ${props.phone}`}
                 </div>
-
             </div>
         </div>
     )

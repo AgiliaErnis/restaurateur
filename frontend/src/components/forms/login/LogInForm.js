@@ -10,7 +10,7 @@ const LogInForm = ({ submitForm }) => {
     errors, incorrectPassword } = useLoginForm(
     submitForm,
     validateLoginInfo
-  );
+    );
 
   return (
     <>

@@ -25,6 +25,14 @@ function Navbar() {
     setClick(!click)
   }
 
+
+    useEffect(() => {
+    const userLoggedIn = localStorage.getItem("user-logged-in");
+      setSuccessfullLogin(userLoggedIn);
+
+    }, [successfullLogin, setSuccessfullLogin])
+
+
    function setRestaurantsNavLink () {
     switch(window.location.pathname){
       case '/restaurants':
@@ -101,7 +109,8 @@ function Navbar() {
                 Sign Up
             </li>
           </ul>
-          {successfullLogin  === true  ?
+          {(successfullLogin && localStorage.getItem("user-logged-in") === "true")
+            ?
             <UserNavbar />
             :
             <>

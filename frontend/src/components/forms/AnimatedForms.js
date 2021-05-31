@@ -55,7 +55,6 @@ export const AnimatedForms = ({signup,login}) => {
     setSuccessfullLogin(!successfullLogin)
     setLoginFormStatus(false)
     setSignupFormStatus(false);
-
   }
 
   return (

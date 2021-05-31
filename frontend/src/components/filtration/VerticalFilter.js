@@ -40,6 +40,9 @@ export const VerticalFilter = (props) => {
     }
 
     const handleCheckboxToggle = (value, category) => {
+        
+        window.scrollTo(0, 0);
+
         if (clickedDistrict !== false) {
             checkedFilters[1].checkedOptions.push(clickedDistrict);
             setClickedDistrict(false);
