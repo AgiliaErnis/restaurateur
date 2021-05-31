@@ -89,7 +89,7 @@ information about each restaurant:
 
 ### Fixed
 * Fixed the following frontend bugs:
-    * The problem of page refresh making the user stay on the same page.
+    * The problem of page refresh redirecting the user to the home page.
     * If the phone number is not available, the phone modal
      displays the corresponding message,instead of empty space.
     * The user will be logged out if the cookie time passes the limit.
@@ -97,7 +97,7 @@ information about each restaurant:
     the user log out anymore, so the user will remain logged in.
     * The problem of having to click twice on remove
      button in order to delete the saved retaurant.
-    * The issue of saving restaurant scrolling to the top of the page.
+    * Saving restaurant doesn't scroll to the top of the page anymore.
 
 ### Added
 
