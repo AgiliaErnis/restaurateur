@@ -40,7 +40,12 @@ function SavedRestaurants() {
                 delivery={restaurant.deliveryOptions}
                 click={true}
                 menu={restaurant.weeklyMenu !== "null" ? restaurant.weeklyMenu : null}
-              />
+                vegan={restaurant.vegan}
+                vegetarian={restaurant.vegetarian}
+                glutenFree={restaurant.glutenFree}
+                url={restaurant.url !== "" ? restaurant.url : "URL is not available"}
+                OpeningHours={restaurant.openingHours}
+                  />
             })}
         </div>
     )

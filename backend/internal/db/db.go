@@ -41,10 +41,10 @@ const (
 		 delivery_options TEXT
 	 );`
 	restaurateurUsersSchema = `CREATE TABLE restaurateur_users (
-        id SERIAL PRIMARY KEY,
-        name TEXT,
-        email TEXT UNIQUE,
-        password TEXT
+        id SERIAL NOT NULL PRIMARY KEY,
+        name NOT NULL TEXT,
+        email NOT NULL TEXT UNIQUE,
+        password NOT NULL TEXT
     );`
 	restaurantsUsersSchema = `CREATE TABLE restaurants_users (
         restaurant_id int NOT NULL,
@@ -211,7 +211,7 @@ func CheckDB() bool {
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = storeRestaurants(conn)
+		err = storeRestaurants()
 		if err != nil {
 			log.Println("Couldn't store restaurants")
 			log.Fatal(err)
@@ -254,7 +254,7 @@ func DownloadRestaurants() error {
 		log.Fatal(err)
 	}
 	log.Println("Database cleaned, starting download...")
-	return storeRestaurants(conn)
+	return storeRestaurants()
 }
 
 // GetConn fetches a connection to the db
@@ -267,14 +267,14 @@ func GetConn() (*sqlx.DB, error) {
 	return conn, nil
 }
 
-func storeRestaurants(conn *sqlx.DB) error {
-	restaurants, err := scraper.GetRestaurants("praha")
+func storeRestaurants() error {
+	restaurants, err := scraper.GetRestaurants("shop")
 	if err != nil {
 		return err
 	}
 
 	for _, r := range restaurants {
-		err := insert(r, conn)
+		err := insert(r)
 		if err != nil {
 			return err
 		}
@@ -283,16 +283,12 @@ func storeRestaurants(conn *sqlx.DB) error {
 	return nil
 }
 
-func insert(r *scraper.Restaurant, db *sqlx.DB) error {
-	stmt, err := db.Prepare(`INSERT INTO restaurants (name, address, district, images,
+func insert(r *scraper.Restaurant) error {
+	queryString := `INSERT INTO restaurants (name, address, district, images,
 								cuisines, price_range, rating, url, phone_number, lat, lon,
 								vegan, vegetarian, gluten_free, weekly_menu, menu_valid_until, opening_hours, takeaway, delivery_options)
 								VALUES
-								($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`)
-	if err != nil {
-		return err
-	}
-
+								($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`
 	var WeeklyMenu []byte
 	var ValidUntil time.Time
 	if r.Menu != nil {
@@ -303,7 +299,7 @@ func insert(r *scraper.Restaurant, db *sqlx.DB) error {
 	}
 	OpeningHours, _ := json.Marshal(r.OpeningHours)
 
-	_, err = stmt.Exec(r.Name,
+	_, err := execStatement(queryString, r.Name,
 		r.Address,
 		r.District,
 		pq.Array(r.Images),
@@ -346,31 +342,18 @@ func GetUserByID(id int) (*User, error) {
 
 // SaveUser saves a user to the db
 func SaveUser(user *User) error {
-	conn, err := GetConn()
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-	stmt, err := conn.Prepare("INSERT INTO restaurateur_users (name, email, password) VALUES ($1, $2, $3)")
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(user.Name, user.Email, user.Password)
+	_, err := execStatement("INSERT INTO restaurateur_users (name, email, password) VALUES ($1, $2, $3)",
+		user.Name, user.Email, user.Password)
 	return err
 }
 
 // DeleteUser deletes a user from the db based on an ID
 func DeleteUser(id int) error {
-	conn, err := GetConn()
+	_, err := execStatement("DELETE from restaurants_users WHERE user_id=$1", id)
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
-	stmt, err := conn.Prepare("DELETE from restaurateur_users WHERE id=$1")
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(id)
+	_, err = execStatement("DELETE from restaurateur_users WHERE id=$1", id)
 	return err
 }
 
@@ -388,16 +371,8 @@ func GetUserByEmail(email string) (*UserDB, error) {
 
 // UpdateOne updates a field in the user table
 func UpdateOne(column, updateValue string, id int) error {
-	conn, err := GetConn()
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-	stmt, err := conn.Prepare(fmt.Sprintf("UPDATE restaurateur_users set %s=$1 WHERE id=$2", column))
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(updateValue, id)
+	_, err := execStatement(fmt.Sprintf("UPDATE restaurateur_users set %s=$1 WHERE id=$2", column),
+		updateValue, id)
 	return err
 }
 
@@ -516,16 +491,7 @@ func UpdateWeeklyMenus(menus []*scraper.RestaurantMenu) {
 
 // AddSavedRestaurant saves a restaurant mapped to a user to the db
 func AddSavedRestaurant(restaurantID, userID int) error {
-	conn, err := GetConn()
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-	preparedStmt, err := conn.Prepare("INSERT INTO restaurants_users SELECT restaurants.id, restaurateur_users.id FROM restaurants JOIN restaurateur_users on restaurants.id=$1 AND restaurateur_users.id = $2")
-	if err != nil {
-		return err
-	}
-	res, err := preparedStmt.Exec(restaurantID, userID)
+	res, err := execStatement("INSERT INTO restaurants_users SELECT restaurants.id, restaurateur_users.id FROM restaurants JOIN restaurateur_users on restaurants.id=$1 AND restaurateur_users.id = $2", restaurantID, userID)
 	if err != nil {
 		return err
 	}
@@ -538,16 +504,8 @@ func AddSavedRestaurant(restaurantID, userID int) error {
 
 // DeleteSavedRestaurant deletes a saved restaurant from the db
 func DeleteSavedRestaurant(restaurantID, userID int) error {
-	conn, err := GetConn()
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-	preparedStmt, err := conn.Prepare("DELETE FROM restaurants_users WHERE restaurant_id = $1 AND user_id = $2")
-	if err != nil {
-		return err
-	}
-	_, err = preparedStmt.Exec(restaurantID, userID)
+	_, err := execStatement("DELETE FROM restaurants_users WHERE restaurant_id = $1 AND user_id = $2",
+		restaurantID, userID)
 	return err
 }
 
@@ -576,4 +534,19 @@ func GetSavedRestaurantsArr(userID int) ([]*RestaurantDB, error) {
 		"SELECT %s FROM restaurants AS r LEFT JOIN restaurants_users AS ru ON ru.restaurant_id = r.id WHERE ru.user_id= $1",
 		columns), userID)
 	return restaurants, err
+}
+
+func execStatement(stmt string, args ...interface{}) (sql.Result, error) {
+	var res sql.Result
+	conn, err := GetConn()
+	if err != nil {
+		return res, err
+	}
+	defer conn.Close()
+	preparedStmt, err := conn.Prepare(stmt)
+	if err != nil {
+		return res, err
+	}
+	res, err = preparedStmt.Exec(args...)
+	return res, err
 }

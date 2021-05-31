@@ -168,14 +168,14 @@ export default function Restaurants() {
                 price={filteredRestaurant.priceRange}
                 takeaway={filteredRestaurant.takeaway}
                 delivery={filteredRestaurant.deliveryOptions}
-                phone={filteredRestaurant.phoneNumber !== "" ?
-                      filteredRestaurant.phoneNumber
-                      :
-                      null}
-                menu={filteredRestaurant.weeklyMenu !== "null" ?
-                  filteredRestaurant.weeklyMenu
-                  :
-                  null}
+                phone={filteredRestaurant.phoneNumber}
+                cuisines={filteredRestaurant.cuisines}
+                menu={filteredRestaurant.weeklyMenu !== "null" ? filteredRestaurant.weeklyMenu : null}
+                vegan={filteredRestaurant.vegan}
+                vegetarian={filteredRestaurant.vegetarian}
+                glutenFree={filteredRestaurant.glutenFree}
+                url={filteredRestaurant.url !== "" ? filteredRestaurant.url : "URL is not available"}
+                OpeningHours={filteredRestaurant.openingHours}
               />
             })
             :

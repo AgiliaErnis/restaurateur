@@ -1,6 +1,8 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "description": "Secure App Dev Project",
+  "main": "index.js",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.3",
@@ -9,6 +11,7 @@
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.3",
     "aos": "^2.3.4",
+    "dotenv": "^8.2.0",
     "react": "^16.0.2",
     "react-dom": "^16.0.1",
     "react-icons": "^4.2.0",
