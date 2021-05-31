@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../../UserContext';
 
 const useChangePasswordForm = (callback, validate) => {
-  const {incorrectOldPassword, setIncorrectOldPassword} = useContext(UserContext)
+  const {incorrectOldPassword, setIncorrectOldPassword,setSucessfullLogin} = useContext(UserContext)
   const [values, setValues] = useState({
     oldPassword: '',
     newPassword: '',
@@ -50,6 +50,7 @@ const useChangePasswordForm = (callback, validate) => {
             if (res.status === 403) {
               setIncorrectOldPassword(true);
               setIsSubmitting(false)
+              setSucessfullLogin(false)
             }
             else {
               callback();
@@ -59,7 +60,7 @@ const useChangePasswordForm = (callback, validate) => {
         }
     },
     [errors, isSubmitting, callback, values,
-      incorrectOldPassword, setIncorrectOldPassword]
+      incorrectOldPassword, setIncorrectOldPassword, setSucessfullLogin]
   );
 
   return { handleChange, handleSubmit, values, errors, useEffect};

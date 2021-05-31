@@ -10,6 +10,7 @@ The recommender also works for a fixed location - Prague College.
 - [Usage](#usage)
 - [Running the application](#running-the-application)
 - [Deployment Information](#deployment-information)
+- [Command Line Interface](#tui)
 
 ## Functionality
 
@@ -131,6 +132,7 @@ https://github.com/AgiliaErnis/restaurateur/tree/main/frontend#readme
 
 https://github.com/AgiliaErnis/restaurateur/tree/main/backend#readme
 
+
 ## Deployment Information
 The application has two environments - https://test.restaurateur.tech for testing, and https://restaurateur.tech for production builds. Backend API is accessible at https://testapi.restaurateur.tech and https://api.restaurateur.tech.
 
@@ -148,3 +150,11 @@ There is an nginx reverse proxy set up on the server on ports 80 and 443. It is 
 `docker compose` is used to build the containers on the server. `docker-compose-dev.yml` is used for test.restaurateur.tech, and `docker-compose.yml` for restaurateur.tech.
 
 The deployment process is automated through GitHub actions. GitHub runner connects to the server through SSH and executes the necessary commands. Test environment is released to test.restaurateur.tech on prerelease GitHub event. Production environment is released to restaurateur.tech on release GitHub event. `deploy-prerelese.yml` and `deploy-release.yml` files are the workflows responsible for that.
+
+## TUI
+
+https://github.com/adzai/restaurateur-tui/tree/main/#readme
+
+If you don't see TUI locally, run `git submodule update --init --recursive`
+
+Alternatively just clone https://github.com/adzai/restaurateur-tui/

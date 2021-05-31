@@ -105,7 +105,6 @@ export default function Restaurants() {
       currentRestaurants = null
   }
 
-
   return (
     <>
       <Navbar/>

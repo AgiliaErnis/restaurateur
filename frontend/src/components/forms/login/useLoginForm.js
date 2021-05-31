@@ -3,14 +3,14 @@ import { UserContext } from '../../../UserContext';
 
 const useLoginForm = (callback, validate) => {
   const { incorrectPassword, setIncorrectPassword,
-    setSuccessfullLogin, } = useContext(UserContext)
+    setSuccessfullLogin } = useContext(UserContext)
 
   const [values, setValues] = useState({
     email: '',
     password: ''
   });
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -50,6 +50,7 @@ const useLoginForm = (callback, validate) => {
               callback()
               setIncorrectPassword(false);
               setSuccessfullLogin(true)
+              setIsSubmitting(true)
             };
           })
       }
