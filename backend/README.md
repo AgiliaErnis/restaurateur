@@ -41,6 +41,12 @@ you can use the following command:
 
 `$ ./backend --download`
 
+**Updating weekly menus**
+
+Updates weekly menus in the DB and exits
+
+`$ ./backend --update-menus`
+
 ### Starting the server
 
 `$ cd cmd/backend && go build `
